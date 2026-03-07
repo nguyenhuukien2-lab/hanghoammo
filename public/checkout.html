@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thanh toán - HangHoaMMO</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="checkout-new.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header-new">
+        <div class="top-bar-new">
+            <div class="container">
+                <div class="top-bar-content-new">
+                    <div class="top-left">
+                        <i class="fas fa-truck"></i>
+                        <span>Miễn phí giao hàng - Giao sản phẩm số tức thì</span>
+                    </div>
+                    <div class="top-right">
+                        <i class="fas fa-headset"></i>
+                        <span>Hỗ trợ 24/7: 0909.XXX.XXX</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-header-new">
+            <div class="container">
+                <div class="header-wrapper">
+                    <div class="logo-new">
+                        <a href="index.html">
+                            <div class="logo-box">
+                                <i class="fas fa-store"></i>
+                            </div>
+                            <div class="logo-info">
+                                <h1>HangHoa<span>MMO</span></h1>
+                                <p>Chợ MMO uy tín #1</p>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="search-box-new">
+                        <input type="text" id="searchInputCheckout" placeholder="Tìm kiếm sản phẩm, dịch vụ..." oninput="showSearchResults(this.value)" onfocus="showSearchResults(this.value)" onblur="hideSearchResults()">
+                        <button onclick="performSearch()"><i class="fas fa-search"></i></button>
+                        <div class="search-dropdown" id="searchDropdown"></div>
+                    </div>
+
+                    <div class="header-right">
+                        <a href="blog.html" class="btn-icon-text">
+                            <i class="fas fa-blog"></i>
+                            <span>Blogs</span>
+                        </a>
+                        <button class="btn-icon" onclick="toggleDarkMode()" title="Chế độ tối">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                        <!-- Show when not logged in -->
+                        <div id="authButtons">
+                            <button class="btn-auth login" onclick="openAuthModal(''login'')">
+                                <i class="fas fa-sign-in-alt"></i>
+                                <span>�ang nh?p</span>
+                            </button>
+                            <button class="btn-auth register" onclick="openAuthModal(''register'')">
+                                <i class="fas fa-user-plus"></i>
+                                <span>�ang k�</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Show when logged in -->
+                        <a href="profile.html" class="user-profile-btn" id="userProfileBtn" style="display: none;">
+                            <div class="user-avatar-small">
+                                <span id="userAvatarInitial">U</span>
+                            </div>
+                            <span id="userNameDisplay">User</span>
+                        </a>
+                        <div class="cart-btn" onclick="toggleCart()">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="cart-badge" id="cartCount">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Checkout Steps -->
+    <section class="checkout-steps-section">
+        <div class="container-checkout">
+            <div class="steps-indicator">
+                <div class="step-item active" data-step="1">
+                    <div class="step-circle">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <span>Giỏ hàng</span>
+                </div>
+                <div class="step-line"></div>
+                <div class="step-item" data-step="2">
+                    <div class="step-circle">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <span>Thanh toán</span>
+                </div>
+                <div class="step-line"></div>
+                <div class="step-item" data-step="3">
+                    <div class="step-circle">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <span>Xác nhận</span>
+                </div>
+            </div>
+
+            <div class="checkout-content">
+                <!-- Step 1: Cart -->
+                <div class="checkout-step step-1 active">
+                    <div class="checkout-main">
+                        <div class="checkout-header-title">
+                            <i class="fas fa-shopping-cart"></i>
+                            <h2>Kiểm tra giỏ hàng</h2>
+                        </div>
+                        
+                        <div class="cart-items-list" id="cartItemsList">
+                            <!-- Cart items will be loaded here -->
+                        </div>
+
+                        <div class="checkout-actions">
+                            <button class="btn-back-shop" onclick="window.location.href='products.html'">
+                                <i class="fas fa-arrow-left"></i>
+                                Quay lại giỏ hàng
+                            </button>
+                            <button class="btn-next-step" onclick="goToStep(2)">
+                                Tiếp tục thanh toán
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="checkout-sidebar">
+                        <div class="order-summary-box">
+                            <h3>Tóm tắt đơn hàng</h3>
+                            <div class="summary-row">
+                                <span>Số lượng sản phẩm</span>
+                                <strong id="summaryCount1">0</strong>
+                            </div>
+                            <div class="summary-row">
+                                <span>Tạm tính</span>
+                                <span id="summarySubtotal1">0đ</span>
+                            </div>
+                            <div class="summary-total-row">
+                                <span>Tổng cộng</span>
+                                <strong id="summaryTotal1">0đ</strong>
+                            </div>
+                            <div class="summary-products" id="summaryProducts1">
+                                <!-- Product thumbnails -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Payment -->
+                <div class="checkout-step step-2">
+                    <div class="checkout-main">
+                        <div class="checkout-header-title">
+                            <i class="fas fa-credit-card"></i>
+                            <h2>Thanh toán bằng số dư ví</h2>
+                        </div>
+
+                        <div class="payment-method-box">
+                            <div class="payment-method-item selected">
+                                <div class="payment-icon">
+                                    <i class="fas fa-wallet"></i>
+                                </div>
+                                <div class="payment-info">
+                                    <strong>Ví HangHoaMMO</strong>
+                                    <p>Số dư: <span id="walletBalance">0đ</span></p>
+                                </div>
+                                <i class="fas fa-check-circle payment-check"></i>
+                            </div>
+                        </div>
+
+                        <div class="balance-warning" id="balanceWarning" style="display: none;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <div>
+                                <strong>Số dư không đủ!</strong>
+                                <p>Bạn cần nạp thêm <span id="needAmount">0đ</span> để thanh toán</p>
+                            </div>
+                            <button class="btn-recharge">Nạp tiền ngay</button>
+                        </div>
+
+                        <div class="discount-code-box">
+                            <label>Mã giảm giá</label>
+                            <div class="discount-input-group">
+                                <input type="text" id="discountCode" placeholder="NHẬP MÃ GIẢM GIÁ (NẾU CÓ)">
+                                <button class="btn-apply-discount" onclick="applyDiscount()">Áp dụng</button>
+                            </div>
+                        </div>
+
+                        <div class="order-note-box">
+                            <label>Ghi chú (tùy chọn)</label>
+                            <textarea id="orderNote" rows="3" placeholder="Ghi chú cho đơn hàng (nếu có)"></textarea>
+                        </div>
+
+                        <div class="payment-notice">
+                            <i class="fas fa-info-circle"></i>
+                            <p>Thanh toán an toàn - Tiền của bạn được giữ an toàn trong Escrow và sẽ chỉ được chuyển cho người bán sau khi bạn xác nhận nhận hàng.</p>
+                        </div>
+
+                        <div class="checkout-actions">
+                            <button class="btn-back-shop" onclick="goToStep(1)">
+                                <i class="fas fa-arrow-left"></i>
+                                Quay lại
+                            </button>
+                            <button class="btn-next-step" onclick="goToStep(3)">
+                                Xác nhận thanh toán
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="checkout-sidebar">
+                        <div class="order-summary-box">
+                            <h3>Tóm tắt đơn hàng</h3>
+                            <div class="summary-row">
+                                <span>Số lượng sản phẩm</span>
+                                <strong id="summaryCount2">0</strong>
+                            </div>
+                            <div class="summary-row">
+                                <span>Tạm tính</span>
+                                <span id="summarySubtotal2">0đ</span>
+                            </div>
+                            <div class="summary-total-row">
+                                <span>Tổng cộng</span>
+                                <strong id="summaryTotal2">0đ</strong>
+                            </div>
+                            <div class="summary-products" id="summaryProducts2">
+                                <!-- Product thumbnails -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Confirmation -->
+                <div class="checkout-step step-3">
+                    <div class="checkout-main-full">
+                        <div class="success-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h2>Đặt hàng thành công!</h2>
+                        <p class="success-message">Cảm ơn bạn đã mua hàng tại HangHoaMMO</p>
+                        <div class="order-id-box">
+                            <span>Mã đơn hàng:</span>
+                            <strong id="finalOrderId">DH00000000</strong>
+                        </div>
+                        
+                        <div id="deliveredAccountsDisplay"></div>
+                        
+                        <p class="success-note">Thông tin tài khoản đã được gửi qua email. Vui lòng kiểm tra hộp thư.</p>
+                        
+                        <div class="success-actions">
+                            <button class="btn-view-orders" onclick="viewOrders()">
+                                <i class="fas fa-list"></i>
+                                Xem đơn hàng
+                            </button>
+                            <button class="btn-continue-shopping" onclick="continueShopping()">
+                                <i class="fas fa-shopping-bag"></i>
+                                Tiếp tục mua sắm
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Auth Modal -->
+    <div class="modal" id="authModal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeAuthModal()">&times;</span>
+            <div id="authContent"></div>
+        </div>
+    </div>
+
+    <!-- Floating Telegram Button -->
+    <div class="floating-telegram" onclick="openTelegramModal()" title="Tham gia Telegram">
+        <i class="fab fa-telegram-plane"></i>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="checkout-new.js"></script>
+</body>
+</html>

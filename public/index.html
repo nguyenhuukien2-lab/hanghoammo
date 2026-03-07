@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HangHoaMMO - Shop Tài Khoản & Dịch Vụ Số Uy Tín #1</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="HangHoaMMO - Shop bán tài khoản Netflix, Spotify, ChatGPT, Canva Pro, VPN và các dịch vụ số uy tín. Giá rẻ, bảo hành đầy đủ, giao hàng tự động 24/7.">
+    <meta name="keywords" content="mua tài khoản netflix, spotify premium, chatgpt plus, canva pro, vpn, youtube premium, tài khoản giá rẻ">
+    <meta name="author" content="HangHoaMMO">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="HangHoaMMO - Shop Tài Khoản & Dịch Vụ Số Uy Tín #1">
+    <meta property="og:description" content="Shop bán tài khoản Netflix, Spotify, ChatGPT, Canva Pro giá rẻ, bảo hành đầy đủ">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://hanghoammo.com">
+    <meta property="og:image" content="https://hanghoammo.com/logo.png">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="HangHoaMMO - Shop Tài Khoản & Dịch Vụ Số">
+    <meta name="twitter:description" content="Shop bán tài khoản Netflix, Spotify, ChatGPT giá rẻ">
+    
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header-new">
+        <div class="top-bar-new">
+            <div class="container">
+                <div class="top-bar-content-new">
+                    <div class="top-left">
+                        <i class="fas fa-truck"></i>
+                        <span>Miễn phí giao hàng - Giao sản phẩm số tức thì</span>
+                    </div>
+                    <div class="top-right">
+                        <i class="fas fa-headset"></i>
+                        <span>Hỗ trợ 24/7: 0909.XXX.XXX</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-header-new">
+            <div class="container">
+                <div class="header-wrapper">
+                    <div class="logo-new">
+                        <a href="index.html">
+                            <div class="logo-box">
+                                <i class="fas fa-store"></i>
+                            </div>
+                            <div class="logo-info">
+                                <h1>HangHoa<span>MMO</span></h1>
+                                <p>Chợ MMO uy tín #1</p>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="search-box-new">
+                        <input type="text" id="searchInputHome" placeholder="Tìm kiếm sản phẩm, dịch vụ..." oninput="showSearchResults(this.value)" onfocus="showSearchResults(this.value)" onblur="hideSearchResults()">
+                        <button onclick="performSearch()"><i class="fas fa-search"></i></button>
+                        <div class="search-dropdown" id="searchDropdown"></div>
+                    </div>
+
+                    <div class="header-right">
+                        <a href="blog.html" class="btn-icon-text">
+                            <i class="fas fa-blog"></i>
+                            <span>Blogs</span>
+                        </a>
+                        <button class="btn-icon" onclick="toggleDarkMode()" title="Chế độ tối">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                        
+                        <!-- Show when not logged in -->
+                        <div id="authButtons">
+                            <button class="btn-auth login" onclick="openAuthModal('login')">
+                                <i class="fas fa-sign-in-alt"></i>
+                                <span>Đăng nhập</span>
+                            </button>
+                            <button class="btn-auth register" onclick="openAuthModal('register')">
+                                <i class="fas fa-user-plus"></i>
+                                <span>Đăng ký</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Show when logged in -->
+                        <a href="profile.html" class="user-profile-btn" id="userProfileBtn" style="display: none;">
+                            <div class="user-avatar-small">
+                                <span id="userAvatarInitial">U</span>
+                            </div>
+                            <span id="userNameDisplay">User</span>
+                        </a>
+                        
+                        <div class="cart-btn" onclick="toggleCart()">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="cart-badge" id="cartCount">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Maintenance Banner -->
+    <div class="maintenance-banner-new" id="maintenanceBanner" style="display: none;">
+        <div class="maintenance-overlay"></div>
+        <div class="container">
+            <div class="maintenance-content-new">
+                <div class="maintenance-icon-wrapper">
+                    <div class="maintenance-icon-bg"></div>
+                    <i class="fas fa-tools maintenance-icon"></i>
+                </div>
+                <div class="maintenance-info">
+                    <div class="maintenance-badge">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>Thông báo hệ thống</span>
+                    </div>
+                    <h3 class="maintenance-title">Website đang bảo trì</h3>
+                    <p class="maintenance-message" id="maintenanceText">
+                        Chúng tôi đang nâng cấp hệ thống để mang đến trải nghiệm tốt hơn cho bạn. 
+                        Vui lòng quay lại sau ít phút.
+                    </p>
+                    <div class="maintenance-meta">
+                        <div class="maintenance-time">
+                            <i class="fas fa-clock"></i>
+                            <span>Dự kiến hoàn thành: <strong id="maintenanceETA">30 phút</strong></span>
+                        </div>
+                        <div class="maintenance-contact">
+                            <i class="fas fa-headset"></i>
+                            <span>Hỗ trợ: <a href="#" id="maintenanceTelegram">Telegram</a></span>
+                        </div>
+                    </div>
+                </div>
+                <button class="maintenance-close-new" onclick="closeMaintenanceBanner()" title="Đóng thông báo">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Banner Section -->
+    <section class="hero-banner-home">
+        <div class="container">
+            <div class="hero-layout">
+                <!-- Main Banner -->
+                <div class="main-banner-home">
+                    <img src="https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=1200&h=400&fit=crop" alt="Phú Quý An Khang">
+                    <div class="banner-overlay-home">
+                        <h2>PHÚ QUÝ AN KHANG</h2>
+                        <button class="btn-banner">Khám phá ngay</button>
+                    </div>
+                </div>
+
+                <!-- Side Category Cards -->
+                <div class="side-categories">
+                    <div class="cat-box netflix-box">
+                        <h3>TÀI KHOẢN</h3>
+                        <h2>NETFLIX</h2>
+                        <p>SIÊU RẺ</p>
+                    </div>
+                    <div class="cat-box design-box">
+                        <h3>CÔNG CỤ</h3>
+                        <h2>THIẾT KẾ</h2>
+                        <p>SIÊU ĐA DẠNG</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Category Grid -->
+            <div class="bottom-categories">
+                <div class="cat-box-small youtube-box">
+                    <div class="cat-icon"><i class="fab fa-youtube"></i></div>
+                    <div class="cat-text">
+                        <h4>TÀI KHOẢN</h4>
+                        <h3>YOUTUBE</h3>
+                        <p>SIÊU RẺ</p>
+                    </div>
+                </div>
+                <div class="cat-box-small office-box">
+                    <div class="cat-icon"><i class="fab fa-microsoft"></i></div>
+                    <div class="cat-text">
+                        <h4>MICROSOFT</h4>
+                        <h3>OFFICE</h3>
+                        <p>BẢN QUYỀN</p>
+                    </div>
+                </div>
+                <div class="cat-box-small vpn-box">
+                    <div class="cat-icon"><i class="fas fa-shield-alt"></i></div>
+                    <div class="cat-text">
+                        <h4>ỨNG DỤNG</h4>
+                        <h3>VPN</h3>
+                        <p>TỐC ĐỘ CAO</p>
+                    </div>
+                </div>
+                <div class="cat-box-small promo-box">
+                    <div class="cat-icon"><i class="fas fa-gift"></i></div>
+                    <div class="cat-text">
+                        <h4>KHUYẾN MÃI</h4>
+                        <h3>THẺ CÀO ĐT</h3>
+                        <p>CHIẾT KHẤU CAO</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tabs Section -->
+    <section class="tabs-section">
+        <div class="container">
+            <div class="tabs-wrapper">
+                <button class="tab-btn active" onclick="filterByCategory('all')">
+                    <span>Tất cả</span>
+                </button>
+                <button class="tab-btn" onclick="filterByCategory('ai')">
+                    <span>AI & Công Nghệ</span>
+                </button>
+                <button class="tab-btn" onclick="filterByCategory('service')">
+                    <span>Dịch Vụ MMO</span>
+                </button>
+                <button class="tab-btn" onclick="filterByCategory('software')">
+                    <span>Email</span>
+                </button>
+                <button class="tab-btn" onclick="filterByCategory('entertainment')">
+                    <span>Giải Trí</span>
+                </button>
+                <button class="tab-btn" onclick="filterByCategory('design')">
+                    <span>Phần Mềm & Thiết Kế</span>
+                </button>
+                <button class="tab-btn" onclick="filterByCategory('vpn')">
+                    <span>Tiện Ích & Khác</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Products Section -->
+    <section class="featured-products-section">
+        <div class="container">
+            <div class="section-header-home">
+                <h2>SẢN PHẨM NỔI BẬT</h2>
+                <a href="products.html" class="view-all-home">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="products-slider" id="featuredProducts">
+                <!-- Products loaded by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- New Products Section -->
+    <section class="new-products-section">
+        <div class="container">
+            <div class="section-header-home">
+                <h2>SẢN PHẨM MỚI NHẤT</h2>
+                <a href="products.html" class="view-all-home">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="products-grid-home" id="newProducts">
+                <!-- Products loaded by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-col">
+                    <div class="footer-logo">
+                        <div class="logo-icon">
+                            <i class="fas fa-shopping-bag"></i>
+                        </div>
+                        <span>HangHoa<span class="highlight">MMO</span></span>
+                    </div>
+                    <p>Nền tảng mua bán tài khoản, dịch vụ số uy tín hàng đầu Việt Nam.</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Liên kết</h3>
+                    <ul>
+                        <li><a href="index.html">Trang chủ</a></li>
+                        <li><a href="products.html">Sản phẩm</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Liên hệ</h3>
+                    <ul class="contact-info">
+                        <li><i class="fas fa-phone"></i> 0879.06.2222</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 HangHoaMMO. Tất cả quyền được bảo lưu.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Cart Modal -->
+    <div class="cart-modal" id="cartModal">
+        <div class="cart-overlay" onclick="toggleCart()"></div>
+        <div class="cart-panel">
+            <div class="cart-header">
+                <h3><i class="fas fa-shopping-cart"></i> Giỏ hàng (<span id="cartItemCount">0</span>)</h3>
+                <button class="close-btn" onclick="toggleCart()">×</button>
+            </div>
+            <div class="cart-body" id="cartBody">
+                <div class="empty-cart">
+                    <i class="fas fa-shopping-cart"></i>
+                    <p>Giỏ hàng của bạn đang trống</p>
+                </div>
+            </div>
+            <div class="cart-summary">
+                <div class="summary-row">
+                    <span>Tạm tính (<span id="summaryItemCount">0</span> sản phẩm)</span>
+                    <span id="subtotal">0đ</span>
+                </div>
+                <div class="summary-row total">
+                    <span>Tổng cộng</span>
+                    <span class="total-amount" id="totalAmount">0đ</span>
+                </div>
+            </div>
+            <div class="cart-footer">
+                <button class="btn-checkout" onclick="checkout()">
+                    <i class="fas fa-credit-card"></i>
+                    <span>Thanh toán ngay</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div class="checkout-modal" id="checkoutModal">
+        <div class="checkout-overlay" onclick="closeCheckoutModal()"></div>
+        <div class="checkout-panel">
+            <div class="checkout-header">
+                <button class="back-btn" onclick="closeCheckoutModal()">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h3>Thanh toán</h3>
+                <button class="close-btn" onclick="closeCheckoutModal()">×</button>
+            </div>
+            
+            <div class="checkout-body">
+                <div class="checkout-section">
+                    <h4><i class="fas fa-shopping-bag"></i> Đơn hàng của bạn</h4>
+                    <div id="checkoutItems"></div>
+                </div>
+
+                <div class="checkout-section">
+                    <h4><i class="fas fa-credit-card"></i> Phương thức thanh toán</h4>
+                    <div class="payment-methods">
+                        <label class="payment-method">
+                            <input type="radio" name="payment" value="momo" checked>
+                            <div class="method-content">
+                                <i class="fas fa-wallet"></i>
+                                <span>Ví MoMo</span>
+                            </div>
+                        </label>
+                        <label class="payment-method">
+                            <input type="radio" name="payment" value="bank">
+                            <div class="method-content">
+                                <i class="fas fa-university"></i>
+                                <span>Chuyển khoản</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="checkout-section">
+                    <h4><i class="fas fa-user"></i> Thông tin nhận hàng</h4>
+                    <form id="checkoutForm">
+                        <div class="form-group">
+                            <input type="text" placeholder="Họ và tên *" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="tel" placeholder="Số điện thoại *" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" placeholder="Email *" required>
+                        </div>
+                        <div class="form-group">
+                            <textarea placeholder="Ghi chú (tùy chọn)" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="checkout-footer">
+                <div class="checkout-total">
+                    <span>Tổng thanh toán:</span>
+                    <span class="amount" id="checkoutTotal">0đ</span>
+                </div>
+                <button class="btn-confirm-payment" onclick="confirmPayment()">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Xác nhận thanh toán</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div class="auth-modal" id="authModal">
+        <div class="auth-modal-overlay" onclick="closeAuthModal()"></div>
+        <div class="auth-modal-content">
+            <button class="auth-modal-close" onclick="closeAuthModal()">×</button>
+            
+            <div class="auth-modal-header">
+                <div class="auth-modal-logo">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span>HangHoaMMO</span>
+                </div>
+                <h2 id="authModalTitle">Chào mừng trở lại!</h2>
+                <p id="authModalSubtitle">Đăng nhập để tiếp tục mua sắm</p>
+            </div>
+
+            <div class="auth-modal-tabs">
+                <button class="auth-tab active" data-tab="login" onclick="switchAuthTab('login')">Đăng nhập</button>
+                <button class="auth-tab" data-tab="register" onclick="switchAuthTab('register')">Đăng ký</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="modalLoginForm" class="auth-modal-form active">
+                <div class="form-group">
+                    <label>Email</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" placeholder="you@email.com" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Mật khẩu</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="modalLoginPassword" placeholder="••••••••" required>
+                        <button type="button" class="toggle-password" onclick="toggleModalPassword('modalLoginPassword', event)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <span>Đăng nhập</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="modalRegisterForm" class="auth-modal-form">
+                <div class="form-group">
+                    <label>Họ và tên</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-user"></i>
+                        <input type="text" placeholder="Nguyễn Văn A" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" placeholder="you@email.com" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Số điện thoại</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-phone"></i>
+                        <input type="tel" placeholder="0909123456" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Mật khẩu</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="modalRegisterPassword" placeholder="••••••••" required>
+                        <button type="button" class="toggle-password" onclick="toggleModalPassword('modalRegisterPassword', event)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Xác nhận mật khẩu</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="modalConfirmPassword" placeholder="••••••••" required>
+                        <button type="button" class="toggle-password" onclick="toggleModalPassword('modalConfirmPassword', event)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <span>Đăng ký</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
+
+    <!-- Telegram Join Modal -->
+    <div class="telegram-modal" id="telegramModal">
+        <div class="telegram-modal-content">
+            <div class="telegram-modal-header">
+                <div class="telegram-icon">
+                    <i class="fab fa-telegram-plane"></i>
+                </div>
+                <div class="telegram-header-text">
+                    <h3>Tham gia Telegram</h3>
+                    <p>Nhận thông báo cập nhật nhanh nhất</p>
+                </div>
+                <button class="telegram-modal-close" onclick="closeTelegramModal()">×</button>
+            </div>
+            <div class="telegram-modal-body">
+                <p class="telegram-description">
+                    Tham gia kênh Telegram để nhận thông báo về <strong>tính năng mới, cập nhật hệ thống</strong>, và <strong>thông tin quan trọng</strong> ngay lập tức.
+                </p>
+                
+                <div class="telegram-channel-box">
+                    <div class="telegram-channel-avatar">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="telegram-channel-info">
+                        <h4>HangHoaMMO Channel</h4>
+                        <p>@hanghoammo</p>
+                    </div>
+                    <a href="#" class="telegram-channel-link" target="_blank">
+                        <i class="fas fa-external-link-alt"></i>
+                    </a>
+                </div>
+                
+                <div class="telegram-info-box">
+                    <p>
+                        <i class="fas fa-info-circle"></i>
+                        Chúng tôi sẽ gửi thông báo qua Telegram khi có <strong>tính năng mới, thay đổi chính sách</strong>, hoặc <strong>sự kiện đặc biệt</strong>. Không spam!
+                    </p>
+                </div>
+            </div>
+            <div class="telegram-modal-footer">
+                <button class="btn-telegram-later" onclick="closeTelegramModal()">
+                    Để sau
+                </button>
+                <button class="btn-telegram-join" onclick="joinTelegram()">
+                    <i class="fab fa-telegram-plane"></i>
+                    Tham gia ngay
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Telegram Button -->
+    <div class="floating-telegram" onclick="openTelegramModal()" title="Tham gia Telegram">
+        <i class="fab fa-telegram-plane"></i>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            updateCartCount();
+            updateUserUI();
+            checkLoginStatus(); // Cập nhật trạng thái đăng nhập
+            
+            await loadProducts();
+            
+            // Featured products (5 products)
+            const featuredContainer = document.getElementById('featuredProducts');
+            if (featuredContainer) {
+                const featured = products.slice(0, 5);
+                renderProductsExplore(featured, featuredContainer);
+            }
+            
+            // New products (12 products)
+            const newContainer = document.getElementById('newProducts');
+            if (newContainer) {
+                const newProds = products.slice(0, 12);
+                renderProductsExplore(newProds, newContainer);
+            }
+        });
+
+        function renderProductsExplore(productsToRender, container) {
+            if (!container) return;
+            container.innerHTML = '';
+
+            productsToRender.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card-explore';
+                const productId = product._id || product.id;
+                
+                productCard.innerHTML = `
+                    <div class="product-image-explore">
+                        <img src="${product.image}" alt="${product.name}">
+                        ${product.badge ? `<span class="badge-explore ${product.badge.toLowerCase()}">${product.badge}</span>` : ''}
+                    </div>
+                    <div class="product-info-explore">
+                        <h3 class="product-name-explore">${product.name}</h3>
+                        <div class="product-price-explore">
+                            <span class="price-current">${product.price.toLocaleString('vi-VN')}đ</span>
+                        </div>
+                        <div class="product-meta-explore">
+                            <div class="rating-explore">
+                                <i class="fas fa-star"></i>
+                                <span>5.0</span>
+                            </div>
+                            <span class="sold-explore">Đã bán ${product.sold || 0}</span>
+                        </div>
+                        <div class="product-vendor-explore">
+                            <img src="https://ui-avatars.com/api/?name=Manh98&background=667eea&color=fff&size=32" alt="Vendor">
+                            <span>Mạnh98</span>
+                        </div>
+                        <div class="product-actions-home">
+                            <button class="btn-view-detail-home" onclick="event.stopPropagation(); viewProductDetail('${productId}')">
+                                <i class="fas fa-eye"></i> Xem chi tiết
+                            </button>
+                            <button class="btn-add-cart-home" onclick="event.stopPropagation(); addToCart('${productId}')">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                // Click vào card để xem chi tiết
+                productCard.onclick = () => viewProductDetail(productId);
+                productCard.style.cursor = 'pointer';
+                
+                container.appendChild(productCard);
+            });
+        }
+
+        // Filter products by category
+        function filterByCategory(category) {
+            // Update active tab
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.closest('.tab-btn').classList.add('active');
+            
+            // Filter products
+            let filtered = products;
+            if (category !== 'all') {
+                filtered = products.filter(p => p.category === category);
+            }
+            
+            // Update featured products
+            const featuredContainer = document.getElementById('featuredProducts');
+            if (featuredContainer) {
+                const featured = filtered.slice(0, 5);
+                renderProductsExplore(featured, featuredContainer);
+            }
+            
+            // Update new products
+            const newContainer = document.getElementById('newProducts');
+            if (newContainer) {
+                const newProds = filtered.slice(0, 12);
+                renderProductsExplore(newProds, newContainer);
+            }
+            
+            // Show message if no products
+            if (filtered.length === 0) {
+                if (featuredContainer) {
+                    featuredContainer.innerHTML = '<p style="text-align: center; padding: 40px; color: #666;">Không có sản phẩm trong danh mục này</p>';
+                }
+                if (newContainer) {
+                    newContainer.innerHTML = '<p style="text-align: center; padding: 40px; color: #666;">Không có sản phẩm trong danh mục này</p>';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

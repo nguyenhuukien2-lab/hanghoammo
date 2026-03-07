@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tài khoản - HangHoaMMO</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="profile.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header-new">
+        <div class="top-bar-new">
+            <div class="container">
+                <div class="top-bar-content-new">
+                    <div class="top-left">
+                        <i class="fas fa-truck"></i>
+                        <span>Miễn phí giao hàng - Giao sản phẩm số tức thì</span>
+                    </div>
+                    <div class="top-right">
+                        <i class="fas fa-headset"></i>
+                        <span>Hỗ trợ 24/7: 0909.XXX.XXX</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-header-new">
+            <div class="container">
+                <div class="header-wrapper">
+                    <div class="logo-new">
+                        <a href="index.html">
+                            <div class="logo-box">
+                                <i class="fas fa-store"></i>
+                            </div>
+                            <div class="logo-info">
+                                <h1>HangHoa<span>MMO</span></h1>
+                                <p>Chợ MMO uy tín #1</p>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="search-box-new">
+                        <input type="text" placeholder="Tìm kiếm sản phẩm, dịch vụ...">
+                        <button><i class="fas fa-search"></i></button>
+                    </div>
+
+                    <div class="header-right">
+                        <a href="blog.html" class="btn-icon-text">
+                            <i class="fas fa-blog"></i>
+                            <span>Blogs</span>
+                        </a>
+                        <button class="btn-icon" onclick="toggleDarkMode()" title="Chế độ tối">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                        <button class="btn-auth login" onclick="openAuthModal('login')">
+                            <i class="fas fa-sign-in-alt"></i>
+                            <span>Đăng nhập</span>
+                        </button>
+                        <button class="btn-auth register" onclick="openAuthModal('register')">
+                            <i class="fas fa-user-plus"></i>
+                            <span>Đăng ký</span>
+                        </button>
+                        <div class="cart-btn" onclick="toggleCart()">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="cart-badge" id="cartCount">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Profile Section -->
+    <section class="profile-section">
+        <div class="container">
+            <div class="profile-layout">
+                <!-- Sidebar -->
+                <aside class="profile-sidebar">
+                    <!-- User Info -->
+                    <div class="profile-user-card">
+                        <div class="profile-avatar">
+                            <span id="userInitial">N</span>
+                        </div>
+                        <div class="profile-user-info">
+                            <h3 id="userName">nguyenhuukien</h3>
+                            <p id="userEmail">huukiennguyen711@gmail.com</p>
+                            <span class="user-balance">0đ</span>
+                        </div>
+                        <button class="btn-recharge-profile">
+                            <i class="fas fa-plus"></i>
+                            Nạp tiền ngay
+                        </button>
+                    </div>
+
+                    <!-- Menu -->
+                    <nav class="profile-menu">
+                        <a href="#info" class="menu-item active" onclick="showProfileSection('info')">
+                            <div class="menu-icon">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="menu-text">
+                                <strong>Thông tin cá nhân</strong>
+                                <span>Quản lý thông tin tài khoản</span>
+                            </div>
+                        </a>
+
+                        <a href="#messages" class="menu-item" onclick="showProfileSection('messages')">
+                            <div class="menu-icon">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                            <div class="menu-text">
+                                <strong>Tin nhắn</strong>
+                                <span>Chat với người bán và admin</span>
+                            </div>
+                        </a>
+
+                        <a href="#orders" class="menu-item" onclick="showProfileSection('orders')">
+                            <div class="menu-icon">
+                                <i class="fas fa-shopping-bag"></i>
+                            </div>
+                            <div class="menu-text">
+                                <strong>Đơn hàng của tôi</strong>
+                                <span>Xem lịch sử mua hàng</span>
+                            </div>
+                        </a>
+
+                        <a href="#wallet" class="menu-item" onclick="showProfileSection('wallet')">
+                            <div class="menu-icon">
+                                <i class="fas fa-wallet"></i>
+                            </div>
+                            <div class="menu-text">
+                                <strong>Ví của tôi</strong>
+                                <span>Nạp tiền & quản lý số dư</span>
+                            </div>
+                            <span class="menu-badge">0đ</span>
+                        </a>
+
+                        <a href="#tools" class="menu-item" onclick="showProfileSection('tools')">
+                            <div class="menu-icon">
+                                <i class="fas fa-tools"></i>
+                            </div>
+                            <div class="menu-text">
+                                <strong>Công cụ tiện ích</strong>
+                                <span>2FA, Check FB, Random...</span>
+                            </div>
+                        </a>
+
+                        <a href="#settings" class="menu-item" onclick="showProfileSection('settings')">
+                            <div class="menu-icon">
+                                <i class="fas fa-cog"></i>
+                            </div>
+                            <div class="menu-text">
+                                <strong>Cài đặt</strong>
+                                <span>Tùy chỉnh tài khoản</span>
+                            </div>
+                        </a>
+
+                        <a href="#seller" class="menu-item" onclick="showProfileSection('seller')">
+                            <div class="menu-icon">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                            <div class="menu-text">
+                                <strong>Đăng ký bán hàng</strong>
+                                <span>Trở thành người bán trên HangHoaMMO</span>
+                            </div>
+                        </a>
+
+                        <a href="#" class="menu-item logout" onclick="logout()">
+                            <div class="menu-icon">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </div>
+                            <div class="menu-text">
+                                <strong>Đăng xuất</strong>
+                                <span>Thoát khỏi tài khoản</span>
+                            </div>
+                        </a>
+                    </nav>
+                </aside>
+
+                <!-- Main Content -->
+                <main class="profile-main">
+                    <!-- Personal Info Section -->
+                    <div class="profile-content-section active" id="info">
+                        <div class="section-header">
+                            <h2>Thông tin cá nhân</h2>
+                            <p>Quản lý thông tin tài khoản của bạn</p>
+                        </div>
+
+                        <div class="profile-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Họ và tên</label>
+                                    <input type="text" id="fullName" placeholder="Nhập họ và tên">
+                                </div>
+                                <div class="form-group">
+                                    <label>Email</label>
+                                    <input type="email" id="emailInput" placeholder="email@example.com" disabled>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Số điện thoại</label>
+                                    <input type="tel" id="phone" placeholder="0909 XXX XXX">
+                                </div>
+                                <div class="form-group">
+                                    <label>Ngày sinh</label>
+                                    <input type="date" id="birthday">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Địa chỉ</label>
+                                <textarea id="address" rows="3" placeholder="Nhập địa chỉ của bạn"></textarea>
+                            </div>
+
+                            <button class="btn-save-profile">
+                                <i class="fas fa-save"></i>
+                                Lưu thay đổi
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Messages Section -->
+                    <div class="profile-content-section" id="messages">
+                        <div class="section-header">
+                            <h2>Tin nhắn</h2>
+                            <p>Chat với người bán và admin</p>
+                        </div>
+                        <div class="empty-state">
+                            <i class="fas fa-comments"></i>
+                            <h3>Chưa có tin nhắn</h3>
+                            <p>Bạn chưa có cuộc trò chuyện nào</p>
+                        </div>
+                    </div>
+
+                    <!-- Orders Section -->
+                    <div class="profile-content-section" id="orders">
+                        <div class="section-header">
+                            <h2>Đơn hàng của tôi</h2>
+                            <p>Xem lịch sử mua hàng</p>
+                        </div>
+                        <div id="ordersList">
+                            <!-- Orders will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Wallet Section -->
+                    <div class="profile-content-section" id="wallet">
+                        <div class="section-header">
+                            <h2>Ví của tôi</h2>
+                            <p>Nạp tiền & quản lý số dư</p>
+                        </div>
+
+                        <div class="wallet-balance-card">
+                            <div class="wallet-icon">
+                                <i class="fas fa-wallet"></i>
+                            </div>
+                            <div class="wallet-info">
+                                <span>Số dư hiện tại</span>
+                                <h3 id="walletBalanceDisplay">0đ</h3>
+                            </div>
+                            <button class="btn-recharge-wallet">
+                                <i class="fas fa-plus"></i>
+                                Nạp tiền
+                            </button>
+                        </div>
+
+                        <div class="wallet-history">
+                            <h3>Lịch sử giao dịch</h3>
+                            <div class="empty-state">
+                                <i class="fas fa-history"></i>
+                                <h3>Chưa có giao dịch</h3>
+                                <p>Lịch sử giao dịch của bạn sẽ hiển thị ở đây</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tools Section -->
+                    <div class="profile-content-section" id="tools">
+                        <div class="section-header">
+                            <h2>Công cụ tiện ích</h2>
+                            <p>2FA, Check FB, Random...</p>
+                        </div>
+                        <div class="tools-grid">
+                            <div class="tool-card">
+                                <i class="fas fa-shield-alt"></i>
+                                <h4>2FA Generator</h4>
+                                <p>Tạo mã xác thực 2 yếu tố</p>
+                            </div>
+                            <div class="tool-card">
+                                <i class="fab fa-facebook"></i>
+                                <h4>Check Facebook</h4>
+                                <p>Kiểm tra tài khoản Facebook</p>
+                            </div>
+                            <div class="tool-card">
+                                <i class="fas fa-random"></i>
+                                <h4>Random Tool</h4>
+                                <p>Công cụ random ngẫu nhiên</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Settings Section -->
+                    <div class="profile-content-section" id="settings">
+                        <div class="section-header">
+                            <h2>Cài đặt</h2>
+                            <p>Tùy chỉnh tài khoản</p>
+                        </div>
+
+                        <div class="settings-list">
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <i class="fas fa-lock"></i>
+                                    <div>
+                                        <strong>Đổi mật khẩu</strong>
+                                        <span>Thay đổi mật khẩu tài khoản</span>
+                                    </div>
+                                </div>
+                                <button class="btn-setting">Thay đổi</button>
+                            </div>
+
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <i class="fas fa-bell"></i>
+                                    <div>
+                                        <strong>Thông báo</strong>
+                                        <span>Cài đặt thông báo email</span>
+                                    </div>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider-switch"></span>
+                                </label>
+                            </div>
+
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <i class="fas fa-moon"></i>
+                                    <div>
+                                        <strong>Chế độ tối</strong>
+                                        <span>Bật/tắt giao diện tối</span>
+                                    </div>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()">
+                                    <span class="slider-switch"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Seller Section -->
+                    <div class="profile-content-section" id="seller">
+                        <div class="section-header">
+                            <h2>Đăng ký bán hàng</h2>
+                            <p>Trở thành người bán trên HangHoaMMO</p>
+                        </div>
+
+                        <div class="seller-info-box">
+                            <i class="fas fa-store"></i>
+                            <h3>Bắt đầu kinh doanh trên HangHoaMMO</h3>
+                            <p>Đăng ký trở thành người bán để bắt đầu kinh doanh sản phẩm số của bạn</p>
+                            <ul class="seller-benefits">
+                                <li><i class="fas fa-check"></i> Hoa hồng thấp, chỉ 5%</li>
+                                <li><i class="fas fa-check"></i> Thanh toán nhanh chóng</li>
+                                <li><i class="fas fa-check"></i> Hỗ trợ 24/7</li>
+                                <li><i class="fas fa-check"></i> Công cụ quản lý chuyên nghiệp</li>
+                            </ul>
+                            <button class="btn-register-seller">
+                                <i class="fas fa-user-plus"></i>
+                                Đăng ký ngay
+                            </button>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </section>
+
+    <!-- Floating Telegram Button -->
+    <div class="floating-telegram" onclick="openTelegramModal()" title="Tham gia Telegram">
+        <i class="fab fa-telegram-plane"></i>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="profile.js"></script>
+</body>
+</html>
