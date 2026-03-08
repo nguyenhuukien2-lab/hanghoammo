@@ -1489,29 +1489,51 @@ function checkout() {
 
 
 // Maintenance Banner Functions
-function checkMaintenanceMode() {
-    const maintenanceMode = localStorage.getItem('maintenanceMode') === 'true';
-    const maintenanceMessage = localStorage.getItem('maintenanceMessage') || 'Chúng tôi đang nâng cấp hệ thống để mang đến trải nghiệm tốt hơn cho bạn. Vui lòng quay lại sau ít phút.';
-    const maintenanceETA = localStorage.getItem('maintenanceETA') || '30 phút';
-    const bannerClosed = sessionStorage.getItem('maintenanceBannerClosed') === 'true';
-    
-    const banner = document.getElementById('maintenanceBanner');
-    const messageEl = document.getElementById('maintenanceText');
-    const etaEl = document.getElementById('maintenanceETA');
-    const telegramEl = document.getElementById('maintenanceTelegram');
-    
-    if (banner && maintenanceMode && !bannerClosed) {
-        if (messageEl) {
-            messageEl.textContent = maintenanceMessage;
+// Maintenance Banner Functions - Check from API
+async function checkMaintenanceMode() {
+    try {
+        // Gọi API để lấy trạng thái real-time từ server
+        const response = await fetch('/api/maintenance/status');
+        const result = await response.json();
+        
+        if (!result.success) {
+            console.log('Failed to fetch maintenance status');
+            return;
         }
-        if (etaEl) {
-            etaEl.textContent = maintenanceETA;
+        
+        const { enabled, message, eta, telegram } = result.data;
+        const bannerClosed = sessionStorage.getItem('maintenanceBannerClosed') === 'true';
+        
+        const banner = document.getElementById('maintenanceBanner');
+        const messageEl = document.getElementById('maintenanceText');
+        const etaEl = document.getElementById('maintenanceETA');
+        const telegramEl = document.getElementById('maintenanceTelegram');
+        
+        if (banner && enabled && !bannerClosed) {
+            if (messageEl) {
+                messageEl.textContent = message || 'Chúng tôi đang nâng cấp hệ thống để mang đến trải nghiệm tốt hơn cho bạn. Vui lòng quay lại sau ít phút.';
+            }
+            if (etaEl) {
+                etaEl.textContent = eta || '30 phút';
+            }
+            if (telegramEl) {
+                telegramEl.href = telegram || 'https://t.me/hanghoammo';
+            }
+            banner.style.display = 'block';
+        } else if (banner && !enabled) {
+            // Nếu admin tắt banner, ẩn ngay lập tức
+            banner.style.display = 'none';
         }
-        if (telegramEl) {
-            const telegramLink = localStorage.getItem('shopTelegram') || 'https://t.me/hanghoammo';
-            telegramEl.href = telegramLink;
+    } catch (error) {
+        console.error('Error checking maintenance mode:', error);
+        // Fallback to localStorage if API fails
+        const maintenanceMode = localStorage.getItem('maintenanceMode') === 'true';
+        const bannerClosed = sessionStorage.getItem('maintenanceBannerClosed') === 'true';
+        const banner = document.getElementById('maintenanceBanner');
+        
+        if (banner && maintenanceMode && !bannerClosed) {
+            banner.style.display = 'block';
         }
-        banner.style.display = 'block';
     }
 }
 
@@ -1525,6 +1547,9 @@ function closeMaintenanceBanner() {
         }, 500);
     }
 }
+
+// Auto-check maintenance status every 30 seconds
+setInterval(checkMaintenanceMode, 30000);
 
 // Add slide up animation
 const style = document.createElement('style');

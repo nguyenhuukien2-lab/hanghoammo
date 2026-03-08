@@ -587,21 +587,46 @@ function checkAccountStock() {
     }
 }
 
-function toggleMaintenance() {
+async function toggleMaintenance() {
     const isEnabled = document.getElementById('maintenanceMode').checked;
-    localStorage.setItem('maintenanceMode', isEnabled);
     
-    // Clear banner closed flag when toggling
-    sessionStorage.removeItem('maintenanceBannerClosed');
-    
-    if (isEnabled) {
-        alert('Đã bật chế độ bảo trì. Banner sẽ hiển thị trên trang chủ.');
-    } else {
-        alert('Đã tắt chế độ bảo trì. Banner sẽ bị ẩn.');
+    try {
+        // Gọi API để cập nhật trạng thái
+        const response = await fetch('/api/maintenance/update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                enabled: isEnabled,
+                message: localStorage.getItem('maintenanceMessage') || 'Website đang bảo trì',
+                eta: localStorage.getItem('maintenanceETA') || '30 phút',
+                telegram: localStorage.getItem('shopTelegram') || 'https://t.me/hanghoammo'
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Backup to localStorage for fallback
+            localStorage.setItem('maintenanceMode', isEnabled);
+            sessionStorage.removeItem('maintenanceBannerClosed');
+            
+            if (isEnabled) {
+                alert('✅ Đã bật chế độ bảo trì. Tất cả khách hàng sẽ thấy banner ngay lập tức!');
+            } else {
+                alert('✅ Đã tắt chế độ bảo trì. Banner sẽ bị ẩn cho tất cả khách hàng!');
+            }
+        } else {
+            alert('❌ Lỗi: Không thể cập nhật trạng thái bảo trì!');
+        }
+    } catch (error) {
+        console.error('Error toggling maintenance:', error);
+        alert('❌ Lỗi kết nối server! Vui lòng thử lại.');
     }
 }
 
-function saveMaintenanceSettings() {
+async function saveMaintenanceSettings() {
     const message = document.getElementById('maintenanceMessage').value;
     const eta = document.getElementById('maintenanceETA').value;
     
@@ -610,13 +635,39 @@ function saveMaintenanceSettings() {
         return;
     }
     
-    localStorage.setItem('maintenanceMessage', message);
-    localStorage.setItem('maintenanceETA', eta || '30 phút');
-    
-    // Clear banner closed flag to show updated message
-    sessionStorage.removeItem('maintenanceBannerClosed');
-    
-    alert('Lưu cài đặt bảo trì thành công! Thông báo sẽ hiển thị trên trang chủ.');
+    try {
+        const isEnabled = document.getElementById('maintenanceMode').checked;
+        
+        // Gọi API để cập nhật
+        const response = await fetch('/api/maintenance/update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                enabled: isEnabled,
+                message: message,
+                eta: eta || '30 phút',
+                telegram: localStorage.getItem('shopTelegram') || 'https://t.me/hanghoammo'
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Backup to localStorage
+            localStorage.setItem('maintenanceMessage', message);
+            localStorage.setItem('maintenanceETA', eta || '30 phút');
+            sessionStorage.removeItem('maintenanceBannerClosed');
+            
+            alert('✅ Lưu cài đặt bảo trì thành công! Tất cả khách hàng sẽ thấy thông báo mới ngay lập tức!');
+        } else {
+            alert('❌ Lỗi: Không thể lưu cài đặt!');
+        }
+    } catch (error) {
+        console.error('Error saving maintenance settings:', error);
+        alert('❌ Lỗi kết nối server! Vui lòng thử lại.');
+    }
 }
 
 // Keep old function for backward compatibility

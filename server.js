@@ -73,6 +73,43 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/accounts', accountRoutes);
 app.use('/api/payment', paymentRoutes);
 
+// Maintenance status endpoint (public)
+app.get('/api/maintenance/status', (req, res) => {
+    // Đọc từ file hoặc database (hiện tại dùng in-memory)
+    // Trong production, nên lưu vào database
+    const maintenanceData = global.maintenanceSettings || {
+        enabled: false,
+        message: 'Website đang bảo trì',
+        eta: '30 phút',
+        telegram: 'https://t.me/hanghoammo'
+    };
+    
+    res.json({
+        success: true,
+        data: maintenanceData
+    });
+});
+
+// Update maintenance settings (admin only - sẽ gọi từ admin panel)
+app.post('/api/maintenance/update', (req, res) => {
+    const { enabled, message, eta, telegram } = req.body;
+    
+    // Lưu vào global variable (trong production nên dùng database)
+    global.maintenanceSettings = {
+        enabled: enabled === true || enabled === 'true',
+        message: message || 'Website đang bảo trì',
+        eta: eta || '30 phút',
+        telegram: telegram || 'https://t.me/hanghoammo',
+        updatedAt: new Date().toISOString()
+    };
+    
+    res.json({
+        success: true,
+        message: 'Cập nhật trạng thái bảo trì thành công',
+        data: global.maintenanceSettings
+    });
+});
+
 // Serve HTML pages
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -105,7 +142,7 @@ app.use((req, res) => {
 });
 
 // Start server
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`📱 Frontend: http://localhost:${PORT}`);
