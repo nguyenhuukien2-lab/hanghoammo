@@ -1966,6 +1966,23 @@ a {
     color: #26de81;
 }
 
+.auth-form-footer {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.auth-form-footer a {
+    color: var(--primary);
+    text-decoration: none;
+    font-size: 14px;
+    transition: opacity 0.2s;
+}
+
+.auth-form-footer a:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+}
+
 .auth-modal-footer {
     padding: 20px 40px 30px;
     border-top: 1px solid var(--border);

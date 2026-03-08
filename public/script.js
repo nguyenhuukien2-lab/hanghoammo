@@ -542,14 +542,12 @@ function switchAuthTab(tab) {
     const loginForm = document.getElementById('modalLoginForm');
     const registerForm = document.getElementById('modalRegisterForm');
     const forgotForm = document.getElementById('modalForgotForm');
-    const resetForm = document.getElementById('modalResetForm');
     const title = document.getElementById('authModalTitle');
     const subtitle = document.getElementById('authModalSubtitle');
     
     loginForm.classList.remove('active');
     registerForm.classList.remove('active');
     if (forgotForm) forgotForm.classList.remove('active');
-    if (resetForm) resetForm.style.display = 'none';
     
     loginTab.classList.remove('active');
     registerTab.classList.remove('active');
@@ -567,7 +565,16 @@ function switchAuthTab(tab) {
         subtitle.textContent = 'Bắt đầu mua sắm';
     } else if (tab === 'forgot') {
         if (forgotTab) forgotTab.classList.add('active');
-        if (forgotForm) forgotForm.classList.add('active');
+        if (forgotForm) {
+            forgotForm.classList.add('active');
+            // Reset form
+            forgotForm.reset();
+            document.getElementById('phoneVerifyGroup').style.display = 'none';
+            document.getElementById('newPasswordGroup').style.display = 'none';
+            document.getElementById('confirmNewPasswordGroup').style.display = 'none';
+            document.getElementById('forgotSubmitBtn').querySelector('span').textContent = 'Tiếp tục';
+            forgotForm.dataset.step = '1';
+        }
         title.textContent = 'Quên mật khẩu?';
         subtitle.textContent = 'Nhập email để lấy lại mật khẩu';
     }
@@ -801,6 +808,137 @@ if (modalRegisterForm) {
         } finally {
             btnSubmit.innerHTML = originalHTML;
             btnSubmit.disabled = false;
+        }
+    });
+}
+
+// Forgot Password Form Handler
+const modalForgotForm = document.getElementById('modalForgotForm');
+if (modalForgotForm) {
+    let forgotCurrentUser = null;
+    
+    modalForgotForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const step = this.dataset.step || '1';
+        const btnSubmit = document.getElementById('forgotSubmitBtn');
+        const originalHTML = btnSubmit.innerHTML;
+        
+        if (step === '1') {
+            // Step 1: Verify email
+            const email = document.getElementById('forgotEmail').value.trim();
+            
+            btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang kiểm tra...';
+            btnSubmit.disabled = true;
+            
+            try {
+                const users = JSON.parse(localStorage.getItem('users')) || [];
+                const user = users.find(u => u.email === email);
+                
+                if (!user) {
+                    throw new Error('Email không tồn tại trong hệ thống!');
+                }
+                
+                forgotCurrentUser = user;
+                
+                // Show phone verification
+                document.getElementById('phoneVerifyGroup').style.display = 'block';
+                document.getElementById('forgotEmail').disabled = true;
+                btnSubmit.querySelector('span').textContent = 'Xác minh';
+                this.dataset.step = '2';
+                
+                showNotification('Vui lòng nhập số điện thoại để xác minh!', 'info');
+            } catch (error) {
+                showNotification(error.message, 'error');
+            } finally {
+                btnSubmit.innerHTML = originalHTML;
+                btnSubmit.disabled = false;
+            }
+            
+        } else if (step === '2') {
+            // Step 2: Verify phone
+            const phone = document.getElementById('verifyPhone').value.trim();
+            
+            btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xác minh...';
+            btnSubmit.disabled = true;
+            
+            try {
+                if (!forgotCurrentUser) {
+                    throw new Error('Phiên làm việc hết hạn. Vui lòng thử lại!');
+                }
+                
+                if (forgotCurrentUser.phone !== phone) {
+                    throw new Error('Số điện thoại không khớp với tài khoản!');
+                }
+                
+                // Show new password fields
+                document.getElementById('newPasswordGroup').style.display = 'block';
+                document.getElementById('confirmNewPasswordGroup').style.display = 'block';
+                document.getElementById('verifyPhone').disabled = true;
+                btnSubmit.querySelector('span').textContent = 'Đặt lại mật khẩu';
+                this.dataset.step = '3';
+                
+                showNotification('Xác minh thành công! Vui lòng nhập mật khẩu mới.', 'success');
+            } catch (error) {
+                showNotification(error.message, 'error');
+            } finally {
+                btnSubmit.innerHTML = originalHTML;
+                btnSubmit.disabled = false;
+            }
+            
+        } else if (step === '3') {
+            // Step 3: Reset password
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmNewPassword').value;
+            
+            if (newPassword !== confirmPassword) {
+                showNotification('Mật khẩu xác nhận không khớp!', 'error');
+                return;
+            }
+            
+            // Check password strength
+            const { strength } = checkPasswordStrength(newPassword);
+            if (strength < 3) {
+                showNotification('Mật khẩu quá yếu! Vui lòng đáp ứng ít nhất 3/5 yêu cầu.', 'error');
+                return;
+            }
+            
+            btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang cập nhật...';
+            btnSubmit.disabled = true;
+            
+            try {
+                if (!forgotCurrentUser) {
+                    throw new Error('Phiên làm việc hết hạn. Vui lòng thử lại!');
+                }
+                
+                // Update password in localStorage
+                const users = JSON.parse(localStorage.getItem('users')) || [];
+                const userIndex = users.findIndex(u => u.email === forgotCurrentUser.email);
+                
+                if (userIndex === -1) {
+                    throw new Error('Không tìm thấy tài khoản!');
+                }
+                
+                users[userIndex].password = newPassword;
+                localStorage.setItem('users', JSON.stringify(users));
+                
+                showNotification('Đặt lại mật khẩu thành công! Vui lòng đăng nhập.', 'success');
+                
+                // Reset form and switch to login
+                this.reset();
+                this.dataset.step = '1';
+                forgotCurrentUser = null;
+                
+                setTimeout(() => {
+                    switchAuthTab('login');
+                }, 1500);
+                
+            } catch (error) {
+                showNotification(error.message, 'error');
+            } finally {
+                btnSubmit.innerHTML = originalHTML;
+                btnSubmit.disabled = false;
+            }
         }
     });
 }
