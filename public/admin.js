@@ -19,9 +19,9 @@ document.addEventListener('DOMContentLoaded', function() {
 // Load all data from localStorage
 function loadData() {
     products = JSON.parse(localStorage.getItem('adminProducts')) || [];
-    orders = JSON.parse(localStorage.getItem('orders')) || [];
-    customers = JSON.parse(localStorage.getItem('users')) || [];
+    orders = JSON.parse(localStorage.getItem('adminOrders')) || [];
     notifications = JSON.parse(localStorage.getItem('notifications')) || [];
+    // Note: customers are loaded directly from 'users' in loadCustomers()
 }
 
 // Navigation
@@ -54,12 +54,16 @@ function showSection(sectionId) {
 
 // Dashboard
 function loadDashboard() {
+    // Load data from localStorage
+    const adminOrders = JSON.parse(localStorage.getItem('adminOrders')) || [];
+    const users = JSON.parse(localStorage.getItem('users')) || [];
+    
     // Update stats
     document.getElementById('totalProducts').textContent = products.length;
-    document.getElementById('totalOrders').textContent = orders.length;
-    document.getElementById('totalCustomers').textContent = customers.length;
+    document.getElementById('totalOrders').textContent = adminOrders.length;
+    document.getElementById('totalCustomers').textContent = users.length;
     
-    const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
+    const totalRevenue = adminOrders.reduce((sum, order) => sum + (order.total || 0), 0);
     document.getElementById('totalRevenue').textContent = formatPrice(totalRevenue);
     
     // Load recent orders
@@ -70,20 +74,22 @@ function loadDashboard() {
 }
 
 function loadRecentOrders() {
+    const adminOrders = JSON.parse(localStorage.getItem('adminOrders')) || [];
     const tbody = document.getElementById('recentOrders');
-    if (orders.length === 0) {
+    
+    if (adminOrders.length === 0) {
         tbody.innerHTML = '<tr><td colspan="5" class="text-center">Chưa có đơn hàng</td></tr>';
         return;
     }
     
-    const recentOrders = orders.slice(-5).reverse();
+    const recentOrders = adminOrders.slice(-5).reverse();
     tbody.innerHTML = recentOrders.map(order => `
         <tr>
             <td><strong>${order.id}</strong></td>
-            <td>Khách hàng</td>
+            <td>${order.customerName || order.customerEmail || 'Khách hàng'}</td>
             <td><strong>${formatPrice(order.total)}</strong></td>
             <td><span class="status-badge status-${order.status}">${getStatusText(order.status)}</span></td>
-            <td>${formatDate(order.date)}</td>
+            <td>${formatDate(order.createdAt || order.date)}</td>
         </tr>
     `).join('');
 }
@@ -264,25 +270,28 @@ function deleteProduct(productId) {
 
 // Orders Management
 function loadOrders() {
+    // Load orders from adminOrders
+    const adminOrders = JSON.parse(localStorage.getItem('adminOrders')) || [];
+    
     const tbody = document.getElementById('ordersTable');
-    if (orders.length === 0) {
+    if (adminOrders.length === 0) {
         tbody.innerHTML = '<tr><td colspan="7" class="text-center">Chưa có đơn hàng</td></tr>';
         return;
     }
     
-    tbody.innerHTML = orders.map(order => `
+    tbody.innerHTML = adminOrders.map(order => `
         <tr>
             <td><strong>${order.id}</strong></td>
-            <td>Khách hàng</td>
-            <td>${order.items.length} sản phẩm</td>
+            <td>${order.customerName || order.customerEmail || 'Khách hàng'}</td>
+            <td>${order.products ? order.products.length : (order.items ? order.items.length : 0)} sản phẩm</td>
             <td><strong>${formatPrice(order.total)}</strong></td>
             <td><span class="status-badge status-${order.status}">${getStatusText(order.status)}</span></td>
-            <td>${formatDate(order.date)}</td>
+            <td>${formatDate(order.createdAt || order.date)}</td>
             <td>
-                <button class="btn-success btn-sm" onclick="updateOrderStatus('${order.id}', 'completed')">
+                <button class="btn-success btn-sm" onclick="updateOrderStatus('${order.id}', 'completed')" title="Hoàn thành">
                     <i class="fas fa-check"></i>
                 </button>
-                <button class="btn-danger btn-sm" onclick="updateOrderStatus('${order.id}', 'cancelled')">
+                <button class="btn-danger btn-sm" onclick="updateOrderStatus('${order.id}', 'cancelled')" title="Hủy">
                     <i class="fas fa-times"></i>
                 </button>
             </td>
@@ -294,10 +303,15 @@ function filterOrders() {
     const search = document.getElementById('searchOrder').value.toLowerCase();
     const status = document.getElementById('filterStatus').value;
     
-    let filtered = orders;
+    const adminOrders = JSON.parse(localStorage.getItem('adminOrders')) || [];
+    let filtered = adminOrders;
     
     if (search) {
-        filtered = filtered.filter(o => o.id.toLowerCase().includes(search));
+        filtered = filtered.filter(o => 
+            o.id.toLowerCase().includes(search) ||
+            (o.customerName && o.customerName.toLowerCase().includes(search)) ||
+            (o.customerEmail && o.customerEmail.toLowerCase().includes(search))
+        );
     }
     
     if (status) {
@@ -305,14 +319,19 @@ function filterOrders() {
     }
     
     const tbody = document.getElementById('ordersTable');
+    if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center">Không tìm thấy đơn hàng</td></tr>';
+        return;
+    }
+    
     tbody.innerHTML = filtered.map(order => `
         <tr>
             <td><strong>${order.id}</strong></td>
-            <td>Khách hàng</td>
-            <td>${order.items.length} sản phẩm</td>
+            <td>${order.customerName || order.customerEmail || 'Khách hàng'}</td>
+            <td>${order.products ? order.products.length : (order.items ? order.items.length : 0)} sản phẩm</td>
             <td><strong>${formatPrice(order.total)}</strong></td>
             <td><span class="status-badge status-${order.status}">${getStatusText(order.status)}</span></td>
-            <td>${formatDate(order.date)}</td>
+            <td>${formatDate(order.createdAt || order.date)}</td>
             <td>
                 <button class="btn-success btn-sm" onclick="updateOrderStatus('${order.id}', 'completed')">
                     <i class="fas fa-check"></i>
@@ -326,10 +345,11 @@ function filterOrders() {
 }
 
 function updateOrderStatus(orderId, newStatus) {
-    const order = orders.find(o => o.id === orderId);
+    const adminOrders = JSON.parse(localStorage.getItem('adminOrders')) || [];
+    const order = adminOrders.find(o => o.id === orderId);
     if (order) {
         order.status = newStatus;
-        localStorage.setItem('orders', JSON.stringify(orders));
+        localStorage.setItem('adminOrders', JSON.stringify(adminOrders));
         loadOrders();
         loadDashboard();
         alert('Cập nhật trạng thái thành công!');
@@ -338,68 +358,173 @@ function updateOrderStatus(orderId, newStatus) {
 
 // Customers Management
 function loadCustomers() {
+    // Load users from localStorage
+    const users = JSON.parse(localStorage.getItem('users')) || [];
+    const orders = JSON.parse(localStorage.getItem('adminOrders')) || [];
+    
     const tbody = document.getElementById('customersTable');
-    if (customers.length === 0) {
+    if (users.length === 0) {
         tbody.innerHTML = '<tr><td colspan="6" class="text-center">Chưa có khách hàng</td></tr>';
+        
+        // Update dashboard customer count
+        document.getElementById('totalCustomers').textContent = '0';
         return;
     }
     
-    tbody.innerHTML = customers.map(customer => {
-        const customerOrders = orders.filter(o => o.customerId === customer.email);
-        const totalSpent = customerOrders.reduce((sum, o) => sum + o.total, 0);
+    // Calculate stats for each customer
+    const customersWithStats = users.map(user => {
+        const customerOrders = orders.filter(o => o.customerEmail === user.email);
+        const totalSpent = customerOrders.reduce((sum, o) => sum + (o.total || 0), 0);
         
-        return `
-            <tr>
-                <td><strong>${customer.email}</strong></td>
-                <td>${customer.name || 'N/A'}</td>
-                <td>${customerOrders.length}</td>
-                <td><strong>${formatPrice(totalSpent)}</strong></td>
-                <td>${formatDate(customer.createdAt || new Date())}</td>
-                <td>
-                    <button class="btn-primary btn-sm" onclick="viewCustomer('${customer.email}')">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                </td>
-            </tr>
-        `;
-    }).join('');
+        return {
+            ...user,
+            orderCount: customerOrders.length,
+            totalSpent: totalSpent,
+            createdAt: user.createdAt || new Date().toISOString()
+        };
+    });
+    
+    // Sort by total spent (descending)
+    customersWithStats.sort((a, b) => b.totalSpent - a.totalSpent);
+    
+    tbody.innerHTML = customersWithStats.map(customer => `
+        <tr>
+            <td><strong>${customer.email}</strong></td>
+            <td>${customer.name || 'N/A'}</td>
+            <td>${customer.orderCount}</td>
+            <td><strong>${formatPrice(customer.totalSpent)}</strong></td>
+            <td>${formatDate(customer.createdAt)}</td>
+            <td>
+                <button class="btn-primary btn-sm" onclick="viewCustomerDetails('${customer.email}')" title="Xem chi tiết">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </td>
+        </tr>
+    `).join('');
+    
+    // Update dashboard customer count
+    document.getElementById('totalCustomers').textContent = users.length;
 }
 
 function filterCustomers() {
     const search = document.getElementById('searchCustomer').value.toLowerCase();
-    let filtered = customers;
+    const users = JSON.parse(localStorage.getItem('users')) || [];
+    const orders = JSON.parse(localStorage.getItem('adminOrders')) || [];
+    
+    let filtered = users;
     
     if (search) {
         filtered = filtered.filter(c => 
             c.email.toLowerCase().includes(search) || 
-            (c.name && c.name.toLowerCase().includes(search))
+            (c.name && c.name.toLowerCase().includes(search)) ||
+            (c.phone && c.phone.includes(search))
         );
     }
     
-    const tbody = document.getElementById('customersTable');
-    tbody.innerHTML = filtered.map(customer => {
-        const customerOrders = orders.filter(o => o.customerId === customer.email);
-        const totalSpent = customerOrders.reduce((sum, o) => sum + o.total, 0);
+    // Calculate stats for filtered customers
+    const customersWithStats = filtered.map(user => {
+        const customerOrders = orders.filter(o => o.customerEmail === user.email);
+        const totalSpent = customerOrders.reduce((sum, o) => sum + (o.total || 0), 0);
         
-        return `
-            <tr>
-                <td><strong>${customer.email}</strong></td>
-                <td>${customer.name || 'N/A'}</td>
-                <td>${customerOrders.length}</td>
-                <td><strong>${formatPrice(totalSpent)}</strong></td>
-                <td>${formatDate(customer.createdAt || new Date())}</td>
-                <td>
-                    <button class="btn-primary btn-sm" onclick="viewCustomer('${customer.email}')">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                </td>
-            </tr>
-        `;
-    }).join('');
+        return {
+            ...user,
+            orderCount: customerOrders.length,
+            totalSpent: totalSpent,
+            createdAt: user.createdAt || new Date().toISOString()
+        };
+    });
+    
+    const tbody = document.getElementById('customersTable');
+    if (customersWithStats.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center">Không tìm thấy khách hàng</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = customersWithStats.map(customer => `
+        <tr>
+            <td><strong>${customer.email}</strong></td>
+            <td>${customer.name || 'N/A'}</td>
+            <td>${customer.orderCount}</td>
+            <td><strong>${formatPrice(customer.totalSpent)}</strong></td>
+            <td>${formatDate(customer.createdAt)}</td>
+            <td>
+                <button class="btn-primary btn-sm" onclick="viewCustomerDetails('${customer.email}')" title="Xem chi tiết">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </td>
+        </tr>
+    `).join('');
 }
 
-function viewCustomer(email) {
-    alert('Xem chi tiết khách hàng: ' + email);
+function viewCustomerDetails(email) {
+    const users = JSON.parse(localStorage.getItem('users')) || [];
+    const orders = JSON.parse(localStorage.getItem('adminOrders')) || [];
+    
+    const customer = users.find(u => u.email === email);
+    if (!customer) {
+        alert('Không tìm thấy khách hàng!');
+        return;
+    }
+    
+    const customerOrders = orders.filter(o => o.customerEmail === email);
+    const totalSpent = customerOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+    
+    let ordersList = '';
+    if (customerOrders.length > 0) {
+        ordersList = customerOrders.map(order => `
+            <div style="padding: 10px; border-bottom: 1px solid #eee;">
+                <strong>Mã đơn:</strong> ${order.id}<br>
+                <strong>Tổng tiền:</strong> ${formatPrice(order.total)}<br>
+                <strong>Ngày:</strong> ${formatDate(order.createdAt || order.date)}<br>
+                <strong>Trạng thái:</strong> ${getStatusText(order.status)}
+            </div>
+        `).join('');
+    } else {
+        ordersList = '<p style="text-align: center; color: #999;">Chưa có đơn hàng</p>';
+    }
+    
+    const modalContent = `
+        <div style="padding: 20px;">
+            <h3 style="margin-bottom: 20px;">Chi tiết khách hàng</h3>
+            <div style="margin-bottom: 15px;">
+                <strong>Tên:</strong> ${customer.name || 'N/A'}<br>
+                <strong>Email:</strong> ${customer.email}<br>
+                <strong>Số điện thoại:</strong> ${customer.phone || 'N/A'}<br>
+                <strong>Ngày đăng ký:</strong> ${formatDate(customer.createdAt || new Date())}<br>
+                <strong>Tổng đơn hàng:</strong> ${customerOrders.length}<br>
+                <strong>Tổng chi tiêu:</strong> ${formatPrice(totalSpent)}
+            </div>
+            <h4 style="margin: 20px 0 10px 0;">Lịch sử đơn hàng:</h4>
+            <div style="max-height: 300px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px;">
+                ${ordersList}
+            </div>
+        </div>
+    `;
+    
+    // Create a simple modal
+    const existingModal = document.getElementById('customerDetailModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    const modal = document.createElement('div');
+    modal.id = 'customerDetailModal';
+    modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 10000;';
+    modal.innerHTML = `
+        <div style="background: white; border-radius: 12px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; position: relative;">
+            <button onclick="document.getElementById('customerDetailModal').remove()" style="position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 24px; cursor: pointer; color: #999;">&times;</button>
+            ${modalContent}
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Close on overlay click
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            modal.remove();
+        }
+    });
 }
 
 // Notifications Management

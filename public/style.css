@@ -1888,6 +1888,84 @@ a {
     }
 }
 
+/* Password Strength Indicator */
+.password-strength-container {
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.password-strength-bar {
+    flex: 1;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    position: relative;
+    overflow: hidden;
+}
+
+.password-strength-bar::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 0;
+    transition: all 0.3s ease;
+    border-radius: 2px;
+}
+
+.password-strength-bar.strength-weak::before {
+    width: 33%;
+    background: #ff4757;
+}
+
+.password-strength-bar.strength-medium::before {
+    width: 66%;
+    background: #ffa502;
+}
+
+.password-strength-bar.strength-strong::before {
+    width: 100%;
+    background: #26de81;
+}
+
+.password-strength-text {
+    font-size: 12px;
+    font-weight: 600;
+    min-width: 80px;
+}
+
+.password-requirements {
+    margin-top: 12px;
+    padding: 12px;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    font-size: 13px;
+}
+
+.req-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    color: var(--gray);
+    transition: color 0.2s;
+}
+
+.req-item.met {
+    color: #26de81;
+}
+
+.req-item i {
+    font-size: 14px;
+}
+
+.req-item.met i {
+    color: #26de81;
+}
+
 .auth-modal-footer {
     padding: 20px 40px 30px;
     border-top: 1px solid var(--border);

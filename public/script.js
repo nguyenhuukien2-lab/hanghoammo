@@ -641,9 +641,96 @@ if (modalLoginForm) {
     });
 }
 
+// Password Strength Checker
+function checkPasswordStrength(password) {
+    let strength = 0;
+    const requirements = {
+        length: password.length >= 8,
+        uppercase: /[A-Z]/.test(password),
+        lowercase: /[a-z]/.test(password),
+        number: /[0-9]/.test(password),
+        special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+    };
+    
+    // Count met requirements
+    Object.values(requirements).forEach(met => {
+        if (met) strength++;
+    });
+    
+    return { strength, requirements };
+}
+
+function updatePasswordStrength(inputId, barId, textId) {
+    const input = document.getElementById(inputId);
+    const bar = document.getElementById(barId);
+    const text = document.getElementById(textId);
+    
+    if (!input || !bar || !text) return;
+    
+    const password = input.value;
+    const { strength, requirements } = checkPasswordStrength(password);
+    
+    // Update bar
+    bar.className = 'password-strength-bar';
+    if (strength === 0) {
+        bar.classList.add('strength-none');
+        text.textContent = '';
+    } else if (strength <= 2) {
+        bar.classList.add('strength-weak');
+        text.textContent = 'Yếu';
+        text.style.color = '#ff4757';
+    } else if (strength <= 3) {
+        bar.classList.add('strength-medium');
+        text.textContent = 'Trung bình';
+        text.style.color = '#ffa502';
+    } else {
+        bar.classList.add('strength-strong');
+        text.textContent = 'Mạnh';
+        text.style.color = '#26de81';
+    }
+    
+    // Update requirements display
+    const reqList = document.getElementById('passwordRequirements');
+    if (reqList && password.length > 0) {
+        reqList.style.display = 'block';
+        reqList.innerHTML = `
+            <div class="req-item ${requirements.length ? 'met' : ''}">
+                <i class="fas fa-${requirements.length ? 'check-circle' : 'circle'}"></i>
+                <span>Ít nhất 8 ký tự</span>
+            </div>
+            <div class="req-item ${requirements.uppercase ? 'met' : ''}">
+                <i class="fas fa-${requirements.uppercase ? 'check-circle' : 'circle'}"></i>
+                <span>Chữ hoa (A-Z)</span>
+            </div>
+            <div class="req-item ${requirements.lowercase ? 'met' : ''}">
+                <i class="fas fa-${requirements.lowercase ? 'check-circle' : 'circle'}"></i>
+                <span>Chữ thường (a-z)</span>
+            </div>
+            <div class="req-item ${requirements.number ? 'met' : ''}">
+                <i class="fas fa-${requirements.number ? 'check-circle' : 'circle'}"></i>
+                <span>Số (0-9)</span>
+            </div>
+            <div class="req-item ${requirements.special ? 'met' : ''}">
+                <i class="fas fa-${requirements.special ? 'check-circle' : 'circle'}"></i>
+                <span>Ký tự đặc biệt (!@#$...)</span>
+            </div>
+        `;
+    } else if (reqList) {
+        reqList.style.display = 'none';
+    }
+}
+
 // Modal Register Form Handler
 const modalRegisterForm = document.getElementById('modalRegisterForm');
 if (modalRegisterForm) {
+    // Add password strength checker
+    const passwordInput = modalRegisterForm.querySelector('#modalRegisterPassword');
+    if (passwordInput) {
+        passwordInput.addEventListener('input', function() {
+            updatePasswordStrength('modalRegisterPassword', 'passwordStrengthBar', 'passwordStrengthText');
+        });
+    }
+    
     modalRegisterForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
@@ -659,8 +746,10 @@ if (modalRegisterForm) {
             return;
         }
         
-        if (password.length < 6) {
-            showNotification('Mật khẩu phải có ít nhất 6 ký tự!', 'error');
+        // Check password strength
+        const { strength } = checkPasswordStrength(password);
+        if (strength < 3) {
+            showNotification('Mật khẩu quá yếu! Vui lòng đáp ứng ít nhất 3/5 yêu cầu.', 'error');
             return;
         }
         
