@@ -1,71 +1,66 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const db = require('../config/database');
 
-// Protect routes
-exports.protect = async (req, res, next) => {
-    let token;
-
-    // Check for token in headers
-    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-        token = req.headers.authorization.split(' ')[1];
-    }
-    // Check for token in cookies
-    else if (req.cookies.token) {
-        token = req.cookies.token;
-    }
-
-    // Make sure token exists
-    if (!token) {
-        return res.status(401).json({
-            success: false,
-            message: 'Không có quyền truy cập. Vui lòng đăng nhập'
-        });
-    }
-
+// Middleware xác thực JWT
+const authenticateToken = async (req, res, next) => {
     try {
-        // Verify token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
-        // Get user from token
-        req.user = await User.findById(decoded.id);
-
-        if (!req.user) {
+        if (!token) {
             return res.status(401).json({
                 success: false,
-                message: 'Người dùng không tồn tại'
+                message: 'Không tìm thấy token xác thực'
             });
         }
 
-        next();
+        jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
+            if (err) {
+                return res.status(403).json({
+                    success: false,
+                    message: 'Token không hợp lệ hoặc đã hết hạn'
+                });
+            }
+
+            // Lấy thông tin user từ database
+            try {
+                const user = await db.getUserById(decoded.userId);
+                if (!user) {
+                    return res.status(404).json({
+                        success: false,
+                        message: 'Người dùng không tồn tại'
+                    });
+                }
+
+                req.user = user;
+                next();
+            } catch (error) {
+                return res.status(500).json({
+                    success: false,
+                    message: 'Lỗi xác thực người dùng'
+                });
+            }
+        });
     } catch (error) {
-        return res.status(401).json({
+        return res.status(500).json({
             success: false,
-            message: 'Token không hợp lệ'
+            message: 'Lỗi server'
         });
     }
 };
 
-// Admin only
-exports.admin = (req, res, next) => {
-    if (req.user && req.user.role === 'admin') {
-        next();
-    } else {
+// Middleware kiểm tra admin
+const requireAdmin = (req, res, next) => {
+    if (req.user.role !== 'admin') {
         return res.status(403).json({
             success: false,
-            message: 'Bạn không có quyền thực hiện hành động này'
+            message: 'Bạn không có quyền truy cập'
         });
     }
+    next();
 };
 
-// Authorize by roles
-exports.authorize = (...roles) => {
-    return (req, res, next) => {
-        if (!roles.includes(req.user.role)) {
-            return res.status(403).json({
-                success: false,
-                message: 'Bạn không có quyền thực hiện hành động này'
-            });
-        }
-        next();
-    };
+module.exports = {
+    authenticateToken,
+    requireAdmin
 };

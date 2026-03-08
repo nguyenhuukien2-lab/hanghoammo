@@ -1,81 +1,85 @@
 const express = require('express');
 const router = express.Router();
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
-const { protect } = require('../middleware/auth');
+const db = require('../config/database');
 
-// Generate JWT Token
-const generateToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET, {
-        expiresIn: process.env.JWT_EXPIRE
-    });
-};
-
-// @route   POST /api/auth/register
-// @desc    Register user
-// @access  Public
+// Đăng ký
 router.post('/register', async (req, res) => {
     try {
         const { name, email, phone, password } = req.body;
 
-        // Check if user exists
-        const userExists = await User.findOne({ email });
-        if (userExists) {
+        // Validate
+        if (!name || !email || !password) {
+            return res.status(400).json({
+                success: false,
+                message: 'Vui lòng điền đầy đủ thông tin'
+            });
+        }
+
+        // Kiểm tra email đã tồn tại
+        const existingUser = await db.getUserByEmail(email);
+        if (existingUser) {
             return res.status(400).json({
                 success: false,
                 message: 'Email đã được đăng ký'
             });
         }
 
-        // Create user
-        const user = await User.create({
+        // Mã hóa mật khẩu
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Tạo user mới
+        const newUser = await db.createUser({
             name,
             email,
             phone,
-            password
+            password: hashedPassword,
+            role: 'user'
         });
 
-        // Generate token
-        const token = generateToken(user._id);
+        // Tạo JWT token
+        const token = jwt.sign(
+            { userId: newUser.id, email: newUser.email },
+            process.env.JWT_SECRET,
+            { expiresIn: process.env.JWT_EXPIRE || '7d' }
+        );
 
         res.status(201).json({
             success: true,
             message: 'Đăng ký thành công',
             token,
             user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                phone: user.phone,
-                role: user.role
+                id: newUser.id,
+                name: newUser.name,
+                email: newUser.email,
+                phone: newUser.phone
             }
         });
     } catch (error) {
+        console.error('Register error:', error);
         res.status(500).json({
             success: false,
-            message: 'Lỗi đăng ký',
-            error: error.message
+            message: 'Lỗi server khi đăng ký'
         });
     }
 });
 
-// @route   POST /api/auth/login
-// @desc    Login user
-// @access  Public
+// Đăng nhập
 router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Validate input
+        // Validate
         if (!email || !password) {
             return res.status(400).json({
                 success: false,
-                message: 'Vui lòng nhập email và mật khẩu'
+                message: 'Vui lòng điền email và mật khẩu'
             });
         }
 
-        // Check for user
-        const user = await User.findOne({ email }).select('+password');
+        // Tìm user
+        const user = await db.getUserByEmail(email);
         if (!user) {
             return res.status(401).json({
                 success: false,
@@ -83,66 +87,97 @@ router.post('/login', async (req, res) => {
             });
         }
 
-        // Check if password matches
-        const isMatch = await user.comparePassword(password);
-        if (!isMatch) {
+        // Kiểm tra mật khẩu
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
             return res.status(401).json({
                 success: false,
                 message: 'Email hoặc mật khẩu không đúng'
             });
         }
 
-        // Generate token
-        const token = generateToken(user._id);
+        // Tạo JWT token
+        const token = jwt.sign(
+            { userId: user.id, email: user.email },
+            process.env.JWT_SECRET,
+            { expiresIn: process.env.JWT_EXPIRE || '7d' }
+        );
+
+        // Lấy thông tin ví
+        const wallet = await db.getWallet(user.id);
 
         res.json({
             success: true,
             message: 'Đăng nhập thành công',
             token,
             user: {
-                id: user._id,
+                id: user.id,
                 name: user.name,
                 email: user.email,
                 phone: user.phone,
-                role: user.role
+                role: user.role,
+                balance: wallet ? wallet.balance : 0
             }
         });
     } catch (error) {
+        console.error('Login error:', error);
         res.status(500).json({
             success: false,
-            message: 'Lỗi đăng nhập',
-            error: error.message
+            message: 'Lỗi server khi đăng nhập'
         });
     }
 });
 
-// @route   GET /api/auth/me
-// @desc    Get current user
-// @access  Private
-router.get('/me', protect, async (req, res) => {
+// Đổi mật khẩu
+router.post('/change-password', async (req, res) => {
     try {
-        const user = await User.findById(req.user.id);
+        const { email, phone, newPassword } = req.body;
+
+        // Validate
+        if (!email || !phone || !newPassword) {
+            return res.status(400).json({
+                success: false,
+                message: 'Vui lòng điền đầy đủ thông tin'
+            });
+        }
+
+        // Tìm user và xác minh số điện thoại
+        const user = await db.getUserByEmail(email);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'Email không tồn tại'
+            });
+        }
+
+        if (user.phone !== phone) {
+            return res.status(400).json({
+                success: false,
+                message: 'Số điện thoại không khớp'
+            });
+        }
+
+        // Mã hóa mật khẩu mới
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        // Cập nhật mật khẩu
+        const supabase = require('../config/supabase');
+        await supabase
+            .from('users')
+            .update({ password: hashedPassword })
+            .eq('id', user.id);
+
         res.json({
             success: true,
-            user
+            message: 'Đổi mật khẩu thành công'
         });
     } catch (error) {
+        console.error('Change password error:', error);
         res.status(500).json({
             success: false,
-            message: 'Lỗi lấy thông tin người dùng',
-            error: error.message
+            message: 'Lỗi server khi đổi mật khẩu'
         });
     }
-});
-
-// @route   POST /api/auth/logout
-// @desc    Logout user
-// @access  Private
-router.post('/logout', protect, (req, res) => {
-    res.json({
-        success: true,
-        message: 'Đăng xuất thành công'
-    });
 });
 
 module.exports = router;
