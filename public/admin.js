@@ -749,9 +749,9 @@ function toggleDarkMode() {
 }
 
 function logout() {
-    if (confirm('Bạn có chắc muốn đăng xuất?')) {
-        window.location.href = 'index.html';
-    }
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('currentUser');
+    window.location.href = 'index.html';
 }
 
 // Load dark mode preference

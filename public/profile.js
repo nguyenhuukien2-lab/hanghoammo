@@ -233,11 +233,9 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function logout() {
-    if (confirm('Bạn có chắc muốn đăng xuất?')) {
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('currentUser');
-        window.location.href = 'index.html';
-    }
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('currentUser');
+    window.location.href = 'index.html';
 }
 
 function formatPrice(price) {
