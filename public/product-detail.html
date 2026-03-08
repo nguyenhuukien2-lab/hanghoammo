@@ -57,13 +57,13 @@
                         </button>
                         <!-- Show when not logged in -->
                         <div id="authButtons">
-                            <button class="btn-auth login" onclick="openAuthModal(''login'')">
+                            <button class="btn-auth login" onclick="openAuthModal('login')">
                                 <i class="fas fa-sign-in-alt"></i>
-                                <span>�ang nh?p</span>
+                                <span>Đăng nhập</span>
                             </button>
-                            <button class="btn-auth register" onclick="openAuthModal(''register'')">
+                            <button class="btn-auth register" onclick="openAuthModal('register')">
                                 <i class="fas fa-user-plus"></i>
-                                <span>�ang k�</span>
+                                <span>Đăng ký</span>
                             </button>
                         </div>
                         
@@ -206,6 +206,13 @@
     <script>
         // Load product detail on page load
         document.addEventListener('DOMContentLoaded', async function() {
+            // Đảm bảo modal đóng khi load trang
+            const authModal = document.getElementById('authModal');
+            if (authModal) {
+                authModal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+            
             await loadProducts();
             updateCartCount();
             checkLoginStatus(); // Cập nhật trạng thái đăng nhập

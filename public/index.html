@@ -142,66 +142,91 @@
         </div>
     </div>
 
-    <!-- Hero Banner Section -->
+    <!-- Hero Banner Section - Redesigned -->
     <section class="hero-banner-home">
         <div class="container">
             <div class="hero-layout">
                 <!-- Main Banner -->
                 <div class="main-banner-home">
-                    <img src="https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=1200&h=400&fit=crop" alt="Phú Quý An Khang">
+                    <div class="banner-bg-gradient"></div>
                     <div class="banner-overlay-home">
-                        <h2>PHÚ QUÝ AN KHANG</h2>
-                        <button class="btn-banner">Khám phá ngay</button>
+                        <div class="banner-content-wrapper">
+                            <span class="banner-subtitle">🎉 Chào mừng đến với</span>
+                            <h2 class="banner-title">PHÚ QUÝ AN KHANG</h2>
+                            <p class="banner-description">Mua sắm thông minh - Giá tốt nhất thị trường</p>
+                            <button class="btn-banner" onclick="window.location.href='products.html'">
+                                <span>Khám phá ngay</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Side Category Cards -->
                 <div class="side-categories">
-                    <div class="cat-box netflix-box">
-                        <h3>TÀI KHOẢN</h3>
-                        <h2>NETFLIX</h2>
-                        <p>SIÊU RẺ</p>
+                    <div class="cat-box netflix-box" onclick="filterByCategory('entertainment')">
+                        <div class="cat-box-icon">
+                            <i class="fab fa-netflix"></i>
+                        </div>
+                        <div class="cat-box-content">
+                            <span class="cat-label">TÀI KHOẢN</span>
+                            <h2 class="cat-name">NETFLIX</h2>
+                            <p class="cat-badge">SIÊU RẺ</p>
+                        </div>
                     </div>
-                    <div class="cat-box design-box">
-                        <h3>CÔNG CỤ</h3>
-                        <h2>THIẾT KẾ</h2>
-                        <p>SIÊU ĐA DẠNG</p>
+                    <div class="cat-box design-box" onclick="filterByCategory('design')">
+                        <div class="cat-box-icon">
+                            <i class="fas fa-palette"></i>
+                        </div>
+                        <div class="cat-box-content">
+                            <span class="cat-label">CÔNG CỤ</span>
+                            <h2 class="cat-name">THIẾT KẾ</h2>
+                            <p class="cat-badge">SIÊU ĐA DẠNG</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Bottom Category Grid -->
             <div class="bottom-categories">
-                <div class="cat-box-small youtube-box">
-                    <div class="cat-icon"><i class="fab fa-youtube"></i></div>
+                <div class="cat-box-small youtube-box" onclick="filterByCategory('entertainment')">
+                    <div class="cat-icon-wrapper">
+                        <i class="fab fa-youtube"></i>
+                    </div>
                     <div class="cat-text">
-                        <h4>TÀI KHOẢN</h4>
-                        <h3>YOUTUBE</h3>
-                        <p>SIÊU RẺ</p>
+                        <span class="cat-small-label">TÀI KHOẢN</span>
+                        <h3 class="cat-small-name">YOUTUBE</h3>
+                        <p class="cat-small-badge">SIÊU RẺ</p>
                     </div>
                 </div>
-                <div class="cat-box-small office-box">
-                    <div class="cat-icon"><i class="fab fa-microsoft"></i></div>
+                <div class="cat-box-small office-box" onclick="filterByCategory('software')">
+                    <div class="cat-icon-wrapper">
+                        <i class="fab fa-microsoft"></i>
+                    </div>
                     <div class="cat-text">
-                        <h4>MICROSOFT</h4>
-                        <h3>OFFICE</h3>
-                        <p>BẢN QUYỀN</p>
+                        <span class="cat-small-label">MICROSOFT</span>
+                        <h3 class="cat-small-name">OFFICE</h3>
+                        <p class="cat-small-badge">BẢN QUYỀN</p>
                     </div>
                 </div>
-                <div class="cat-box-small vpn-box">
-                    <div class="cat-icon"><i class="fas fa-shield-alt"></i></div>
+                <div class="cat-box-small vpn-box" onclick="filterByCategory('vpn')">
+                    <div class="cat-icon-wrapper">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
                     <div class="cat-text">
-                        <h4>ỨNG DỤNG</h4>
-                        <h3>VPN</h3>
-                        <p>TỐC ĐỘ CAO</p>
+                        <span class="cat-small-label">ỨNG DỤNG</span>
+                        <h3 class="cat-small-name">VPN</h3>
+                        <p class="cat-small-badge">TỐC ĐỘ CAO</p>
                     </div>
                 </div>
-                <div class="cat-box-small promo-box">
-                    <div class="cat-icon"><i class="fas fa-gift"></i></div>
+                <div class="cat-box-small promo-box" onclick="filterByCategory('all')">
+                    <div class="cat-icon-wrapper">
+                        <i class="fas fa-gift"></i>
+                    </div>
                     <div class="cat-text">
-                        <h4>KHUYẾN MÃI</h4>
-                        <h3>THẺ CÀO ĐT</h3>
-                        <p>CHIẾT KHẤU CAO</p>
+                        <span class="cat-small-label">KHUYẾN MÃI</span>
+                        <h3 class="cat-small-name">THẺ CÀO ĐT</h3>
+                        <p class="cat-small-badge">CHIẾT KHẤU CAO</p>
                     </div>
                 </div>
             </div>
@@ -563,6 +588,13 @@
     <script src="script.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async function() {
+            // Đảm bảo modal đóng khi load trang
+            const authModal = document.getElementById('authModal');
+            if (authModal) {
+                authModal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+            
             updateCartCount();
             updateUserUI();
             checkLoginStatus(); // Cập nhật trạng thái đăng nhập

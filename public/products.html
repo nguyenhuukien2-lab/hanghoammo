@@ -574,6 +574,13 @@
         }
 
         document.addEventListener('DOMContentLoaded', async function() {
+            // Đảm bảo modal đóng khi load trang
+            const authModal = document.getElementById('authModal');
+            if (authModal) {
+                authModal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+            
             updateCartCount();
             updateUserUI();
             checkLoginStatus(); // Cập nhật trạng thái đăng nhập
