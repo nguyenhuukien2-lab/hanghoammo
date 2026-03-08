@@ -26,6 +26,42 @@ body {
     line-height: 1.6;
 }
 
+/* Announcement Bar - Thanh chạy chữ */
+.announcement-bar {
+    background: linear-gradient(135deg, #dc2626, #ef4444);
+    color: white;
+    padding: 10px 0;
+    overflow: hidden;
+    position: relative;
+    z-index: 1001;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+}
+
+.announcement-content {
+    width: 100%;
+}
+
+.announcement-content marquee {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.announcement-content span {
+    display: inline-block;
+    padding: 0 50px;
+}
+
+@media (max-width: 768px) {
+    .announcement-bar {
+        padding: 8px 0;
+    }
+    
+    .announcement-content marquee {
+        font-size: 13px;
+    }
+}
+
 .container {
     max-width: 1200px;
     margin: 0 auto;
