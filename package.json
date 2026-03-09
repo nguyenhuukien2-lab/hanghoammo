@@ -2,7 +2,7 @@
   "name": "hanghoammo",
   "version": "1.0.0",
   "description": "hanghoammo - Shop tài khoản số uy tín",
-  "main": "server.js",
+  "main": "server-supabase.js",
   "scripts": {
     "start": "node server-supabase.js",
     "dev": "nodemon server-supabase.js",
