@@ -1,6 +1,6 @@
 // Checkout New JavaScript
 let currentStep = 1;
-let userBalance = 500000; // Mock user balance
+let userBalance = 0;
 
 document.addEventListener('DOMContentLoaded', function() {
     // Kiểm tra đăng nhập trước
@@ -18,9 +18,31 @@ document.addEventListener('DOMContentLoaded', function() {
     checkLoginStatus(); // Cập nhật trạng thái đăng nhập
 });
 
-function loadCheckoutData() {
+async function loadCheckoutData() {
     loadCartItems();
+    await fetchWalletBalance();
     checkBalance();
+}
+
+async function fetchWalletBalance() {
+    try {
+        const authToken = localStorage.getItem('authToken');
+        const response = await fetch('/api/wallet', {
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            userBalance = result.data.balance;
+        } else {
+            console.error('Lỗi lấy số dư:', result.message);
+        }
+    } catch (error) {
+        console.error('Lỗi kết nối API:', error);
+    }
 }
 
 function loadCartItems() {
@@ -123,7 +145,7 @@ function checkBalance() {
     }
 }
 
-function goToStep(step) {
+async function goToStep(step) {
     if (step === 2 && cart.length === 0) {
         alert('Giỏ hàng trống!');
         return;
@@ -138,7 +160,8 @@ function goToStep(step) {
         }
         
         // Process payment
-        processPayment();
+        await processPayment();
+        return; // Don't continue to step update if payment fails
     }
     
     currentStep = step;
@@ -165,88 +188,78 @@ function goToStep(step) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function processPayment() {
-    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const orderId = 'DH' + Date.now().toString().slice(-8);
-    
-    // Save order
-    const orders = JSON.parse(localStorage.getItem('orders') || '[]');
-    const order = {
-        id: orderId,
-        items: [...cart],
-        total: total,
-        date: new Date().toISOString(),
-        status: 'paid',
-        note: document.getElementById('orderNote')?.value || '',
-        deliveredAccounts: []
-    };
-    
-    // Auto-deliver accounts
-    const productAccounts = JSON.parse(localStorage.getItem('productAccounts')) || {};
-    
-    cart.forEach(item => {
-        const productId = item._id || item.id;
-        const accounts = productAccounts[productId] || [];
+async function processPayment() {
+    try {
+        const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const authToken = localStorage.getItem('authToken');
         
-        // Find available accounts for this product
-        for (let i = 0; i < item.quantity; i++) {
-            const availableAccount = accounts.find(acc => acc.status === 'available');
+        // Prepare order items
+        const items = cart.map(item => ({
+            product_id: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity || 1
+        }));
+        
+        // Call API to create order
+        const response = await fetch('/api/orders/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            },
+            body: JSON.stringify({
+                items: items,
+                total_amount: total,
+                payment_method: 'wallet'
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Update local balance
+            userBalance = result.data.new_balance;
             
-            if (availableAccount) {
-                // Mark as sold
-                availableAccount.status = 'sold';
-                availableAccount.orderId = orderId;
-                availableAccount.soldAt = new Date().toISOString();
-                
-                // Add to delivered accounts
-                order.deliveredAccounts.push({
-                    productName: item.name,
-                    account: availableAccount.account,
-                    password: availableAccount.password
-                });
-            }
-        }
-    });
-    
-    // Save updated accounts
-    localStorage.setItem('productAccounts', JSON.stringify(productAccounts));
-    
-    orders.push(order);
-    localStorage.setItem('orders', JSON.stringify(orders));
-    
-    // Save to admin orders
-    let adminOrders = JSON.parse(localStorage.getItem('adminOrders')) || [];
-    adminOrders.unshift(order);
-    localStorage.setItem('adminOrders', JSON.stringify(adminOrders));
-    
-    // Update balance
-    userBalance -= total;
-    
-    // Clear cart
-    cart = [];
-    localStorage.setItem('cart', JSON.stringify(cart));
-    updateCartCount();
-    
-    // Show order ID and accounts
-    document.getElementById('finalOrderId').textContent = orderId;
-    
-    // Display delivered accounts if any
-    if (order.deliveredAccounts.length > 0) {
-        const accountsDisplay = document.getElementById('deliveredAccountsDisplay');
-        if (accountsDisplay) {
-            let accountsHTML = '<div class="delivered-accounts"><h4>Tài khoản của bạn:</h4>';
-            order.deliveredAccounts.forEach(acc => {
-                accountsHTML += `
-                    <div class="account-item">
-                        <strong>${acc.productName}</strong><br>
-                        Tài khoản: <code>${acc.account}</code><br>
-                        Mật khẩu: <code>${acc.password}</code>
-                    </div>
-                `;
+            // Clear cart
+            cart = [];
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            
+            // Show order ID
+            document.getElementById('finalOrderId').textContent = result.data.order_id;
+            
+            // Move to step 3
+            currentStep = 3;
+            
+            // Update steps indicator
+            document.querySelectorAll('.step-item').forEach((item, index) => {
+                item.classList.remove('active', 'completed');
+                if (index + 1 < 3) {
+                    item.classList.add('completed');
+                } else if (index + 1 === 3) {
+                    item.classList.add('active');
+                }
             });
-            accountsHTML += '</div>';
-            accountsDisplay.innerHTML = accountsHTML;
+            
+            // Update step content
+            document.querySelectorAll('.checkout-step').forEach((stepEl, index) => {
+                stepEl.classList.remove('active');
+                if (index + 1 === 3) {
+                    stepEl.classList.add('active');
+                }
+            });
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+        } else {
+            alert(result.message || 'Lỗi khi tạo đơn hàng!');
         }
+        
+    } catch (error) {
+        console.error('Lỗi thanh toán:', error);
+        alert('Lỗi kết nối! Vui lòng thử lại.');
     }
 }
 

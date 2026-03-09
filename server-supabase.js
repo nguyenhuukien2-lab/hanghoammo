@@ -18,6 +18,7 @@ const productsRoutes = require('./routes/products');
 const walletRoutes = require('./routes/wallet');
 const adminRoutes = require('./routes/admin');
 const setupRoutes = require('./routes/setup');
+const ordersRoutes = require('./routes/orders');
 
 // API Routes
 app.use('/api/auth', authRoutes);
@@ -25,6 +26,7 @@ app.use('/api/products', productsRoutes);
 app.use('/api/wallet', walletRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/setup', setupRoutes);
+app.use('/api/orders', ordersRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
