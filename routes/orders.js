@@ -42,17 +42,52 @@ router.post('/create', authenticateToken, async (req, res) => {
                 order_code: 'DH' + Date.now().toString().slice(-8)
             });
             
-            // Create order items
+            // Create order items and assign accounts
+            const deliveredAccounts = [];
+            
             for (const item of items) {
-                await db.supabase
-                    .from('order_items')
-                    .insert({
-                        order_id: order.id,
-                        product_id: item.product_id,
-                        product_name: item.name,
-                        product_price: item.price,
-                        quantity: item.quantity || 1
-                    });
+                const quantity = item.quantity || 1;
+                
+                // Get available accounts for this product
+                for (let i = 0; i < quantity; i++) {
+                    const account = await db.getAvailableAccount(item.product_id);
+                    
+                    if (account) {
+                        // Mark account as sold
+                        await db.markAccountAsSold(account.id, req.user.id, order.id);
+                        
+                        // Create order item with account
+                        await db.supabase
+                            .from('order_items')
+                            .insert({
+                                order_id: order.id,
+                                product_id: item.product_id,
+                                product_name: item.name,
+                                product_price: item.price,
+                                quantity: 1,
+                                account_id: account.id
+                            });
+                        
+                        // Add to delivered accounts list
+                        deliveredAccounts.push({
+                            product_name: item.name,
+                            username: account.username,
+                            password: account.password
+                        });
+                    } else {
+                        // No account available - create order item without account
+                        await db.supabase
+                            .from('order_items')
+                            .insert({
+                                order_id: order.id,
+                                product_id: item.product_id,
+                                product_name: item.name,
+                                product_price: item.price,
+                                quantity: 1,
+                                account_id: null
+                            });
+                    }
+                }
             }
             
             // Deduct from wallet
@@ -74,7 +109,9 @@ router.post('/create', authenticateToken, async (req, res) => {
                 message: 'Đặt hàng thành công!',
                 data: {
                     order_id: order.id,
-                    new_balance: newBalance
+                    order_code: order.order_code,
+                    new_balance: newBalance,
+                    accounts: deliveredAccounts
                 }
             });
         }

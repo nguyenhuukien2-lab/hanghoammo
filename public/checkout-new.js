@@ -227,7 +227,32 @@ async function processPayment() {
             updateCartCount();
             
             // Show order ID
-            document.getElementById('finalOrderId').textContent = result.data.order_id;
+            document.getElementById('finalOrderId').textContent = result.data.order_code || result.data.order_id;
+            
+            // Display delivered accounts if any
+            if (result.data.accounts && result.data.accounts.length > 0) {
+                const accountsDisplay = document.getElementById('deliveredAccountsDisplay');
+                if (accountsDisplay) {
+                    let accountsHTML = '<div class="delivered-accounts"><h4>🎁 Tài khoản của bạn:</h4>';
+                    result.data.accounts.forEach(acc => {
+                        accountsHTML += `
+                            <div class="account-item">
+                                <strong>${acc.product_name}</strong><br>
+                                <div class="account-info">
+                                    <span>Tài khoản:</span> <code>${acc.username}</code>
+                                    <button onclick="navigator.clipboard.writeText('${acc.username}')" class="btn-copy">📋</button>
+                                </div>
+                                <div class="account-info">
+                                    <span>Mật khẩu:</span> <code>${acc.password}</code>
+                                    <button onclick="navigator.clipboard.writeText('${acc.password}')" class="btn-copy">📋</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    accountsHTML += '</div>';
+                    accountsDisplay.innerHTML = accountsHTML;
+                }
+            }
             
             // Move to step 3
             currentStep = 3;

@@ -831,3 +831,84 @@ body.dark-mode .account-item code {
     background: #4a5568;
     color: #90cdf4;
 }
+
+/* Delivered Accounts Styles */
+.delivered-accounts {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 30px;
+    border-radius: 12px;
+    margin: 20px 0;
+    color: white;
+}
+
+.delivered-accounts h4 {
+    margin: 0 0 20px 0;
+    font-size: 20px;
+    text-align: center;
+}
+
+.account-item {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.account-item:last-child {
+    margin-bottom: 0;
+}
+
+.account-item strong {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 12px;
+    color: #fff;
+}
+
+.account-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 8px 0;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    border-radius: 6px;
+}
+
+.account-info span {
+    font-weight: 500;
+    min-width: 80px;
+}
+
+.account-info code {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.btn-copy {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 14px;
+}
+
+.btn-copy:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
+.btn-copy:active {
+    transform: scale(0.95);
+}
