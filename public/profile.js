@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadUserOrders();
 });
 
-function loadUserProfile() {
+async function loadUserProfile() {
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
     
     if (!currentUser) {
@@ -31,11 +31,32 @@ function loadUserProfile() {
     if (profileData.birthday) document.getElementById('birthday').value = profileData.birthday;
     if (profileData.address) document.getElementById('address').value = profileData.address;
     
-    // Update wallet balance
-    const balance = parseInt(localStorage.getItem('userBalance_' + currentUser.email) || '0');
-    document.querySelector('.user-balance').textContent = formatPrice(balance);
-    document.getElementById('walletBalanceDisplay').textContent = formatPrice(balance);
-    document.querySelector('.menu-badge').textContent = formatPrice(balance);
+    // Load wallet balance from API
+    try {
+        const authToken = localStorage.getItem('authToken');
+        if (authToken) {
+            const response = await fetch('/api/wallet', {
+                headers: {
+                    'Authorization': `Bearer ${authToken}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                const balance = data.data.balance || 0;
+                document.querySelector('.user-balance').textContent = formatPrice(balance);
+                document.getElementById('walletBalanceDisplay').textContent = formatPrice(balance);
+                document.querySelector('.menu-badge').textContent = formatPrice(balance);
+            }
+        }
+    } catch (error) {
+        console.error('Failed to load wallet balance:', error);
+        // Fallback to 0 if API fails
+        document.querySelector('.user-balance').textContent = formatPrice(0);
+        document.getElementById('walletBalanceDisplay').textContent = formatPrice(0);
+        document.querySelector('.menu-badge').textContent = formatPrice(0);
+    }
 }
 
 function loadUserOrders() {
