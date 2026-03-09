@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require('../config/database');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 const supabase = require('../config/supabase');
+const emailService = require('../services/emailService');
 
 // Get all deposit requests (admin only)
 router.get('/deposits', authenticateToken, requireAdmin, async (req, res) => {
@@ -71,6 +72,19 @@ router.post('/approve-deposit', authenticateToken, requireAdmin, async (req, res
             description: `Nạp tiền - Mã yêu cầu #${deposit_id}`,
             balance_after: newBalance
         });
+
+        // 5. Get user info and send email
+        const user = await db.getUserById(user_id);
+        if (user && user.email) {
+            emailService.sendDepositApprovedEmail(
+                user.email,
+                user.name,
+                amount,
+                newBalance
+            ).catch(err => {
+                console.error('Failed to send deposit approved email:', err);
+            });
+        }
         
         res.json({
             success: true,

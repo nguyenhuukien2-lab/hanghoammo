@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../config/database');
+const emailService = require('../services/emailService');
 
 // Đăng ký
 router.post('/register', async (req, res) => {
@@ -44,6 +45,11 @@ router.post('/register', async (req, res) => {
             process.env.JWT_SECRET,
             { expiresIn: process.env.JWT_EXPIRE || '7d' }
         );
+
+        // Gửi email chào mừng (không chờ)
+        emailService.sendRegisterEmail(name, email).catch(err => {
+            console.error('Failed to send welcome email:', err);
+        });
 
         res.status(201).json({
             success: true,

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/database');
 const { authenticateToken } = require('../middleware/auth');
+const emailService = require('../services/emailService');
 
 // Create order and deduct from wallet
 router.post('/create', authenticateToken, async (req, res) => {
@@ -136,6 +137,18 @@ router.post('/create', authenticateToken, async (req, res) => {
                 balance_after: newBalance,
                 description: `Mua hàng - Đơn #${order.order_code}`,
                 order_id: order.id
+            });
+
+            // Gửi email xác nhận đơn hàng (không chờ)
+            emailService.sendOrderEmail(
+                req.user.email,
+                req.user.name,
+                order.order_code,
+                total_amount,
+                items,
+                deliveredAccounts
+            ).catch(err => {
+                console.error('Failed to send order email:', err);
             });
             
             return res.json({
