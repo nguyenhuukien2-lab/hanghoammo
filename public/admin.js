@@ -1,13 +1,6 @@
-// Admin Dashboard JavaScript
-
-let products = [];
-let orders = [];
-let customers = [];
-let notifications = [];
-
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
-    loadData();
+    checkAdminAuth();
     loadDashboard();
     loadProducts();
     loadOrders();
@@ -16,13 +9,64 @@ document.addEventListener('DOMContentLoaded', function() {
     loadSettings();
 });
 
-// Load all data from localStorage
-function loadData() {
-    products = JSON.parse(localStorage.getItem('adminProducts')) || [];
-    orders = JSON.parse(localStorage.getItem('adminOrders')) || [];
-    notifications = JSON.parse(localStorage.getItem('notifications')) || [];
-    // Note: customers are loaded directly from 'users' in loadCustomers()
+// Check admin authentication
+function checkAdminAuth() {
+    const authToken = localStorage.getItem('authToken');
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    
+    if (!authToken || !currentUser) {
+        alert('Vui lòng đăng nhập!');
+        window.location.href = 'index.html';
+        return;
+    }
+    
+    if (currentUser.role !== 'admin') {
+        alert('Bạn không có quyền truy cập trang này!');
+        window.location.href = 'index.html';
+        return;
+    }
 }
+
+// API Request Helper
+async function apiRequest(endpoint, options = {}) {
+    const authToken = localStorage.getItem('authToken');
+    
+    const defaultOptions = {
+        headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'application/json'
+        }
+    };
+    
+    const response = await fetch(`/api${endpoint}`, {
+        ...defaultOptions,
+        ...options,
+        headers: {
+            ...defaultOptions.headers,
+            ...options.headers
+        }
+    });
+    
+    const result = await response.json();
+    
+    if (!result.success) {
+        throw new Error(result.message || 'Request failed');
+    }
+    
+    return result;
+}
+
+// Show notification
+function showNotification(message, type = 'success') {
+    // Simple alert for now
+    alert(message);
+}
+
+// Load all data from API
+let products = [];
+let orders = [];
+let customers = [];
+let notifications = [];
 
 // Navigation
 function showSection(sectionId) {
@@ -59,43 +103,57 @@ function showSection(sectionId) {
 }
 
 // Dashboard
-function loadDashboard() {
-    // Load data from localStorage
-    const adminOrders = JSON.parse(localStorage.getItem('adminOrders')) || [];
-    const users = JSON.parse(localStorage.getItem('users')) || [];
-    
-    // Update stats
-    document.getElementById('totalProducts').textContent = products.length;
-    document.getElementById('totalOrders').textContent = adminOrders.length;
-    document.getElementById('totalCustomers').textContent = users.length;
-    
-    const totalRevenue = adminOrders.reduce((sum, order) => sum + (order.total || 0), 0);
-    document.getElementById('totalRevenue').textContent = formatPrice(totalRevenue);
-    
-    // Load recent orders
-    loadRecentOrders();
-    
-    // Load top products
-    loadTopProducts();
+async function loadDashboard() {
+    try {
+        // Load products from API
+        const productsData = await apiRequest('/products');
+        products = productsData.data || [];
+        
+        // Load orders from API
+        const ordersData = await apiRequest('/admin/orders');
+        orders = ordersData.data || [];
+        
+        // Load users from API
+        const usersData = await apiRequest('/admin/users');
+        customers = usersData.data || [];
+        
+        // Update stats
+        document.getElementById('totalProducts').textContent = products.length;
+        document.getElementById('totalOrders').textContent = orders.length;
+        document.getElementById('totalCustomers').textContent = customers.length;
+        
+        const totalRevenue = orders
+            .filter(o => o.status === 'completed')
+            .reduce((sum, order) => sum + (order.total_amount || 0), 0);
+        document.getElementById('totalRevenue').textContent = formatPrice(totalRevenue);
+        
+        // Load recent orders
+        loadRecentOrders();
+        
+        // Load top products
+        loadTopProducts();
+    } catch (error) {
+        console.error('Load dashboard error:', error);
+        showNotification('Không thể tải dữ liệu dashboard: ' + error.message, 'error');
+    }
 }
 
 function loadRecentOrders() {
-    const adminOrders = JSON.parse(localStorage.getItem('adminOrders')) || [];
     const tbody = document.getElementById('recentOrders');
     
-    if (adminOrders.length === 0) {
+    if (orders.length === 0) {
         tbody.innerHTML = '<tr><td colspan="5" class="text-center">Chưa có đơn hàng</td></tr>';
         return;
     }
     
-    const recentOrders = adminOrders.slice(-5).reverse();
+    const recentOrders = orders.slice(-5).reverse();
     tbody.innerHTML = recentOrders.map(order => `
         <tr>
-            <td><strong>${order.id}</strong></td>
-            <td>${order.customerName || order.customerEmail || 'Khách hàng'}</td>
-            <td><strong>${formatPrice(order.total)}</strong></td>
+            <td><strong>#${order.id}</strong></td>
+            <td>${order.user_email || 'Khách hàng'}</td>
+            <td><strong>${formatPrice(order.total_amount)}</strong></td>
             <td><span class="status-badge status-${order.status}">${getStatusText(order.status)}</span></td>
-            <td>${formatDate(order.createdAt || order.date)}</td>
+            <td>${formatDate(order.created_at)}</td>
         </tr>
     `).join('');
 }
@@ -121,31 +179,39 @@ function loadTopProducts() {
 }
 
 // Products Management
-function loadProducts() {
-    const tbody = document.getElementById('productsTable');
-    if (products.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="text-center">Chưa có sản phẩm</td></tr>';
-        return;
+async function loadProducts() {
+    try {
+        const data = await apiRequest('/products');
+        products = data.data || [];
+        
+        const tbody = document.getElementById('productsTable');
+        if (products.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center">Chưa có sản phẩm</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = products.map(product => `
+            <tr>
+                <td><img src="${product.image}" alt="${product.name}" class="product-img"></td>
+                <td><strong>${product.name}</strong></td>
+                <td>${getCategoryName(product.category)}</td>
+                <td><strong>${formatPrice(product.price)}</strong></td>
+                <td>${product.sold || 0}</td>
+                <td><span class="badge badge-${product.badge?.toLowerCase() || 'new'}">${product.badge || 'NEW'}</span></td>
+                <td>
+                    <button class="btn-primary btn-sm" onclick="editProduct(${product.id})">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-danger btn-sm" onclick="deleteProduct(${product.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    } catch (error) {
+        console.error('Load products error:', error);
+        showNotification('Không thể tải danh sách sản phẩm: ' + error.message, 'error');
     }
-    
-    tbody.innerHTML = products.map(product => `
-        <tr>
-            <td><img src="${product.image}" alt="${product.name}" class="product-img"></td>
-            <td><strong>${product.name}</strong></td>
-            <td>${getCategoryName(product.category)}</td>
-            <td><strong>${formatPrice(product.price)}</strong></td>
-            <td>${product.sold || 0}</td>
-            <td><span class="badge badge-${product.badge?.toLowerCase() || 'new'}">${product.badge || 'NEW'}</span></td>
-            <td>
-                <button class="btn-primary btn-sm" onclick="editProduct('${product._id || product.id}')">
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button class="btn-danger btn-sm" onclick="deleteProduct('${product._id || product.id}')">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </td>
-        </tr>
-    `).join('');
 }
 
 function filterProducts() {
@@ -275,34 +341,39 @@ function deleteProduct(productId) {
 }
 
 // Orders Management
-function loadOrders() {
-    // Load orders from adminOrders
-    const adminOrders = JSON.parse(localStorage.getItem('adminOrders')) || [];
-    
-    const tbody = document.getElementById('ordersTable');
-    if (adminOrders.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="text-center">Chưa có đơn hàng</td></tr>';
-        return;
+async function loadOrders() {
+    try {
+        const data = await apiRequest('/admin/orders');
+        orders = data.data || [];
+        
+        const tbody = document.getElementById('ordersTable');
+        if (orders.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center">Chưa có đơn hàng</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = orders.map(order => `
+            <tr>
+                <td><strong>#${order.id}</strong></td>
+                <td>${order.user_email || 'Khách hàng'}</td>
+                <td>${order.items_count || 0} sản phẩm</td>
+                <td><strong>${formatPrice(order.total_amount)}</strong></td>
+                <td><span class="status-badge status-${order.status}">${getStatusText(order.status)}</span></td>
+                <td>${formatDate(order.created_at)}</td>
+                <td>
+                    <button class="btn-success btn-sm" onclick="updateOrderStatus(${order.id}, 'completed')" title="Hoàn thành">
+                        <i class="fas fa-check"></i>
+                    </button>
+                    <button class="btn-danger btn-sm" onclick="updateOrderStatus(${order.id}, 'cancelled')" title="Hủy">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    } catch (error) {
+        console.error('Load orders error:', error);
+        showNotification('Không thể tải danh sách đơn hàng: ' + error.message, 'error');
     }
-    
-    tbody.innerHTML = adminOrders.map(order => `
-        <tr>
-            <td><strong>${order.id}</strong></td>
-            <td>${order.customerName || order.customerEmail || 'Khách hàng'}</td>
-            <td>${order.products ? order.products.length : (order.items ? order.items.length : 0)} sản phẩm</td>
-            <td><strong>${formatPrice(order.total)}</strong></td>
-            <td><span class="status-badge status-${order.status}">${getStatusText(order.status)}</span></td>
-            <td>${formatDate(order.createdAt || order.date)}</td>
-            <td>
-                <button class="btn-success btn-sm" onclick="updateOrderStatus('${order.id}', 'completed')" title="Hoàn thành">
-                    <i class="fas fa-check"></i>
-                </button>
-                <button class="btn-danger btn-sm" onclick="updateOrderStatus('${order.id}', 'cancelled')" title="Hủy">
-                    <i class="fas fa-times"></i>
-                </button>
-            </td>
-        </tr>
-    `).join('');
 }
 
 function filterOrders() {
@@ -363,53 +434,55 @@ function updateOrderStatus(orderId, newStatus) {
 }
 
 // Customers Management
-function loadCustomers() {
-    // Load users from localStorage
-    const users = JSON.parse(localStorage.getItem('users')) || [];
-    const orders = JSON.parse(localStorage.getItem('adminOrders')) || [];
-    
-    const tbody = document.getElementById('customersTable');
-    if (users.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="text-center">Chưa có khách hàng</td></tr>';
+async function loadCustomers() {
+    try {
+        const data = await apiRequest('/admin/users');
+        customers = data.data || [];
         
-        // Update dashboard customer count
-        document.getElementById('totalCustomers').textContent = '0';
-        return;
+        const tbody = document.getElementById('customersTable');
+        if (customers.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center">Chưa có khách hàng</td></tr>';
+            document.getElementById('totalCustomers').textContent = '0';
+            return;
+        }
+        
+        // Calculate stats for each customer
+        const customersWithStats = customers.map(user => {
+            const customerOrders = orders.filter(o => o.user_id === user.id);
+            const totalSpent = customerOrders
+                .filter(o => o.status === 'completed')
+                .reduce((sum, o) => sum + (o.total_amount || 0), 0);
+            
+            return {
+                ...user,
+                orderCount: customerOrders.length,
+                totalSpent: totalSpent
+            };
+        });
+        
+        // Sort by total spent (descending)
+        customersWithStats.sort((a, b) => b.totalSpent - a.totalSpent);
+        
+        tbody.innerHTML = customersWithStats.map(customer => `
+            <tr>
+                <td><strong>${customer.email}</strong></td>
+                <td>${customer.name || 'N/A'}</td>
+                <td>${customer.orderCount}</td>
+                <td><strong>${formatPrice(customer.totalSpent)}</strong></td>
+                <td>${formatDate(customer.created_at)}</td>
+                <td>
+                    <button class="btn-primary btn-sm" onclick="viewCustomerDetails(${customer.id})" title="Xem chi tiết">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+        
+        document.getElementById('totalCustomers').textContent = customers.length;
+    } catch (error) {
+        console.error('Load customers error:', error);
+        showNotification('Không thể tải danh sách khách hàng: ' + error.message, 'error');
     }
-    
-    // Calculate stats for each customer
-    const customersWithStats = users.map(user => {
-        const customerOrders = orders.filter(o => o.customerEmail === user.email);
-        const totalSpent = customerOrders.reduce((sum, o) => sum + (o.total || 0), 0);
-        
-        return {
-            ...user,
-            orderCount: customerOrders.length,
-            totalSpent: totalSpent,
-            createdAt: user.createdAt || new Date().toISOString()
-        };
-    });
-    
-    // Sort by total spent (descending)
-    customersWithStats.sort((a, b) => b.totalSpent - a.totalSpent);
-    
-    tbody.innerHTML = customersWithStats.map(customer => `
-        <tr>
-            <td><strong>${customer.email}</strong></td>
-            <td>${customer.name || 'N/A'}</td>
-            <td>${customer.orderCount}</td>
-            <td><strong>${formatPrice(customer.totalSpent)}</strong></td>
-            <td>${formatDate(customer.createdAt)}</td>
-            <td>
-                <button class="btn-primary btn-sm" onclick="viewCustomerDetails('${customer.email}')" title="Xem chi tiết">
-                    <i class="fas fa-eye"></i>
-                </button>
-            </td>
-        </tr>
-    `).join('');
-    
-    // Update dashboard customer count
-    document.getElementById('totalCustomers').textContent = users.length;
 }
 
 function filterCustomers() {
@@ -462,26 +535,25 @@ function filterCustomers() {
     `).join('');
 }
 
-function viewCustomerDetails(email) {
-    const users = JSON.parse(localStorage.getItem('users')) || [];
-    const orders = JSON.parse(localStorage.getItem('adminOrders')) || [];
-    
-    const customer = users.find(u => u.email === email);
+function viewCustomerDetails(userId) {
+    const customer = customers.find(u => u.id === userId);
     if (!customer) {
         alert('Không tìm thấy khách hàng!');
         return;
     }
     
-    const customerOrders = orders.filter(o => o.customerEmail === email);
-    const totalSpent = customerOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+    const customerOrders = orders.filter(o => o.user_id === userId);
+    const totalSpent = customerOrders
+        .filter(o => o.status === 'completed')
+        .reduce((sum, o) => sum + (o.total_amount || 0), 0);
     
     let ordersList = '';
     if (customerOrders.length > 0) {
         ordersList = customerOrders.map(order => `
             <div style="padding: 10px; border-bottom: 1px solid #eee;">
-                <strong>Mã đơn:</strong> ${order.id}<br>
-                <strong>Tổng tiền:</strong> ${formatPrice(order.total)}<br>
-                <strong>Ngày:</strong> ${formatDate(order.createdAt || order.date)}<br>
+                <strong>Mã đơn:</strong> #${order.id}<br>
+                <strong>Tổng tiền:</strong> ${formatPrice(order.total_amount)}<br>
+                <strong>Ngày:</strong> ${formatDate(order.created_at)}<br>
                 <strong>Trạng thái:</strong> ${getStatusText(order.status)}
             </div>
         `).join('');
@@ -496,7 +568,7 @@ function viewCustomerDetails(email) {
                 <strong>Tên:</strong> ${customer.name || 'N/A'}<br>
                 <strong>Email:</strong> ${customer.email}<br>
                 <strong>Số điện thoại:</strong> ${customer.phone || 'N/A'}<br>
-                <strong>Ngày đăng ký:</strong> ${formatDate(customer.createdAt || new Date())}<br>
+                <strong>Ngày đăng ký:</strong> ${formatDate(customer.created_at)}<br>
                 <strong>Tổng đơn hàng:</strong> ${customerOrders.length}<br>
                 <strong>Tổng chi tiêu:</strong> ${formatPrice(totalSpent)}
             </div>

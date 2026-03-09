@@ -161,9 +161,23 @@ router.get('/orders', authenticateToken, isAdmin, async (req, res) => {
     try {
         const orders = await db.getAllOrders();
         
+        // Format orders with user email and items count
+        const formatted = await Promise.all(orders.map(async (order) => {
+            const user = await db.getUserById(order.user_id);
+            return {
+                id: order.id,
+                user_id: order.user_id,
+                user_email: user ? user.email : 'Unknown',
+                total_amount: order.total_amount,
+                status: order.status,
+                created_at: order.created_at,
+                items_count: order.order_items ? order.order_items.length : 0
+            };
+        }));
+        
         res.json({
             success: true,
-            data: orders
+            data: formatted
         });
     } catch (error) {
         console.error('Get orders error:', error);
