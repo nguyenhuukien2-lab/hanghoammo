@@ -383,18 +383,13 @@
                     <p><strong>Ngân hàng:</strong> <span id="bankName">-</span></p>
                     <p><strong>Chủ TK:</strong> <span id="accountHolder">-</span></p>
                     <p style="color: #ff4757; margin-top: 10px;">
-                        <i class="fas fa-info-circle"></i> Vui lòng chuyển khoản và nhập mã giao dịch bên dưới
+                        <i class="fas fa-info-circle"></i> Vui lòng chuyển khoản đúng số tiền và ghi rõ nội dung bên dưới
                     </p>
                 </div>
                 
                 <div class="form-group">
-                    <label for="transactionCode">Mã giao dịch *</label>
-                    <input type="text" id="transactionCode" name="transaction_code" placeholder="Nhập mã giao dịch từ ngân hàng" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="depositNote">Ghi chú (tùy chọn)</label>
-                    <textarea id="depositNote" name="note" rows="3" placeholder="Ghi chú thêm nếu có..."></textarea>
+                    <label for="depositNote">Ghi chú</label>
+                    <textarea id="depositNote" name="note" rows="3" placeholder="Nhập nội dung chuyển khoản hoặc mã giao dịch (nếu có)..." required></textarea>
                 </div>
                 
                 <button type="submit" class="btn-submit-deposit">

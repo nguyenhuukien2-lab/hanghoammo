@@ -96,10 +96,7 @@ async function loadDepositRequests() {
                         <div style="color: #666; font-size: 14px; margin-top: 5px;">
                             ${paymentMethodText[dep.payment_method] || dep.payment_method}
                         </div>
-                        <div style="color: #999; font-size: 13px; margin-top: 3px;">
-                            Mã GD: ${dep.transaction_code}
-                        </div>
-                        ${dep.note ? `<div style="color: #999; font-size: 13px; margin-top: 3px;">Ghi chú: ${dep.note}</div>` : ''}
+                        ${dep.note ? `<div style="color: #999; font-size: 13px; margin-top: 3px;">Nội dung: ${dep.note}</div>` : ''}
                         <div class="dep-date">${new Date(dep.created_at).toLocaleString('vi-VN')}</div>
                     </div>
                     <div>
@@ -177,12 +174,17 @@ if (depositForm) {
         const formData = new FormData(this);
         const amount = parseInt(formData.get('amount'));
         const payment_method = formData.get('payment_method');
-        const transaction_code = formData.get('transaction_code');
         const note = formData.get('note');
         
         // Validate amount
         if (amount < 10000) {
             showNotification('Số tiền nạp tối thiểu là 10.000đ', 'error');
+            return;
+        }
+        
+        // Validate note
+        if (!note || note.trim() === '') {
+            showNotification('Vui lòng nhập nội dung chuyển khoản hoặc mã giao dịch', 'error');
             return;
         }
         
@@ -197,7 +199,7 @@ if (depositForm) {
                 body: JSON.stringify({
                     amount,
                     payment_method,
-                    transaction_code,
+                    transaction_code: note.substring(0, 50), // Use first 50 chars of note as transaction code
                     note
                 })
             });
