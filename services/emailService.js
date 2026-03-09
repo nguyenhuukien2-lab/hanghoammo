@@ -14,7 +14,7 @@ async function sendEmailViaBrevo(to, subject, html) {
     const data = JSON.stringify({
         sender: {
             name: "HangHoaMMO",
-            email: "noreply@hanghoammo.com"
+            email: "huukiennguyen711@gmail.com"
         },
         to: [{ email: to }],
         subject: subject,
