@@ -617,6 +617,14 @@ if (modalLoginForm) {
                 body: JSON.stringify({ email, password })
             });
             
+            // Kiểm tra nếu là admin -> chặn đăng nhập trang chủ
+            if (data.user.role === 'admin') {
+                showNotification('Tài khoản admin vui lòng đăng nhập tại /admin.html', 'error');
+                btnSubmit.innerHTML = originalHTML;
+                btnSubmit.disabled = false;
+                return;
+            }
+            
             // Lưu token và user info từ API
             authToken = data.token;
             currentUser = data.user;
