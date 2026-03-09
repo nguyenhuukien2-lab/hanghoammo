@@ -41,10 +41,41 @@ async function apiRequest(endpoint, options = {}) {
 
 // Load products from API or localStorage
 async function loadProducts() {
-    // Force reload sample products (remove this line after first load if needed)
-    products = getSampleProducts();
-    localStorage.setItem('adminProducts', JSON.stringify(products));
-    console.log('✅ Loaded ' + products.length + ' products');
+    try {
+        // Try to load from API first
+        const response = await fetch(`${API_URL}/products`);
+        const result = await response.json();
+        
+        if (result.success && result.data) {
+            products = result.data;
+            localStorage.setItem('adminProducts', JSON.stringify(products));
+            console.log('✅ Loaded ' + products.length + ' products from API');
+            
+            // Clear cart if it contains old numeric IDs
+            const currentCart = JSON.parse(localStorage.getItem('cart')) || [];
+            if (currentCart.length > 0 && currentCart[0].id && typeof currentCart[0].id === 'number') {
+                console.log('⚠️ Clearing cart with old numeric IDs');
+                localStorage.removeItem('cart');
+                cart = [];
+                updateCartCount();
+            }
+            
+            return products;
+        }
+    } catch (error) {
+        console.error('Failed to load products from API:', error);
+    }
+    
+    // Fallback to localStorage or sample products
+    const cached = localStorage.getItem('adminProducts');
+    if (cached) {
+        products = JSON.parse(cached);
+        console.log('✅ Loaded ' + products.length + ' products from cache');
+    } else {
+        products = getSampleProducts();
+        console.log('⚠️ Using sample products');
+    }
+    
     return products;
 }
 
