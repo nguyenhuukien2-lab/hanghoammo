@@ -123,20 +123,44 @@ const bankAccounts = {
         title: '📱 Thông tin ví MoMo',
         accountNumber: '0879062222',
         bankName: 'Ví MoMo',
-        accountHolder: 'HANGHOAMMO'
+        accountHolder: 'NGUYEN HUU KIEN',
+        bin: '9704', // MoMo BIN code
+        template: 'compact'
     },
     vietinbank: {
         title: '🏦 Thông tin VietinBank',
         accountNumber: '101884511335',
         bankName: 'VietinBank CN BAC DA NANG - HOI SO',
-        accountHolder: 'HANGHOAMMO'
+        accountHolder: 'NGUYEN HUU KIEN',
+        bin: '970415', // VietinBank BIN code
+        template: 'compact'
     }
 };
+
+// Generate QR Code using VietQR API
+function generateQRCode(bankInfo, amount, content) {
+    // VietQR API: https://api.vietqr.io/v2/generate
+    const qrData = {
+        accountNo: bankInfo.accountNumber,
+        accountName: bankInfo.accountHolder,
+        acqId: bankInfo.bin,
+        amount: amount || 0,
+        addInfo: content || 'Nap tien HangHoaMMO',
+        format: 'text',
+        template: bankInfo.template
+    };
+    
+    // Create QR URL
+    const qrUrl = `https://img.vietqr.io/image/${qrData.acqId}-${qrData.accountNo}-${qrData.template}.png?amount=${qrData.amount}&addInfo=${encodeURIComponent(qrData.addInfo)}&accountName=${encodeURIComponent(qrData.accountName)}`;
+    
+    return qrUrl;
+}
 
 // Update payment info based on selected method
 function updatePaymentInfo() {
     const paymentMethod = document.getElementById('paymentMethod').value;
     const paymentInfoDiv = document.getElementById('paymentInfo');
+    const amount = parseInt(document.getElementById('depositAmount').value) || 0;
     
     if (!paymentMethod) {
         paymentInfoDiv.style.display = 'none';
@@ -145,13 +169,38 @@ function updatePaymentInfo() {
     
     const bankInfo = bankAccounts[paymentMethod];
     if (bankInfo) {
+        // Generate transfer content with user email
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        const userEmail = currentUser ? currentUser.email : 'user';
+        const transferContent = `NAPTHE ${userEmail.split('@')[0]}`;
+        
+        // Update text info
         document.getElementById('paymentTitle').textContent = bankInfo.title;
         document.getElementById('accountNumber').textContent = bankInfo.accountNumber;
         document.getElementById('bankName').textContent = bankInfo.bankName;
         document.getElementById('accountHolder').textContent = bankInfo.accountHolder;
+        document.getElementById('transferContent').textContent = transferContent;
+        
+        // Auto-fill note field
+        document.getElementById('depositNote').value = transferContent;
+        
+        // Generate and display QR code
+        const qrUrl = generateQRCode(bankInfo, amount, transferContent);
+        const qrImage = document.getElementById('qrCodeImage');
+        qrImage.src = qrUrl;
+        qrImage.style.display = 'block';
+        
         paymentInfoDiv.style.display = 'block';
     }
 }
+
+// Update QR when amount changes
+document.getElementById('depositAmount').addEventListener('input', function() {
+    const paymentMethod = document.getElementById('paymentMethod').value;
+    if (paymentMethod) {
+        updatePaymentInfo();
+    }
+});
 
 // Open/close deposit modal
 function openDepositModal() {

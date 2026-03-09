@@ -378,12 +378,16 @@
                 </div>
                 
                 <div class="payment-info" id="paymentInfo" style="display: none;">
+                    <div id="qrCodeContainer" style="margin-bottom: 15px;">
+                        <img id="qrCodeImage" src="" alt="QR Code" style="max-width: 250px; margin: 0 auto; display: block; border-radius: 8px;">
+                    </div>
                     <p><strong id="paymentTitle">📱 Thông tin chuyển khoản:</strong></p>
                     <p><strong>STK/SĐT:</strong> <span id="accountNumber">-</span></p>
                     <p><strong>Ngân hàng:</strong> <span id="bankName">-</span></p>
                     <p><strong>Chủ TK:</strong> <span id="accountHolder">-</span></p>
+                    <p><strong>Nội dung:</strong> <code id="transferContent" style="background: #e9ecef; padding: 5px 10px; border-radius: 4px; display: inline-block; margin-top: 5px;">-</code></p>
                     <p style="color: #ff4757; margin-top: 10px;">
-                        <i class="fas fa-info-circle"></i> Vui lòng chuyển khoản đúng số tiền và ghi rõ nội dung bên dưới
+                        <i class="fas fa-info-circle"></i> Quét mã QR hoặc chuyển khoản thủ công với nội dung bên trên
                     </p>
                 </div>
                 
