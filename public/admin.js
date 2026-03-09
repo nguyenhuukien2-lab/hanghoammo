@@ -1,24 +1,90 @@
 // Initialize
 document.addEventListener('DOMContentLoaded', async function() {
-    const isAdmin = await checkAdminAuth();
-    if (!isAdmin) return; // Stop if not admin
+    // Check if already logged in
+    const authToken = localStorage.getItem('authToken');
+    if (authToken) {
+        const isAdmin = await checkAdminAuth();
+        if (isAdmin) {
+            document.getElementById('adminLoginOverlay').classList.add('hidden');
+            await loadDashboard();
+            loadNotifications();
+            loadSettings();
+            return;
+        }
+    }
     
-    await loadDashboard();
-    loadNotifications();
-    loadSettings();
+    // Show login form
+    document.getElementById('adminLoginOverlay').classList.remove('hidden');
+    setupAdminLogin();
 });
+
+// Setup admin login form
+function setupAdminLogin() {
+    const form = document.getElementById('adminLoginForm');
+    const errorMsg = document.getElementById('adminLoginError');
+    
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const email = document.getElementById('adminEmail').value;
+        const password = document.getElementById('adminPassword').value;
+        const btn = form.querySelector('.btn-login');
+        
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang đăng nhập...';
+        errorMsg.style.display = 'none';
+        
+        try {
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password })
+            });
+            
+            const result = await response.json();
+            
+            if (!result.success) {
+                throw new Error(result.message);
+            }
+            
+            // Check if user is admin
+            if (result.user.role !== 'admin') {
+                throw new Error('Bạn không có quyền truy cập trang admin!');
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('authToken', result.token);
+            localStorage.setItem('currentUser', JSON.stringify(result.user));
+            
+            // Hide login overlay
+            document.getElementById('adminLoginOverlay').classList.add('hidden');
+            
+            // Load dashboard
+            await loadDashboard();
+            loadNotifications();
+            loadSettings();
+            
+        } catch (error) {
+            errorMsg.textContent = error.message;
+            errorMsg.style.display = 'block';
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Đăng nhập';
+        }
+    });
+}
 
 // Check admin authentication
 async function checkAdminAuth() {
     const authToken = localStorage.getItem('authToken');
     
     if (!authToken) {
-        alert('Vui lòng đăng nhập!');
-        window.location.href = 'index.html';
         return false;
     }
     
-    // MUST verify token with server
+    // Verify token with server
     try {
         const response = await fetch('/api/auth/me', {
             headers: {
@@ -33,27 +99,18 @@ async function checkAdminAuth() {
         
         const result = await response.json();
         
-        if (!result.success) {
-            throw new Error(result.message);
+        if (!result.success || result.data.role !== 'admin') {
+            throw new Error('Không có quyền admin');
         }
         
-        // Check if user is admin
-        if (result.data.role !== 'admin') {
-            alert('Bạn không có quyền truy cập trang này!');
-            window.location.href = 'index.html';
-            return false;
-        }
-        
-        // Update localStorage with verified user info
+        // Update localStorage
         localStorage.setItem('currentUser', JSON.stringify(result.data));
         return true;
         
     } catch (error) {
         console.error('Auth check error:', error);
-        alert('Phiên đăng nhập không hợp lệ. Vui lòng đăng nhập lại!');
         localStorage.removeItem('authToken');
         localStorage.removeItem('currentUser');
-        window.location.href = 'index.html';
         return false;
     }
 }
