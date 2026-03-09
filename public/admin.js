@@ -1462,9 +1462,12 @@ async function saveAccount(event) {
             return;
         }
         
-        const data = await apiRequest('/api/admin/accounts', 'POST', {
-            product_id: productId,
-            accounts: accounts
+        const data = await apiRequest('/admin/accounts', {
+            method: 'POST',
+            body: JSON.stringify({
+                product_id: productId,
+                accounts: accounts
+            })
         });
         
         showNotification(`Đã thêm ${accounts.length} tài khoản thành công!`, 'success');
@@ -1481,7 +1484,9 @@ async function deleteAccount(accountId) {
     if (!confirm('Xác nhận xóa tài khoản này?')) return;
     
     try {
-        await apiRequest(`/api/admin/accounts/${accountId}`, 'DELETE');
+        await apiRequest(`/admin/accounts/${accountId}`, {
+            method: 'DELETE'
+        });
         showNotification('Đã xóa tài khoản', 'success');
         loadAccounts();
     } catch (error) {
