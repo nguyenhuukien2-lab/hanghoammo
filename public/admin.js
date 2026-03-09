@@ -1170,10 +1170,10 @@ function renderDepositCard(dep) {
                     
                     ${dep.status === 'pending' ? `
                         <div style="display: flex; flex-direction: column; gap: 10px;">
-                            <button onclick="window.approveDeposit(${dep.id}, ${dep.user_id}, ${dep.amount})" style="background: #26de81; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s;">
+                            <button class="btn-approve-deposit" data-id="${dep.id}" data-user="${dep.user_id}" data-amount="${dep.amount}" style="background: #26de81; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s;">
                                 <i class="fas fa-check"></i> Duyệt
                             </button>
-                            <button onclick="window.rejectDeposit(${dep.id})" style="background: #ff4757; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s;">
+                            <button class="btn-reject-deposit" data-id="${dep.id}" style="background: #ff4757; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s;">
                                 <i class="fas fa-times"></i> Từ chối
                             </button>
                         </div>
@@ -1185,7 +1185,7 @@ function renderDepositCard(dep) {
 }
 
 // Approve deposit
-window.approveDeposit = async function approveDeposit(depositId, userId, amount) {
+async function approveDeposit(depositId, userId, amount) {
     if (!confirm(`Xác nhận duyệt nạp ${amount.toLocaleString('vi-VN')}đ?`)) {
         return;
     }
@@ -1226,7 +1226,7 @@ window.approveDeposit = async function approveDeposit(depositId, userId, amount)
 }
 
 // Reject deposit
-window.rejectDeposit = async function rejectDeposit(depositId) {
+async function rejectDeposit(depositId) {
     const reason = prompt('Nhập lý do từ chối:');
     if (!reason || reason.trim() === '') {
         showNotification('Vui lòng nhập lý do từ chối', 'error');
@@ -1266,6 +1266,25 @@ window.rejectDeposit = async function rejectDeposit(depositId) {
         showNotification('Từ chối thất bại: ' + error.message, 'error');
     }
 }
+
+// Event delegation for deposit buttons
+document.addEventListener('click', function(e) {
+    // Approve button
+    if (e.target.closest('.btn-approve-deposit')) {
+        const btn = e.target.closest('.btn-approve-deposit');
+        const depositId = parseInt(btn.dataset.id);
+        const userId = parseInt(btn.dataset.user);
+        const amount = parseInt(btn.dataset.amount);
+        approveDeposit(depositId, userId, amount);
+    }
+    
+    // Reject button
+    if (e.target.closest('.btn-reject-deposit')) {
+        const btn = e.target.closest('.btn-reject-deposit');
+        const depositId = parseInt(btn.dataset.id);
+        rejectDeposit(depositId);
+    }
+});
 
 // Add to initialization
 document.addEventListener('DOMContentLoaded', function() {
