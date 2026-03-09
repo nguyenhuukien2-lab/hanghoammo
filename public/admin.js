@@ -11,21 +11,14 @@ document.addEventListener('DOMContentLoaded', async function() {
 // Check admin authentication
 async function checkAdminAuth() {
     const authToken = localStorage.getItem('authToken');
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
     
-    if (!authToken || !currentUser) {
+    if (!authToken) {
         alert('Vui lòng đăng nhập!');
         window.location.href = 'index.html';
         return false;
     }
     
-    // First check localStorage role
-    if (currentUser.role === 'admin') {
-        console.log('Admin authenticated from localStorage');
-        return true;
-    }
-    
-    // If not admin in localStorage, check from API
+    // MUST verify token with server
     try {
         const response = await fetch('/api/auth/me', {
             headers: {
@@ -34,28 +27,32 @@ async function checkAdminAuth() {
             }
         });
         
-        const result = await response.json();
-        
-        if (result.success && result.data.role === 'admin') {
-            // Update localStorage with latest user info
-            localStorage.setItem('currentUser', JSON.stringify(result.data));
-            console.log('Admin authenticated from API');
-            return true;
+        if (!response.ok) {
+            throw new Error('Token không hợp lệ');
         }
         
-        // Not admin
-        alert('Bạn không có quyền truy cập trang này!');
-        window.location.href = 'index.html';
-        return false;
+        const result = await response.json();
+        
+        if (!result.success) {
+            throw new Error(result.message);
+        }
+        
+        // Check if user is admin
+        if (result.data.role !== 'admin') {
+            alert('Bạn không có quyền truy cập trang này!');
+            window.location.href = 'index.html';
+            return false;
+        }
+        
+        // Update localStorage with verified user info
+        localStorage.setItem('currentUser', JSON.stringify(result.data));
+        return true;
         
     } catch (error) {
         console.error('Auth check error:', error);
-        // If API fails, check localStorage as fallback
-        if (currentUser.role === 'admin') {
-            console.log('Admin authenticated from localStorage (API failed)');
-            return true;
-        }
-        alert('Không thể xác thực. Vui lòng đăng nhập lại!');
+        alert('Phiên đăng nhập không hợp lệ. Vui lòng đăng nhập lại!');
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('currentUser');
         window.location.href = 'index.html';
         return false;
     }
