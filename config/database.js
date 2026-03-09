@@ -258,4 +258,7 @@ const db = {
     }
 };
 
+// Export supabase client for direct queries
+db.supabase = supabase;
+
 module.exports = db;
