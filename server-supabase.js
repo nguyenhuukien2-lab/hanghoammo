@@ -16,11 +16,13 @@ app.use(express.static('public'));
 const authRoutes = require('./routes/auth');
 const productsRoutes = require('./routes/products');
 const walletRoutes = require('./routes/wallet');
+const adminRoutes = require('./routes/admin');
 
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productsRoutes);
 app.use('/api/wallet', walletRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

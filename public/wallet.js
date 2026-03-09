@@ -1,0 +1,209 @@
+// Wallet.js - Quản lý ví tiền
+
+// Load wallet info
+async function loadWalletInfo() {
+    try {
+        const data = await apiRequest('/wallet');
+        const balance = data.data.balance || 0;
+        
+        document.getElementById('walletBalance').textContent = 
+            balance.toLocaleString('vi-VN') + 'đ';
+    } catch (error) {
+        console.error('Failed to load wallet info:', error);
+        showNotification('Không thể tải thông tin ví', 'error');
+    }
+}
+
+// Load transaction history
+async function loadTransactions() {
+    try {
+        const data = await apiRequest('/wallet/transactions');
+        const transactions = data.data || [];
+        
+        const listEl = document.getElementById('transactionList');
+        if (transactions.length === 0) {
+            listEl.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-receipt"></i>
+                    <p>Chưa có giao dịch nào</p>
+                </div>
+            `;
+            return;
+        }
+        
+        listEl.innerHTML = transactions.map(tx => {
+            const isDeposit = tx.type === 'deposit';
+            return `
+                <div class="transaction-item">
+                    <div>
+                        <div class="tx-type">
+                            ${isDeposit ? '💰 Nạp tiền' : '🛒 Mua hàng'}
+                        </div>
+                        <div class="tx-date">${new Date(tx.created_at).toLocaleString('vi-VN')}</div>
+                        ${tx.description ? `<div style="color: #999; font-size: 13px; margin-top: 3px;">${tx.description}</div>` : ''}
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="tx-amount ${isDeposit ? 'positive' : 'negative'}">
+                            ${isDeposit ? '+' : '-'}${tx.amount.toLocaleString('vi-VN')}đ
+                        </div>
+                        <div style="color: #999; font-size: 13px; margin-top: 3px;">
+                            Số dư: ${tx.balance_after.toLocaleString('vi-VN')}đ
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    } catch (error) {
+        console.error('Failed to load transactions:', error);
+    }
+}
+
+// Load deposit requests
+async function loadDepositRequests() {
+    try {
+        const data = await apiRequest('/wallet/deposits');
+        const deposits = data.data || [];
+        
+        const listEl = document.getElementById('depositRequestList');
+        if (deposits.length === 0) {
+            listEl.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <p>Chưa có yêu cầu nạp tiền nào</p>
+                </div>
+            `;
+            return;
+        }
+        
+        listEl.innerHTML = deposits.map(dep => {
+            const statusText = {
+                'pending': 'Chờ duyệt',
+                'approved': 'Đã duyệt',
+                'rejected': 'Từ chối'
+            };
+            
+            return `
+                <div class="deposit-item">
+                    <div>
+                        <div style="font-weight: 600; font-size: 18px; color: #333;">
+                            ${dep.amount.toLocaleString('vi-VN')}đ
+                        </div>
+                        <div style="color: #666; font-size: 14px; margin-top: 5px;">
+                            ${dep.payment_method === 'momo' ? '📱 MoMo' : '🏦 Chuyển khoản'}
+                        </div>
+                        <div style="color: #999; font-size: 13px; margin-top: 3px;">
+                            Mã GD: ${dep.transaction_code}
+                        </div>
+                        ${dep.note ? `<div style="color: #999; font-size: 13px; margin-top: 3px;">Ghi chú: ${dep.note}</div>` : ''}
+                        <div class="dep-date">${new Date(dep.created_at).toLocaleString('vi-VN')}</div>
+                    </div>
+                    <div>
+                        <span class="deposit-status status-${dep.status}">
+                            ${statusText[dep.status] || dep.status}
+                        </span>
+                        ${dep.status === 'rejected' && dep.reject_reason ? `
+                            <div style="color: #ff4757; font-size: 13px; margin-top: 5px;">
+                                Lý do: ${dep.reject_reason}
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    } catch (error) {
+        console.error('Failed to load deposit requests:', error);
+    }
+}
+
+// Open/close deposit modal
+function openDepositModal() {
+    document.getElementById('depositModal').classList.add('active');
+}
+
+function closeDepositModal() {
+    document.getElementById('depositModal').classList.remove('active');
+}
+
+// Submit deposit request
+const depositForm = document.getElementById('depositForm');
+if (depositForm) {
+    depositForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const amount = parseInt(formData.get('amount'));
+        const payment_method = formData.get('payment_method');
+        const transaction_code = formData.get('transaction_code');
+        const note = formData.get('note');
+        
+        // Validate amount
+        if (amount < 10000) {
+            showNotification('Số tiền nạp tối thiểu là 10.000đ', 'error');
+            return;
+        }
+        
+        const btnSubmit = this.querySelector('.btn-submit-deposit');
+        const originalHTML = btnSubmit.innerHTML;
+        btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang gửi...';
+        btnSubmit.disabled = true;
+        
+        try {
+            await apiRequest('/wallet/deposit', {
+                method: 'POST',
+                body: JSON.stringify({
+                    amount,
+                    payment_method,
+                    transaction_code,
+                    note
+                })
+            });
+            
+            showNotification('Gửi yêu cầu nạp tiền thành công! Vui lòng chờ admin duyệt.');
+            closeDepositModal();
+            this.reset();
+            
+            // Reload deposit requests
+            loadDepositRequests();
+        } catch (error) {
+            showNotification(error.message || 'Gửi yêu cầu thất bại', 'error');
+        } finally {
+            btnSubmit.innerHTML = originalHTML;
+            btnSubmit.disabled = false;
+        }
+    });
+}
+
+// Check if user is logged in
+function checkWalletAuth() {
+    const authToken = localStorage.getItem('authToken');
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    
+    if (!authToken || !currentUser) {
+        showNotification('Vui lòng đăng nhập để xem ví tiền!', 'error');
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 1500);
+        return false;
+    }
+    return true;
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    // Check auth first
+    if (!checkWalletAuth()) {
+        return;
+    }
+    
+    // Load all data
+    loadWalletInfo();
+    loadTransactions();
+    loadDepositRequests();
+    
+    // Auto refresh every 30 seconds
+    setInterval(() => {
+        loadWalletInfo();
+        loadTransactions();
+        loadDepositRequests();
+    }, 30000);
+});

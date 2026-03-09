@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ví tiền - HangHoaMMO</title>
+    
+    <link rel="stylesheet" href="style.css?v=1.1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        .wallet-container {
+            max-width: 1200px;
+            margin: 120px auto 50px;
+            padding: 20px;
+        }
+        
+        .wallet-balance-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+        
+        .wallet-balance-card h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+        
+        .balance-amount {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        
+        .btn-deposit {
+            background: white;
+            color: #667eea;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .btn-deposit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .section-card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .section-card h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .transaction-item, .deposit-item {
+            padding: 20px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .transaction-item:last-child, .deposit-item:last-child {
+            border-bottom: none;
+        }
+        
+        .tx-type {
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .tx-date, .dep-date {
+            color: #999;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        .tx-amount {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .tx-amount.positive {
+            color: #26de81;
+        }
+        
+        .tx-amount.negative {
+            color: #ff4757;
+        }
+        
+        .deposit-status {
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+        
+        /* Deposit Modal */
+        .deposit-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .deposit-modal.active {
+            display: flex;
+        }
+        
+        .deposit-modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .deposit-modal-content h3 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .payment-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .payment-info p {
+            margin: 8px 0;
+            color: #555;
+        }
+        
+        .payment-info strong {
+            color: #333;
+        }
+        
+        .btn-submit-deposit {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+        
+        .btn-submit-deposit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-cancel {
+            width: 100%;
+            padding: 15px;
+            background: #f0f0f0;
+            color: #333;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Announcement Bar -->
+    <div class="announcement-bar">
+        <div class="announcement-content">
+            <marquee behavior="scroll" direction="left" scrollamount="5">
+                <span>🎉 Chào mừng Tết Nguyên Đán 2025! 🧧 Giảm giá đến 50% tất cả sản phẩm 🎊 Telegram: @hanghoammo 📞 Hotline: 0879.06.2222 💝 Miễn phí ship - Giao hàng tức thì 24/7</span>
+            </marquee>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header-new">
+        <div class="main-header-new">
+            <div class="container">
+                <div class="header-wrapper">
+                    <div class="logo-new">
+                        <a href="index.html">
+                            <div class="logo-box">
+                                <i class="fas fa-store"></i>
+                            </div>
+                            <div class="logo-info">
+                                <h1>HangHoa<span>MMO</span></h1>
+                                <p>Chợ MMO uy tín #1</p>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="search-box-new">
+                        <input type="text" id="searchInputWallet" placeholder="Tìm kiếm sản phẩm, dịch vụ..." oninput="showSearchResults(this.value)" onfocus="showSearchResults(this.value)" onblur="hideSearchResults()">
+                        <button onclick="performSearch()"><i class="fas fa-search"></i></button>
+                        <div class="search-dropdown" id="searchDropdown"></div>
+                    </div>
+
+                    <div class="header-right">
+                        <a href="blog.html" class="btn-icon-text">
+                            <i class="fas fa-blog"></i>
+                            <span>Blogs</span>
+                        </a>
+                        <button class="btn-icon" onclick="toggleDarkMode()" title="Chế độ tối">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                        
+                        <div id="authButtons">
+                            <button class="btn-auth login" onclick="openAuthModal('login')">
+                                <i class="fas fa-sign-in-alt"></i>
+                                <span>Đăng nhập</span>
+                            </button>
+                            <button class="btn-auth register" onclick="openAuthModal('register')">
+                                <i class="fas fa-user-plus"></i>
+                                <span>Đăng ký</span>
+                            </button>
+                        </div>
+                        
+                        <a href="profile.html" class="user-profile-btn" id="userProfileBtn" style="display: none;">
+                            <div class="user-avatar-small">
+                                <span id="userAvatarInitial">U</span>
+                            </div>
+                            <span id="userNameDisplay">User</span>
+                        </a>
+                        
+                        <div class="cart-btn" onclick="toggleCart()">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="cart-badge" id="cartCount">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Wallet Container -->
+    <div class="wallet-container">
+        <h1 style="font-size: 32px; margin-bottom: 30px; color: #333;">
+            <i class="fas fa-wallet"></i> Ví tiền của tôi
+        </h1>
+        
+        <!-- Balance Card -->
+        <div class="wallet-balance-card">
+            <h2>Số dư hiện tại</h2>
+            <div class="balance-amount" id="walletBalance">0đ</div>
+            <button class="btn-deposit" onclick="openDepositModal()">
+                <i class="fas fa-plus"></i> Nạp tiền
+            </button>
+        </div>
+        
+        <!-- Transaction History -->
+        <div class="section-card">
+            <h3><i class="fas fa-history"></i> Lịch sử giao dịch</h3>
+            <div id="transactionList">
+                <div class="empty-state">
+                    <i class="fas fa-receipt"></i>
+                    <p>Chưa có giao dịch nào</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Deposit Requests -->
+        <div class="section-card">
+            <h3><i class="fas fa-clock"></i> Yêu cầu nạp tiền</h3>
+            <div id="depositRequestList">
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <p>Chưa có yêu cầu nạp tiền nào</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deposit Modal -->
+    <div id="depositModal" class="deposit-modal">
+        <div class="deposit-modal-content">
+            <h3><i class="fas fa-money-bill-wave"></i> Nạp tiền vào ví</h3>
+            <form id="depositForm">
+                <div class="form-group">
+                    <label for="depositAmount">Số tiền (VNĐ) *</label>
+                    <input type="number" id="depositAmount" name="amount" placeholder="Nhập số tiền muốn nạp" required min="10000">
+                </div>
+                
+                <div class="form-group">
+                    <label for="paymentMethod">Phương thức thanh toán *</label>
+                    <select id="paymentMethod" name="payment_method" required>
+                        <option value="momo">MoMo</option>
+                        <option value="bank">Chuyển khoản ngân hàng</option>
+                    </select>
+                </div>
+                
+                <div class="payment-info">
+                    <p><strong>📱 Thông tin chuyển khoản:</strong></p>
+                    <p><strong>STK:</strong> 1234567890</p>
+                    <p><strong>Ngân hàng:</strong> ABC Bank</p>
+                    <p><strong>Chủ TK:</strong> NGUYEN VAN A</p>
+                    <p style="color: #ff4757; margin-top: 10px;">
+                        <i class="fas fa-info-circle"></i> Vui lòng chuyển khoản và nhập mã giao dịch bên dưới
+                    </p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="transactionCode">Mã giao dịch *</label>
+                    <input type="text" id="transactionCode" name="transaction_code" placeholder="Nhập mã giao dịch từ ngân hàng" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="depositNote">Ghi chú (tùy chọn)</label>
+                    <textarea id="depositNote" name="note" rows="3" placeholder="Ghi chú thêm nếu có..."></textarea>
+                </div>
+                
+                <button type="submit" class="btn-submit-deposit">
+                    <i class="fas fa-paper-plane"></i> Gửi yêu cầu
+                </button>
+                
+                <button type="button" class="btn-cancel" onclick="closeDepositModal()">
+                    Hủy
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="wallet.js"></script>
+</body>
+</html>

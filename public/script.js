@@ -611,27 +611,15 @@ if (modalLoginForm) {
         btnSubmit.disabled = true;
         
         try {
-            try {
-                const data = await apiRequest('/auth/login', {
-                    method: 'POST',
-                    body: JSON.stringify({ email, password })
-                });
-                
-                authToken = data.token;
-                currentUser = data.user;
-            } catch (apiError) {
-                console.log('API not available, checking localStorage');
-                const users = JSON.parse(localStorage.getItem('users')) || [];
-                const user = users.find(u => u.email === email && u.password === password);
-                
-                if (!user) {
-                    throw new Error('Email hoặc mật khẩu không đúng!');
-                }
-                
-                currentUser = { name: user.name, email: user.email, phone: user.phone };
-                authToken = 'local_' + Date.now();
-            }
+            // Gọi API đăng nhập
+            const data = await apiRequest('/auth/login', {
+                method: 'POST',
+                body: JSON.stringify({ email, password })
+            });
             
+            // Lưu token và user info từ API
+            authToken = data.token;
+            currentUser = data.user;
             localStorage.setItem('authToken', authToken);
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
             
@@ -766,36 +754,24 @@ if (modalRegisterForm) {
         btnSubmit.disabled = true;
         
         try {
-            let users = JSON.parse(localStorage.getItem('users')) || [];
-            if (users.find(u => u.email === email)) {
-                throw new Error('Email đã được đăng ký!');
+            // Check password strength
+            const { strength } = checkPasswordStrength(password);
+            if (strength < 3) {
+                showNotification('Mật khẩu quá yếu! Vui lòng đáp ứng ít nhất 3/5 yêu cầu.', 'error');
+                btnSubmit.innerHTML = originalHTML;
+                btnSubmit.disabled = false;
+                return;
             }
             
-            try {
-                const data = await apiRequest('/auth/register', {
-                    method: 'POST',
-                    body: JSON.stringify({ name, email, phone, password })
-                });
-                
-                authToken = data.token;
-                currentUser = data.user;
-            } catch (apiError) {
-                console.log('API not available, using localStorage');
-                const newUser = {
-                    id: users.length + 1,
-                    name,
-                    email,
-                    phone,
-                    password,
-                    createdAt: new Date().toISOString()
-                };
-                users.push(newUser);
-                localStorage.setItem('users', JSON.stringify(users));
-                
-                currentUser = { name, email, phone };
-                authToken = 'local_' + Date.now();
-            }
+            // Gọi API đăng ký
+            const data = await apiRequest('/auth/register', {
+                method: 'POST',
+                body: JSON.stringify({ name, email, phone, password })
+            });
             
+            // Lưu token và user info từ API
+            authToken = data.token;
+            currentUser = data.user;
             localStorage.setItem('authToken', authToken);
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
             
@@ -911,16 +887,15 @@ if (modalForgotForm) {
                     throw new Error('Phiên làm việc hết hạn. Vui lòng thử lại!');
                 }
                 
-                // Update password in localStorage
-                const users = JSON.parse(localStorage.getItem('users')) || [];
-                const userIndex = users.findIndex(u => u.email === forgotCurrentUser.email);
-                
-                if (userIndex === -1) {
-                    throw new Error('Không tìm thấy tài khoản!');
-                }
-                
-                users[userIndex].password = newPassword;
-                localStorage.setItem('users', JSON.stringify(users));
+                // Gọi API đổi mật khẩu
+                await apiRequest('/auth/change-password', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        email: forgotCurrentUser.email,
+                        phone: document.getElementById('verifyPhone').value.trim(),
+                        newPassword: newPassword
+                    })
+                });
                 
                 showNotification('Đặt lại mật khẩu thành công! Vui lòng đăng nhập.', 'success');
                 
@@ -934,7 +909,7 @@ if (modalForgotForm) {
                 }, 1500);
                 
             } catch (error) {
-                showNotification(error.message, 'error');
+                showNotification(error.message || 'Đổi mật khẩu thất bại!', 'error');
             } finally {
                 btnSubmit.innerHTML = originalHTML;
                 btnSubmit.disabled = false;
@@ -953,6 +928,40 @@ function updateUserUI() {
         btnLogin.onclick = null;
         btnRegister.innerHTML = `<i class="fas fa-sign-out-alt"></i><span>Đăng xuất</span>`;
         btnRegister.onclick = logout;
+        
+        // Load wallet balance
+        loadWalletBalance();
+    }
+}
+
+// Load wallet balance
+async function loadWalletBalance() {
+    if (!authToken) return;
+    
+    try {
+        const data = await apiRequest('/wallet');
+        const balance = data.data.balance || 0;
+        
+        // Update balance display if element exists
+        const balanceEl = document.getElementById('userBalanceDisplay');
+        if (balanceEl) {
+            balanceEl.textContent = `💰 ${balance.toLocaleString('vi-VN')}đ`;
+        }
+        
+        // Also update in user info if exists
+        const userInfo = document.querySelector('.user-info');
+        if (userInfo && !document.getElementById('userBalanceDisplay')) {
+            const balanceSpan = document.createElement('span');
+            balanceSpan.id = 'userBalanceDisplay';
+            balanceSpan.className = 'user-balance';
+            balanceSpan.textContent = `💰 ${balance.toLocaleString('vi-VN')}đ`;
+            balanceSpan.style.fontSize = '12px';
+            balanceSpan.style.color = '#26de81';
+            balanceSpan.style.fontWeight = 'bold';
+            userInfo.appendChild(balanceSpan);
+        }
+    } catch (error) {
+        console.error('Failed to load wallet balance:', error);
     }
 }
 

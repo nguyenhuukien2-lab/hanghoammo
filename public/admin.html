@@ -36,6 +36,10 @@
                     <i class="fas fa-users"></i>
                     <span>Khách hàng</span>
                 </a>
+                <a href="#deposits" class="nav-item" onclick="showSection('deposits')">
+                    <i class="fas fa-wallet"></i>
+                    <span>Nạp tiền</span>
+                </a>
                 <a href="#notifications" class="nav-item" onclick="showSection('notifications')">
                     <i class="fas fa-bell"></i>
                     <span>Thông báo</span>
@@ -263,6 +267,24 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </section>
+
+            <!-- Deposits Section -->
+            <section id="deposits" class="admin-section">
+                <div class="section-header">
+                    <h2>Quản lý nạp tiền</h2>
+                    <button class="btn-secondary" onclick="loadDepositRequests()">
+                        <i class="fas fa-sync"></i>
+                        Làm mới
+                    </button>
+                </div>
+
+                <div id="depositsList">
+                    <div style="text-align: center; padding: 60px 20px; color: #999;">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 48px; margin-bottom: 20px;"></i>
+                        <p>Đang tải danh sách nạp tiền...</p>
+                    </div>
                 </div>
             </section>
 

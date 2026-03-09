@@ -46,10 +46,16 @@ function showSection(sectionId) {
         'products': 'Quản lý sản phẩm',
         'orders': 'Quản lý đơn hàng',
         'customers': 'Quản lý khách hàng',
+        'deposits': 'Quản lý nạp tiền',
         'notifications': 'Quản lý thông báo',
         'settings': 'Cài đặt hệ thống'
     };
     document.getElementById('pageTitle').textContent = titles[sectionId];
+    
+    // Load data for specific sections
+    if (sectionId === 'deposits') {
+        loadDepositRequests();
+    }
 }
 
 // Dashboard
@@ -888,3 +894,260 @@ if (localStorage.getItem('adminDarkMode') === 'true') {
         darkModeBtn.classList.add('fa-sun');
     }
 }
+
+
+// ==================== DEPOSIT MANAGEMENT ====================
+
+// Load deposit requests
+async function loadDepositRequests() {
+    try {
+        const authToken = localStorage.getItem('authToken');
+        if (!authToken) {
+            showNotification('Vui lòng đăng nhập!', 'error');
+            return;
+        }
+        
+        const response = await fetch('/api/admin/deposits', {
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (!result.success) {
+            throw new Error(result.message);
+        }
+        
+        const deposits = result.data || [];
+        const container = document.getElementById('depositsList');
+        
+        if (!container) return;
+        
+        if (deposits.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <p>Không có yêu cầu nạp tiền nào</p>
+                </div>
+            `;
+            return;
+        }
+        
+        // Group by status
+        const pending = deposits.filter(d => d.status === 'pending');
+        const approved = deposits.filter(d => d.status === 'approved');
+        const rejected = deposits.filter(d => d.status === 'rejected');
+        
+        let html = '';
+        
+        // Pending deposits
+        if (pending.length > 0) {
+            html += '<h4 style="margin: 20px 0; color: #ffa502;">⏳ Chờ duyệt (' + pending.length + ')</h4>';
+            html += pending.map(dep => renderDepositCard(dep)).join('');
+        }
+        
+        // Approved deposits
+        if (approved.length > 0) {
+            html += '<h4 style="margin: 20px 0; color: #26de81;">✅ Đã duyệt (' + approved.length + ')</h4>';
+            html += approved.map(dep => renderDepositCard(dep)).join('');
+        }
+        
+        // Rejected deposits
+        if (rejected.length > 0) {
+            html += '<h4 style="margin: 20px 0; color: #ff4757;">❌ Đã từ chối (' + rejected.length + ')</h4>';
+            html += rejected.map(dep => renderDepositCard(dep)).join('');
+        }
+        
+        container.innerHTML = html;
+        
+    } catch (error) {
+        console.error('Failed to load deposit requests:', error);
+        showNotification('Không thể tải danh sách nạp tiền: ' + error.message, 'error');
+    }
+}
+
+// Render deposit card
+function renderDepositCard(dep) {
+    const statusText = {
+        'pending': 'Chờ duyệt',
+        'approved': 'Đã duyệt',
+        'rejected': 'Từ chối'
+    };
+    
+    const statusColors = {
+        'pending': '#ffa502',
+        'approved': '#26de81',
+        'rejected': '#ff4757'
+    };
+    
+    return `
+        <div class="deposit-card" style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+                <div style="flex: 1;">
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+                        <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 20px;">
+                            ${dep.user_name ? dep.user_name.charAt(0).toUpperCase() : 'U'}
+                        </div>
+                        <div>
+                            <div style="font-weight: 600; font-size: 16px; color: #333;">${dep.user_name || 'User'}</div>
+                            <div style="color: #666; font-size: 14px;">${dep.user_email}</div>
+                            ${dep.user_phone ? `<div style="color: #999; font-size: 13px;">${dep.user_phone}</div>` : ''}
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 15px;">
+                        <div>
+                            <div style="color: #999; font-size: 13px; margin-bottom: 5px;">Số tiền</div>
+                            <div style="font-size: 24px; font-weight: bold; color: #667eea;">
+                                ${dep.amount.toLocaleString('vi-VN')}đ
+                            </div>
+                        </div>
+                        <div>
+                            <div style="color: #999; font-size: 13px; margin-bottom: 5px;">Phương thức</div>
+                            <div style="font-weight: 600; color: #333;">
+                                ${dep.payment_method === 'momo' ? '📱 MoMo' : '🏦 Ngân hàng'}
+                            </div>
+                        </div>
+                        <div>
+                            <div style="color: #999; font-size: 13px; margin-bottom: 5px;">Mã giao dịch</div>
+                            <div style="font-weight: 600; color: #333; font-family: monospace;">
+                                ${dep.transaction_code}
+                            </div>
+                        </div>
+                        <div>
+                            <div style="color: #999; font-size: 13px; margin-bottom: 5px;">Thời gian</div>
+                            <div style="color: #666; font-size: 14px;">
+                                ${new Date(dep.created_at).toLocaleString('vi-VN')}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${dep.note ? `
+                        <div style="background: #f8f9fa; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+                            <div style="color: #999; font-size: 13px; margin-bottom: 3px;">Ghi chú:</div>
+                            <div style="color: #555; font-size: 14px;">${dep.note}</div>
+                        </div>
+                    ` : ''}
+                    
+                    ${dep.status === 'rejected' && dep.reject_reason ? `
+                        <div style="background: #fff5f5; border-left: 3px solid #ff4757; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+                            <div style="color: #ff4757; font-size: 13px; margin-bottom: 3px; font-weight: 600;">Lý do từ chối:</div>
+                            <div style="color: #666; font-size: 14px;">${dep.reject_reason}</div>
+                        </div>
+                    ` : ''}
+                </div>
+                
+                <div style="text-align: right;">
+                    <div style="background: ${statusColors[dep.status]}; color: white; padding: 8px 20px; border-radius: 20px; font-weight: 600; font-size: 14px; margin-bottom: 15px;">
+                        ${statusText[dep.status]}
+                    </div>
+                    
+                    ${dep.status === 'pending' ? `
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <button onclick="approveDeposit(${dep.id}, ${dep.user_id}, ${dep.amount})" style="background: #26de81; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s;">
+                                <i class="fas fa-check"></i> Duyệt
+                            </button>
+                            <button onclick="rejectDeposit(${dep.id})" style="background: #ff4757; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s;">
+                                <i class="fas fa-times"></i> Từ chối
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Approve deposit
+async function approveDeposit(depositId, userId, amount) {
+    if (!confirm(`Xác nhận duyệt nạp ${amount.toLocaleString('vi-VN')}đ?`)) {
+        return;
+    }
+    
+    try {
+        const authToken = localStorage.getItem('authToken');
+        if (!authToken) {
+            showNotification('Vui lòng đăng nhập!', 'error');
+            return;
+        }
+        
+        const response = await fetch('/api/admin/approve-deposit', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                deposit_id: depositId,
+                user_id: userId,
+                amount: amount
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (!result.success) {
+            throw new Error(result.message);
+        }
+        
+        showNotification('Đã duyệt nạp tiền thành công!');
+        loadDepositRequests();
+        
+    } catch (error) {
+        console.error('Approve deposit error:', error);
+        showNotification('Duyệt nạp tiền thất bại: ' + error.message, 'error');
+    }
+}
+
+// Reject deposit
+async function rejectDeposit(depositId) {
+    const reason = prompt('Nhập lý do từ chối:');
+    if (!reason || reason.trim() === '') {
+        showNotification('Vui lòng nhập lý do từ chối', 'error');
+        return;
+    }
+    
+    try {
+        const authToken = localStorage.getItem('authToken');
+        if (!authToken) {
+            showNotification('Vui lòng đăng nhập!', 'error');
+            return;
+        }
+        
+        const response = await fetch('/api/admin/reject-deposit', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                deposit_id: depositId,
+                reason: reason.trim()
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (!result.success) {
+            throw new Error(result.message);
+        }
+        
+        showNotification('Đã từ chối yêu cầu nạp tiền');
+        loadDepositRequests();
+        
+    } catch (error) {
+        console.error('Reject deposit error:', error);
+        showNotification('Từ chối thất bại: ' + error.message, 'error');
+    }
+}
+
+// Add to initialization
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if on deposits tab
+    const depositsSection = document.getElementById('deposits');
+    if (depositsSection) {
+        loadDepositRequests();
+    }
+});
