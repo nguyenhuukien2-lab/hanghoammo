@@ -1,6 +1,8 @@
 // Initialize
 document.addEventListener('DOMContentLoaded', async function() {
-    await checkAdminAuth();
+    const isAdmin = await checkAdminAuth();
+    if (!isAdmin) return; // Stop if not admin
+    
     await loadDashboard();
     loadNotifications();
     loadSettings();
@@ -14,13 +16,13 @@ async function checkAdminAuth() {
     if (!authToken || !currentUser) {
         alert('Vui lòng đăng nhập!');
         window.location.href = 'index.html';
-        return;
+        return false;
     }
     
     // First check localStorage role
     if (currentUser.role === 'admin') {
         console.log('Admin authenticated from localStorage');
-        return;
+        return true;
     }
     
     // If not admin in localStorage, check from API
@@ -38,22 +40,24 @@ async function checkAdminAuth() {
             // Update localStorage with latest user info
             localStorage.setItem('currentUser', JSON.stringify(result.data));
             console.log('Admin authenticated from API');
-            return;
+            return true;
         }
         
         // Not admin
         alert('Bạn không có quyền truy cập trang này!');
         window.location.href = 'index.html';
+        return false;
         
     } catch (error) {
         console.error('Auth check error:', error);
         // If API fails, check localStorage as fallback
         if (currentUser.role === 'admin') {
             console.log('Admin authenticated from localStorage (API failed)');
-            return;
+            return true;
         }
         alert('Không thể xác thực. Vui lòng đăng nhập lại!');
         window.location.href = 'index.html';
+        return false;
     }
 }
 
