@@ -8,6 +8,13 @@ router.post('/create', authenticateToken, async (req, res) => {
     try {
         const { items, total_amount, payment_method } = req.body;
         
+        // Debug log
+        console.log('=== CREATE ORDER REQUEST ===');
+        console.log('User:', req.user.email);
+        console.log('Items:', JSON.stringify(items, null, 2));
+        console.log('Total:', total_amount);
+        console.log('Payment method:', payment_method);
+        
         if (!items || items.length === 0) {
             return res.status(400).json({
                 success: false,
@@ -25,6 +32,7 @@ router.post('/create', authenticateToken, async (req, res) => {
         // Validate product_id format (should be UUID)
         for (const item of items) {
             if (!item.product_id || typeof item.product_id === 'number') {
+                console.error('Invalid product_id:', item.product_id, 'Type:', typeof item.product_id);
                 return res.status(400).json({
                     success: false,
                     message: 'ID sản phẩm không hợp lệ. Vui lòng refresh trang và thử lại!'
@@ -60,42 +68,57 @@ router.post('/create', authenticateToken, async (req, res) => {
                 
                 // Get available accounts for this product
                 for (let i = 0; i < quantity; i++) {
-                    const account = await db.getAvailableAccount(item.product_id);
-                    
-                    if (account) {
-                        // Mark account as sold
-                        await db.markAccountAsSold(account.id, req.user.id, order.id);
+                    try {
+                        const account = await db.getAvailableAccount(item.product_id);
                         
-                        // Create order item with account
-                        await db.supabase
-                            .from('order_items')
-                            .insert({
-                                order_id: order.id,
-                                product_id: item.product_id,
+                        if (account) {
+                            // Mark account as sold
+                            await db.markAccountAsSold(account.id, req.user.id, order.id);
+                            
+                            // Create order item with account
+                            const { error: itemError } = await db.supabase
+                                .from('order_items')
+                                .insert({
+                                    order_id: order.id,
+                                    product_id: item.product_id,
+                                    product_name: item.name,
+                                    product_price: item.price,
+                                    quantity: 1,
+                                    account_id: account.id
+                                });
+                            
+                            if (itemError) {
+                                console.error('Error creating order item:', itemError);
+                                throw itemError;
+                            }
+                            
+                            // Add to delivered accounts list
+                            deliveredAccounts.push({
                                 product_name: item.name,
-                                product_price: item.price,
-                                quantity: 1,
-                                account_id: account.id
+                                username: account.username,
+                                password: account.password
                             });
-                        
-                        // Add to delivered accounts list
-                        deliveredAccounts.push({
-                            product_name: item.name,
-                            username: account.username,
-                            password: account.password
-                        });
-                    } else {
-                        // No account available - create order item without account
-                        await db.supabase
-                            .from('order_items')
-                            .insert({
-                                order_id: order.id,
-                                product_id: item.product_id,
-                                product_name: item.name,
-                                product_price: item.price,
-                                quantity: 1,
-                                account_id: null
-                            });
+                        } else {
+                            // No account available - create order item without account
+                            const { error: itemError } = await db.supabase
+                                .from('order_items')
+                                .insert({
+                                    order_id: order.id,
+                                    product_id: item.product_id,
+                                    product_name: item.name,
+                                    product_price: item.price,
+                                    quantity: 1,
+                                    account_id: null
+                                });
+                            
+                            if (itemError) {
+                                console.error('Error creating order item without account:', itemError);
+                                throw itemError;
+                            }
+                        }
+                    } catch (itemErr) {
+                        console.error('Error processing item:', item, itemErr);
+                        throw new Error(`Lỗi xử lý sản phẩm ${item.name}: ${itemErr.message}`);
                     }
                 }
             }
