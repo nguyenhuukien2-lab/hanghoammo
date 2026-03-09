@@ -84,11 +84,7 @@ async function loadDepositRequests() {
             
             const paymentMethodText = {
                 'momo': '📱 MoMo',
-                'vietcombank': '🏦 Vietcombank',
-                'techcombank': '🏦 Techcombank',
-                'mbbank': '🏦 MB Bank',
-                'acb': '🏦 ACB',
-                'tpbank': '🏦 TPBank'
+                'vietinbank': '🏦 VietinBank'
             };
             
             return `
@@ -130,37 +126,13 @@ const bankAccounts = {
         title: '📱 Thông tin ví MoMo',
         accountNumber: '0879062222',
         bankName: 'Ví MoMo',
-        accountHolder: 'NGUYEN VAN A'
+        accountHolder: 'NGUYEN HUU KIEN'
     },
-    vietcombank: {
-        title: '🏦 Thông tin Vietcombank',
-        accountNumber: '1234567890',
-        bankName: 'Vietcombank (VCB)',
-        accountHolder: 'NGUYEN VAN A'
-    },
-    techcombank: {
-        title: '🏦 Thông tin Techcombank',
-        accountNumber: '19036666666',
-        bankName: 'Techcombank (TCB)',
-        accountHolder: 'NGUYEN VAN A'
-    },
-    mbbank: {
-        title: '🏦 Thông tin MB Bank',
-        accountNumber: '0879062222',
-        bankName: 'MB Bank (MBB)',
-        accountHolder: 'NGUYEN VAN A'
-    },
-    acb: {
-        title: '🏦 Thông tin ACB',
-        accountNumber: '123456789',
-        bankName: 'Á Châu (ACB)',
-        accountHolder: 'NGUYEN VAN A'
-    },
-    tpbank: {
-        title: '🏦 Thông tin TPBank',
-        accountNumber: '0879062222',
-        bankName: 'Tiên Phong (TPBank)',
-        accountHolder: 'NGUYEN VAN A'
+    vietinbank: {
+        title: '🏦 Thông tin VietinBank',
+        accountNumber: '101884511335',
+        bankName: 'VietinBank CN BAC DA NANG - HOI SO',
+        accountHolder: 'NGUYEN HUU KIEN'
     }
 };
 
