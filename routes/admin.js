@@ -184,9 +184,6 @@ router.get('/orders', authenticateToken, isAdmin, async (req, res) => {
     }
 });
 
-module.exports = router;
-
-
 // ==================== ACCOUNTS MANAGEMENT ====================
 
 // Get all accounts
