@@ -1,10 +1,7 @@
 // Initialize
-document.addEventListener('DOMContentLoaded', function() {
-    checkAdminAuth();
-    loadDashboard();
-    loadProducts();
-    loadOrders();
-    loadCustomers();
+document.addEventListener('DOMContentLoaded', async function() {
+    await checkAdminAuth();
+    await loadDashboard();
     loadNotifications();
     loadSettings();
 });
@@ -151,6 +148,11 @@ async function loadDashboard() {
         
         // Load top products
         loadTopProducts();
+        
+        // Load initial data for other sections
+        loadProducts();
+        loadOrders();
+        loadCustomers();
     } catch (error) {
         console.error('Load dashboard error:', error);
         showNotification('Không thể tải dữ liệu dashboard: ' + error.message, 'error');
@@ -200,8 +202,11 @@ function loadTopProducts() {
 // Products Management
 async function loadProducts() {
     try {
-        const data = await apiRequest('/products');
-        products = data.data || [];
+        // If products already loaded from dashboard, just render
+        if (products.length === 0) {
+            const data = await apiRequest('/products');
+            products = data.data || [];
+        }
         
         const tbody = document.getElementById('productsTable');
         if (products.length === 0) {
@@ -362,8 +367,11 @@ function deleteProduct(productId) {
 // Orders Management
 async function loadOrders() {
     try {
-        const data = await apiRequest('/admin/orders');
-        orders = data.data || [];
+        // If orders already loaded from dashboard, just render
+        if (orders.length === 0) {
+            const data = await apiRequest('/admin/orders');
+            orders = data.data || [];
+        }
         
         const tbody = document.getElementById('ordersTable');
         if (orders.length === 0) {
@@ -455,13 +463,18 @@ function updateOrderStatus(orderId, newStatus) {
 // Customers Management
 async function loadCustomers() {
     try {
-        const data = await apiRequest('/admin/users');
-        customers = data.data || [];
+        // If customers already loaded from dashboard, just render
+        if (customers.length === 0) {
+            const data = await apiRequest('/admin/users');
+            customers = data.data || [];
+        }
         
         const tbody = document.getElementById('customersTable');
         if (customers.length === 0) {
             tbody.innerHTML = '<tr><td colspan="6" class="text-center">Chưa có khách hàng</td></tr>';
-            document.getElementById('totalCustomers').textContent = '0';
+            if (document.getElementById('totalCustomers')) {
+                document.getElementById('totalCustomers').textContent = '0';
+            }
             return;
         }
         
@@ -497,7 +510,9 @@ async function loadCustomers() {
             </tr>
         `).join('');
         
-        document.getElementById('totalCustomers').textContent = customers.length;
+        if (document.getElementById('totalCustomers')) {
+            document.getElementById('totalCustomers').textContent = customers.length;
+        }
     } catch (error) {
         console.error('Load customers error:', error);
         showNotification('Không thể tải danh sách khách hàng: ' + error.message, 'error');
