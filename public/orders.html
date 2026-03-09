@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đơn hàng của tôi - HangHoaMMO</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="profile.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .orders-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        
+        .orders-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+        
+        .orders-header h1 {
+            margin: 0 0 10px 0;
+            font-size: 28px;
+        }
+        
+        .order-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        
+        .order-card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+        
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+            margin-bottom: 15px;
+        }
+        
+        .order-id {
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .order-date {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .order-status {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .order-items {
+            margin: 15px 0;
+        }
+        
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .order-item:last-child {
+            border-bottom: none;
+        }
+        
+        .item-name {
+            font-weight: 500;
+        }
+        
+        .item-price {
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .order-accounts {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+            color: white;
+        }
+        
+        .order-accounts h4 {
+            margin: 0 0 15px 0;
+            font-size: 16px;
+        }
+        
+        .account-box {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .account-box:last-child {
+            margin-bottom: 0;
+        }
+        
+        .account-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 8px 0;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 4px;
+        }
+        
+        .account-label {
+            font-weight: 500;
+            min-width: 80px;
+        }
+        
+        .account-value {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+        }
+        
+        .btn-copy-small {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-copy-small:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .order-total {
+            text-align: right;
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #f0f0f0;
+        }
+        
+        .empty-orders {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 12px;
+        }
+        
+        .empty-orders i {
+            font-size: 64px;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+        
+        .empty-orders h3 {
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .empty-orders p {
+            color: #999;
+            margin-bottom: 20px;
+        }
+        
+        .btn-shop {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-shop:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header-new">
+        <div class="main-header-new">
+            <div class="container">
+                <div class="header-wrapper">
+                    <div class="logo-new">
+                        <a href="index.html">
+                            <div class="logo-box">
+                                <i class="fas fa-store"></i>
+                            </div>
+                            <div class="logo-info">
+                                <h1>HangHoa<span>MMO</span></h1>
+                                <p>Chợ MMO uy tín #1</p>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="header-right">
+                        <a href="products.html" class="btn-icon-text">
+                            <i class="fas fa-shopping-bag"></i>
+                            <span>Sản phẩm</span>
+                        </a>
+                        <a href="profile.html" class="user-profile-btn" id="userProfileBtn">
+                            <div class="user-avatar-small">
+                                <span id="userAvatarInitial">U</span>
+                            </div>
+                            <span id="userNameDisplay">User</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Orders Container -->
+    <div class="orders-container">
+        <div class="orders-header">
+            <h1><i class="fas fa-shopping-cart"></i> Đơn hàng của tôi</h1>
+            <p>Xem lại tất cả đơn hàng và tài khoản đã mua</p>
+        </div>
+
+        <div id="ordersContent">
+            <div class="empty-orders">
+                <i class="fas fa-spinner fa-spin"></i>
+                <h3>Đang tải...</h3>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Check login
+        const authToken = localStorage.getItem('authToken');
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        
+        if (!authToken || !currentUser) {
+            alert('Vui lòng đăng nhập để xem đơn hàng!');
+            window.location.href = 'index.html';
+        }
+        
+        // Update user info
+        if (currentUser) {
+            document.getElementById('userNameDisplay').textContent = currentUser.name;
+            document.getElementById('userAvatarInitial').textContent = currentUser.name.charAt(0).toUpperCase();
+        }
+        
+        // Load orders
+        async function loadOrders() {
+            try {
+                const response = await fetch('/api/orders/my-orders', {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (!result.success) {
+                    throw new Error(result.message);
+                }
+                
+                const orders = result.data;
+                const container = document.getElementById('ordersContent');
+                
+                if (!orders || orders.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-orders">
+                            <i class="fas fa-shopping-cart"></i>
+                            <h3>Chưa có đơn hàng nào</h3>
+                            <p>Bạn chưa mua sản phẩm nào. Hãy khám phá cửa hàng của chúng tôi!</p>
+                            <a href="products.html" class="btn-shop">
+                                <i class="fas fa-shopping-bag"></i> Mua sắm ngay
+                            </a>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = orders.map(order => {
+                    const orderDate = new Date(order.created_at).toLocaleString('vi-VN');
+                    const statusClass = order.status === 'completed' ? 'status-completed' : 'status-pending';
+                    const statusText = order.status === 'completed' ? 'Hoàn thành' : 'Đang xử lý';
+                    
+                    let accountsHTML = '';
+                    if (order.order_items && order.order_items.length > 0) {
+                        const itemsWithAccounts = order.order_items.filter(item => item.accounts);
+                        
+                        if (itemsWithAccounts.length > 0) {
+                            accountsHTML = `
+                                <div class="order-accounts">
+                                    <h4>🎁 Tài khoản đã giao:</h4>
+                                    ${itemsWithAccounts.map(item => `
+                                        <div class="account-box">
+                                            <strong>${item.product_name}</strong>
+                                            <div class="account-row">
+                                                <span class="account-label">Tài khoản:</span>
+                                                <code class="account-value">${item.accounts.username}</code>
+                                                <button class="btn-copy-small" onclick="copyText('${item.accounts.username}')">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </div>
+                                            <div class="account-row">
+                                                <span class="account-label">Mật khẩu:</span>
+                                                <code class="account-value">${item.accounts.password}</code>
+                                                <button class="btn-copy-small" onclick="copyText('${item.accounts.password}')">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            `;
+                        }
+                    }
+                    
+                    return `
+                        <div class="order-card">
+                            <div class="order-header">
+                                <div>
+                                    <div class="order-id">#${order.order_code || order.id}</div>
+                                    <div class="order-date">${orderDate}</div>
+                                </div>
+                                <span class="order-status ${statusClass}">${statusText}</span>
+                            </div>
+                            
+                            <div class="order-items">
+                                ${order.order_items.map(item => `
+                                    <div class="order-item">
+                                        <span class="item-name">${item.product_name} x${item.quantity}</span>
+                                        <span class="item-price">${formatPrice(item.product_price * item.quantity)}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            
+                            ${accountsHTML}
+                            
+                            <div class="order-total">
+                                Tổng cộng: ${formatPrice(order.total)}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+            } catch (error) {
+                console.error('Load orders error:', error);
+                document.getElementById('ordersContent').innerHTML = `
+                    <div class="empty-orders">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Lỗi khi tải đơn hàng</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function formatPrice(price) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+        }
+        
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Đã sao chép!');
+            });
+        }
+        
+        // Load on page load
+        loadOrders();
+    </script>
+</body>
+</html>

@@ -158,11 +158,26 @@ router.post('/create', authenticateToken, async (req, res) => {
 // Get user orders
 router.get('/my-orders', authenticateToken, async (req, res) => {
     try {
-        const orders = await db.getOrdersByUserId(req.user.id);
+        const { data, error } = await db.supabase
+            .from('orders')
+            .select(`
+                *,
+                order_items (
+                    *,
+                    accounts (
+                        username,
+                        password
+                    )
+                )
+            `)
+            .eq('user_id', req.user.id)
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
         
         res.json({
             success: true,
-            data: orders
+            data: data
         });
     } catch (error) {
         console.error('Get orders error:', error);
