@@ -36,9 +36,10 @@ router.post('/create', authenticateToken, async (req, res) => {
             // Create order
             const order = await db.createOrder({
                 user_id: req.user.id,
-                total_amount: total_amount,
+                total: total_amount,
                 payment_method: 'wallet',
-                status: 'completed' // Auto complete for wallet payment
+                status: 'completed', // Auto complete for wallet payment
+                order_code: 'DH' + Date.now().toString().slice(-8)
             });
             
             // Create order items
@@ -81,9 +82,10 @@ router.post('/create', authenticateToken, async (req, res) => {
         // Other payment methods (COD, etc.)
         const order = await db.createOrder({
             user_id: req.user.id,
-            total_amount: total_amount,
+            total: total_amount,
             payment_method: payment_method || 'cod',
-            status: 'pending'
+            status: 'pending',
+            order_code: 'DH' + Date.now().toString().slice(-8)
         });
         
         // Create order items
