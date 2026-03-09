@@ -64,9 +64,7 @@ router.post('/approve-deposit', authenticateToken, isAdmin, async (req, res) => 
         
         // 1. Update deposit status
         await db.updateDepositRequest(deposit_id, {
-            status: 'approved',
-            approved_at: new Date(),
-            approved_by: req.user.id
+            status: 'approved'
         });
         
         // 2. Get current wallet balance
@@ -115,8 +113,6 @@ router.post('/reject-deposit', authenticateToken, isAdmin, async (req, res) => {
         
         await db.updateDepositRequest(deposit_id, {
             status: 'rejected',
-            rejected_at: new Date(),
-            rejected_by: req.user.id,
             reject_reason: reason
         });
         
