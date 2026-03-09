@@ -1919,11 +1919,13 @@ function checkLoginStatus() {
     const userProfileBtn = document.getElementById('userProfileBtn');
     const userNameDisplay = document.getElementById('userNameDisplay');
     const userAvatarInitial = document.getElementById('userAvatarInitial');
+    const walletLink = document.getElementById('walletLink');
     
     if (currentUser) {
         // User is logged in
         if (authButtons) authButtons.style.display = 'none';
         if (userProfileBtn) userProfileBtn.style.display = 'flex';
+        if (walletLink) walletLink.style.display = 'flex';
         
         const displayName = currentUser.name || currentUser.email.split('@')[0];
         if (userNameDisplay) userNameDisplay.textContent = displayName;
@@ -1932,6 +1934,7 @@ function checkLoginStatus() {
         // User is not logged in
         if (authButtons) authButtons.style.display = 'flex';
         if (userProfileBtn) userProfileBtn.style.display = 'none';
+        if (walletLink) walletLink.style.display = 'none';
     }
 }
 
