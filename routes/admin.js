@@ -185,3 +185,132 @@ router.get('/orders', authenticateToken, isAdmin, async (req, res) => {
 });
 
 module.exports = router;
+
+
+// ==================== ACCOUNTS MANAGEMENT ====================
+
+// Get all accounts
+router.get('/accounts', requireAdmin, async (req, res) => {
+    try {
+        const { product_id, status } = req.query;
+        
+        let query = db.supabase
+            .from('accounts')
+            .select(`
+                *,
+                products (name)
+            `)
+            .order('created_at', { ascending: false });
+        
+        if (product_id) {
+            query = query.eq('product_id', product_id);
+        }
+        
+        if (status) {
+            query = query.eq('status', status);
+        }
+        
+        const { data, error } = await query;
+        
+        if (error) throw error;
+        
+        // Format data
+        const accounts = data.map(acc => ({
+            ...acc,
+            product_name: acc.products?.name
+        }));
+        
+        res.json({
+            success: true,
+            data: accounts
+        });
+    } catch (error) {
+        console.error('Get accounts error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Lỗi khi lấy danh sách tài khoản'
+        });
+    }
+});
+
+// Add accounts (single or bulk)
+router.post('/accounts', requireAdmin, async (req, res) => {
+    try {
+        const { product_id, accounts } = req.body;
+        
+        if (!product_id || !accounts || accounts.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Thiếu thông tin sản phẩm hoặc tài khoản'
+            });
+        }
+        
+        // Prepare accounts data
+        const accountsData = accounts.map(acc => ({
+            product_id: product_id,
+            username: acc.username,
+            password: acc.password,
+            status: 'available'
+        }));
+        
+        const { data, error } = await db.supabase
+            .from('accounts')
+            .insert(accountsData)
+            .select();
+        
+        if (error) throw error;
+        
+        res.json({
+            success: true,
+            message: `Đã thêm ${data.length} tài khoản`,
+            data: data
+        });
+    } catch (error) {
+        console.error('Add accounts error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Lỗi khi thêm tài khoản: ' + error.message
+        });
+    }
+});
+
+// Delete account
+router.delete('/accounts/:id', requireAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        // Check if account is sold
+        const { data: account } = await db.supabase
+            .from('accounts')
+            .select('status')
+            .eq('id', id)
+            .single();
+        
+        if (account && account.status === 'sold') {
+            return res.status(400).json({
+                success: false,
+                message: 'Không thể xóa tài khoản đã bán'
+            });
+        }
+        
+        const { error } = await db.supabase
+            .from('accounts')
+            .delete()
+            .eq('id', id);
+        
+        if (error) throw error;
+        
+        res.json({
+            success: true,
+            message: 'Đã xóa tài khoản'
+        });
+    } catch (error) {
+        console.error('Delete account error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Lỗi khi xóa tài khoản'
+        });
+    }
+});
+
+module.exports = router;

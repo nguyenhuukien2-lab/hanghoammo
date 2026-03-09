@@ -176,6 +176,7 @@ function showSection(sectionId) {
     const titles = {
         'dashboard': 'Dashboard',
         'products': 'Quản lý sản phẩm',
+        'accounts': 'Quản lý tài khoản',
         'orders': 'Quản lý đơn hàng',
         'customers': 'Quản lý khách hàng',
         'deposits': 'Quản lý nạp tiền',
@@ -187,6 +188,9 @@ function showSection(sectionId) {
     // Load data for specific sections
     if (sectionId === 'deposits') {
         loadDepositRequests();
+    } else if (sectionId === 'accounts') {
+        loadAccounts();
+        loadProductsForSelect();
     }
 }
 
@@ -1348,3 +1352,140 @@ document.addEventListener('DOMContentLoaded', function() {
         loadDepositRequests();
     }
 });
+
+
+// ==================== ACCOUNTS MANAGEMENT ====================
+
+async function loadAccounts() {
+    try {
+        const productFilter = document.getElementById('filterAccountProduct')?.value || '';
+        const statusFilter = document.getElementById('filterAccountStatus')?.value || '';
+        
+        let url = '/api/admin/accounts?';
+        if (productFilter) url += `product_id=${productFilter}&`;
+        if (statusFilter) url += `status=${statusFilter}`;
+        
+        const data = await apiRequest(url);
+        
+        const tbody = document.getElementById('accountsTable');
+        if (!data.data || data.data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center">Chưa có tài khoản</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = data.data.map(account => `
+            <tr>
+                <td>${account.product_name || 'N/A'}</td>
+                <td><code>${account.username}</code></td>
+                <td><code>${account.password}</code></td>
+                <td>
+                    <span class="badge ${account.status === 'available' ? 'badge-success' : 'badge-secondary'}">
+                        ${account.status === 'available' ? 'Còn hàng' : 'Đã bán'}
+                    </span>
+                </td>
+                <td>${formatDate(account.created_at)}</td>
+                <td>${account.sold_at ? formatDate(account.sold_at) : '-'}</td>
+                <td>
+                    ${account.status === 'available' ? `
+                        <button class="btn-icon btn-danger" onclick="deleteAccount('${account.id}')" title="Xóa">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    ` : '-'}
+                </td>
+            </tr>
+        `).join('');
+        
+    } catch (error) {
+        console.error('Load accounts error:', error);
+        showNotification('Lỗi khi tải danh sách tài khoản', 'error');
+    }
+}
+
+function openAccountModal() {
+    document.getElementById('accountModal').style.display = 'flex';
+    document.getElementById('accountForm').reset();
+    loadProductsForSelect();
+}
+
+function closeAccountModal() {
+    document.getElementById('accountModal').style.display = 'none';
+}
+
+async function loadProductsForSelect() {
+    try {
+        const data = await apiRequest('/products');
+        const select1 = document.getElementById('accountProductId');
+        const select2 = document.getElementById('filterAccountProduct');
+        
+        const options = data.data.map(p => 
+            `<option value="${p.id}">${p.name}</option>`
+        ).join('');
+        
+        if (select1) select1.innerHTML = '<option value="">-- Chọn sản phẩm --</option>' + options;
+        if (select2) select2.innerHTML = '<option value="">Tất cả sản phẩm</option>' + options;
+    } catch (error) {
+        console.error('Load products error:', error);
+    }
+}
+
+async function saveAccount(event) {
+    event.preventDefault();
+    
+    try {
+        const productId = document.getElementById('accountProductId').value;
+        const username = document.getElementById('accountUsername').value.trim();
+        const password = document.getElementById('accountPassword').value.trim();
+        const bulk = document.getElementById('accountBulk').value.trim();
+        
+        if (!productId) {
+            showNotification('Vui lòng chọn sản phẩm', 'error');
+            return;
+        }
+        
+        let accounts = [];
+        
+        // Bulk import
+        if (bulk) {
+            const lines = bulk.split('\n').filter(line => line.trim());
+            accounts = lines.map(line => {
+                const [user, pass] = line.split('|').map(s => s.trim());
+                return { username: user, password: pass };
+            }).filter(acc => acc.username && acc.password);
+        } 
+        // Single account
+        else if (username && password) {
+            accounts = [{ username, password }];
+        }
+        
+        if (accounts.length === 0) {
+            showNotification('Vui lòng nhập tài khoản', 'error');
+            return;
+        }
+        
+        const data = await apiRequest('/api/admin/accounts', 'POST', {
+            product_id: productId,
+            accounts: accounts
+        });
+        
+        showNotification(`Đã thêm ${accounts.length} tài khoản thành công!`, 'success');
+        closeAccountModal();
+        loadAccounts();
+        
+    } catch (error) {
+        console.error('Save account error:', error);
+        showNotification('Lỗi khi thêm tài khoản: ' + error.message, 'error');
+    }
+}
+
+async function deleteAccount(accountId) {
+    if (!confirm('Xác nhận xóa tài khoản này?')) return;
+    
+    try {
+        await apiRequest(`/api/admin/accounts/${accountId}`, 'DELETE');
+        showNotification('Đã xóa tài khoản', 'success');
+        loadAccounts();
+    } catch (error) {
+        console.error('Delete account error:', error);
+        showNotification('Lỗi khi xóa tài khoản', 'error');
+    }
+}
