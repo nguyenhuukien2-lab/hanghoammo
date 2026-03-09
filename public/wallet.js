@@ -123,13 +123,13 @@ const bankAccounts = {
         title: '📱 Thông tin ví MoMo',
         accountNumber: '0879062222',
         bankName: 'Ví MoMo',
-        accountHolder: 'NGUYEN HUU KIEN'
+        accountHolder: 'HANGHOAMMO'
     },
     vietinbank: {
         title: '🏦 Thông tin VietinBank',
         accountNumber: '101884511335',
         bankName: 'VietinBank CN BAC DA NANG - HOI SO',
-        accountHolder: 'NGUYEN HUU KIEN'
+        accountHolder: 'HANGHOAMMO'
     }
 };
 
