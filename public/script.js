@@ -746,6 +746,62 @@ function updatePasswordStrength(inputId, barId, textId) {
     }
 }
 
+// Forgot Password Modal Functions
+function showForgotPasswordForm() {
+    closeAuthModal();
+    const modal = document.getElementById('forgotPasswordModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeForgotPasswordModal() {
+    const modal = document.getElementById('forgotPasswordModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+        // Reset form
+        const form = document.getElementById('forgotPasswordForm');
+        if (form) form.reset();
+    }
+}
+
+async function handleForgotPassword(event) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const email = document.getElementById('forgotEmail').value.trim();
+    const phone = document.getElementById('forgotPhone').value.trim();
+    const newPassword = document.getElementById('forgotNewPassword').value;
+    
+    const btnSubmit = form.querySelector('.btn-submit');
+    const originalHTML = btnSubmit.innerHTML;
+    btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+    btnSubmit.disabled = true;
+    
+    try {
+        const data = await apiRequest('/auth/change-password', {
+            method: 'POST',
+            body: JSON.stringify({ email, phone, newPassword })
+        });
+        
+        showNotification(data.message || 'Đổi mật khẩu thành công!', 'success');
+        closeForgotPasswordModal();
+        
+        // Mở modal đăng nhập sau 1s
+        setTimeout(() => {
+            openAuthModal('login');
+        }, 1000);
+        
+    } catch (error) {
+        showNotification(error.message || 'Có lỗi xảy ra!', 'error');
+    } finally {
+        btnSubmit.innerHTML = originalHTML;
+        btnSubmit.disabled = false;
+    }
+}
+
 // Modal Register Form Handler
 const modalRegisterForm = document.getElementById('modalRegisterForm');
 if (modalRegisterForm) {
