@@ -80,6 +80,46 @@
 - ✅ Xóa giỏ hàng sau khi thanh toán
 - ✅ Hiển thị mã đơn hàng
 
+### 9. ✅ Tự động giao tài khoản sau khi mua (MỚI)
+**Backend:**
+- ✅ Lấy tài khoản available từ table `accounts`
+- ✅ Mark tài khoản là `sold`
+- ✅ Lưu `account_id` vào `order_items`
+- ✅ Trả về danh sách tài khoản đã giao
+
+**Frontend:**
+- ✅ Hiển thị tài khoản ngay sau thanh toán
+- ✅ UI đẹp với gradient background
+- ✅ Nút copy tài khoản/mật khẩu
+- ✅ CSS responsive
+
+### 10. ✅ Admin quản lý tài khoản bán (MỚI)
+**Backend:**
+- ✅ API `GET /api/admin/accounts` - Lấy danh sách
+- ✅ API `POST /api/admin/accounts` - Thêm tài khoản (single/bulk)
+- ✅ API `DELETE /api/admin/accounts/:id` - Xóa tài khoản
+- ✅ Filter theo sản phẩm và trạng thái
+
+**Frontend:**
+- ✅ Tab "Tài khoản" trong admin panel
+- ✅ Form thêm tài khoản đơn lẻ
+- ✅ Form thêm nhiều tài khoản (bulk import)
+- ✅ Hiển thị danh sách available/sold
+- ✅ Xóa tài khoản chưa bán
+- ✅ Filter theo sản phẩm và trạng thái
+
+### 11. ✅ Trang "Đơn hàng của tôi" (MỚI)
+**Backend:**
+- ✅ API `GET /api/orders/my-orders` - Lấy đơn hàng + tài khoản
+
+**Frontend:**
+- ✅ Trang `orders.html` đẹp và responsive
+- ✅ Hiển thị danh sách đơn hàng
+- ✅ Chi tiết: sản phẩm, giá, tổng tiền
+- ✅ Hiển thị tài khoản đã mua
+- ✅ Nút copy tài khoản/mật khẩu
+- ✅ Trạng thái đơn hàng (completed/pending)
+
 ### 9. ✅ Deploy lên production
 - ✅ Push code lên GitHub
 - ✅ Render tự động deploy
@@ -288,7 +328,7 @@ models/
 - ❌ Order History (0%) ← CẦN LÀM TIẾP
 - ❌ Search (0%)
 
-### Tổng tiến độ: **70%** ✅
+### Tổng tiến độ: **90%** ✅
 
 ---
 
