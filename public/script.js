@@ -2068,8 +2068,19 @@ function registerUser(email, password, confirmPassword) {
         return false;
     }
     
-    if (password.length < 6) {
-        showNotification('Mật khẩu phải có ít nhất 6 ký tự!', 'error');
+    // Kiểm tra độ dài mật khẩu
+    if (password.length < 8) {
+        showNotification('Mật khẩu phải có ít nhất 8 ký tự!', 'error');
+        return false;
+    }
+    
+    // Kiểm tra mật khẩu mạnh: phải có chữ hoa, chữ thường, số
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    
+    if (!hasUpperCase || !hasLowerCase || !hasNumber) {
+        showNotification('Mật khẩu phải có ít nhất 1 chữ hoa, 1 chữ thường và 1 số!', 'error');
         return false;
     }
     
