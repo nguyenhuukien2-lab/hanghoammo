@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Check admin authentication
-function checkAdminAuth() {
+async function checkAdminAuth() {
     const authToken = localStorage.getItem('authToken');
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
     
@@ -20,10 +20,29 @@ function checkAdminAuth() {
         return;
     }
     
-    if (currentUser.role !== 'admin') {
-        alert('Bạn không có quyền truy cập trang này!');
+    // Check role from API to ensure it's up to date
+    try {
+        const response = await fetch('/api/auth/me', {
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (!result.success || result.data.role !== 'admin') {
+            alert('Bạn không có quyền truy cập trang này!');
+            window.location.href = 'index.html';
+            return;
+        }
+        
+        // Update localStorage with latest user info
+        localStorage.setItem('currentUser', JSON.stringify(result.data));
+    } catch (error) {
+        console.error('Auth check error:', error);
+        alert('Không thể xác thực. Vui lòng đăng nhập lại!');
         window.location.href = 'index.html';
-        return;
     }
 }
 

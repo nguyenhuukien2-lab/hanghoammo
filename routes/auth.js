@@ -180,4 +180,48 @@ router.post('/change-password', async (req, res) => {
     }
 });
 
+// Get current user info
+router.get('/me', async (req, res) => {
+    try {
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return res.status(401).json({
+                success: false,
+                message: 'Không có token xác thực'
+            });
+        }
+
+        const token = authHeader.substring(7);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        
+        const user = await db.getUserById(decoded.userId);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'Không tìm thấy người dùng'
+            });
+        }
+
+        const wallet = await db.getWallet(user.id);
+
+        res.json({
+            success: true,
+            data: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                phone: user.phone,
+                role: user.role,
+                balance: wallet ? wallet.balance : 0
+            }
+        });
+    } catch (error) {
+        console.error('Get user info error:', error);
+        res.status(401).json({
+            success: false,
+            message: 'Token không hợp lệ'
+        });
+    }
+});
+
 module.exports = router;
