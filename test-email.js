@@ -4,8 +4,7 @@ const emailService = require('./services/emailService');
 
 async function testEmail() {
     console.log('Testing email service...');
-    console.log('BREVO_SMTP_USER:', process.env.BREVO_SMTP_USER);
-    console.log('BREVO_SMTP_KEY:', process.env.BREVO_SMTP_KEY ? '***configured***' : 'NOT SET');
+    console.log('BREVO_API_KEY:', process.env.BREVO_SMTP_KEY ? '***configured***' : 'NOT SET');
     
     try {
         const result = await emailService.sendRegisterEmail(

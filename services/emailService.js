@@ -1,18 +1,68 @@
 // Email Service - Gửi email thông báo
-// Sử dụng Brevo SMTP
+// Sử dụng Brevo API (thay vì SMTP vì Render chặn port 587)
 
-const nodemailer = require('nodemailer');
+const https = require('https');
 
-// Cấu hình Brevo SMTP transporter
-const transporter = nodemailer.createTransport({
-    host: 'smtp-relay.brevo.com',
-    port: 587,
-    secure: false,
-    auth: {
-        user: process.env.BREVO_SMTP_USER || 'a46888001@smtp-brevo.com',
-        pass: process.env.BREVO_SMTP_KEY || 'your-smtp-key'
+// Gửi email qua Brevo API
+async function sendEmailViaBrevo(to, subject, html) {
+    const apiKey = process.env.BREVO_API_KEY || process.env.BREVO_SMTP_KEY;
+    
+    if (!apiKey) {
+        throw new Error('BREVO_API_KEY not configured');
     }
-});
+
+    const data = JSON.stringify({
+        sender: {
+            name: "HangHoaMMO",
+            email: "noreply@hanghoammo.com"
+        },
+        to: [{ email: to }],
+        subject: subject,
+        htmlContent: html
+    });
+
+    const options = {
+        hostname: 'api.brevo.com',
+        port: 443,
+        path: '/v3/smtp/email',
+        method: 'POST',
+        headers: {
+            'accept': 'application/json',
+            'api-key': apiKey,
+            'content-type': 'application/json',
+            'Content-Length': Buffer.byteLength(data)
+        }
+    };
+
+    return new Promise((resolve, reject) => {
+        const req = https.request(options, (res) => {
+            let responseData = '';
+
+            res.on('data', (chunk) => {
+                responseData += chunk;
+            });
+
+            res.on('end', () => {
+                if (res.statusCode >= 200 && res.statusCode < 300) {
+                    console.log('✅ Email sent successfully via Brevo API');
+                    const parsed = responseData ? JSON.parse(responseData) : {};
+                    resolve({ success: true, messageId: parsed.messageId });
+                } else {
+                    console.error('❌ Brevo API error:', res.statusCode, responseData);
+                    reject(new Error(`Brevo API error: ${res.statusCode} - ${responseData}`));
+                }
+            });
+        });
+
+        req.on('error', (error) => {
+            console.error('❌ Request error:', error);
+            reject(error);
+        });
+
+        req.write(data);
+        req.end();
+    });
+}
 
 // Template email đăng ký
 const registerEmailTemplate = (userName, userEmail) => {
@@ -191,24 +241,6 @@ const depositApprovedTemplate = (userName, amount, newBalance) => {
 // Helper function
 function formatPrice(price) {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
-}
-
-// Gửi email qua Brevo SMTP
-async function sendEmailViaBrevo(to, subject, html) {
-    try {
-        const info = await transporter.sendMail({
-            from: '"HangHoaMMO" <noreply@hanghoammo.com>',
-            to: to,
-            subject: subject,
-            html: html
-        });
-
-        console.log('✅ Email sent successfully:', info.messageId);
-        return { success: true, messageId: info.messageId };
-    } catch (error) {
-        console.error('❌ Brevo SMTP error:', error);
-        throw error;
-    }
 }
 
 // Gửi email
