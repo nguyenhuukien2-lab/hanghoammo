@@ -1272,8 +1272,8 @@ document.addEventListener('click', function(e) {
     // Approve button
     if (e.target.closest('.btn-approve-deposit')) {
         const btn = e.target.closest('.btn-approve-deposit');
-        const depositId = parseInt(btn.dataset.id);
-        const userId = parseInt(btn.dataset.user);
+        const depositId = btn.dataset.id; // Keep as string (UUID)
+        const userId = btn.dataset.user; // Keep as string (UUID)
         const amount = parseInt(btn.dataset.amount);
         approveDeposit(depositId, userId, amount);
     }
@@ -1281,7 +1281,7 @@ document.addEventListener('click', function(e) {
     // Reject button
     if (e.target.closest('.btn-reject-deposit')) {
         const btn = e.target.closest('.btn-reject-deposit');
-        const depositId = parseInt(btn.dataset.id);
+        const depositId = btn.dataset.id; // Keep as string (UUID)
         rejectDeposit(depositId);
     }
 });
