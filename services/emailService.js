@@ -18,7 +18,8 @@ async function sendEmailViaBrevo(to, subject, html) {
         },
         to: [{ email: to }],
         subject: subject,
-        htmlContent: html
+        htmlContent: html,
+        tags: ["hanghoammo"]
     });
 
     const options = {
