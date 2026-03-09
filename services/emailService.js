@@ -1,14 +1,16 @@
 // Email Service - Gửi email thông báo
-// Sử dụng Nodemailer với Gmail SMTP
+// Sử dụng Brevo SMTP
 
 const nodemailer = require('nodemailer');
 
-// Cấu hình transporter
+// Cấu hình Brevo SMTP transporter
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp-relay.brevo.com',
+    port: 587,
+    secure: false,
     auth: {
-        user: process.env.EMAIL_USER || 'your-email@gmail.com',
-        pass: process.env.EMAIL_PASSWORD || 'your-app-password'
+        user: process.env.BREVO_SMTP_USER || 'a46888001@smtp-brevo.com',
+        pass: process.env.BREVO_SMTP_KEY || 'your-smtp-key'
     }
 });
 
@@ -191,28 +193,30 @@ function formatPrice(price) {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
 }
 
+// Gửi email qua Brevo SMTP
+async function sendEmailViaBrevo(to, subject, html) {
+    try {
+        const info = await transporter.sendMail({
+            from: '"HangHoaMMO" <noreply@hanghoammo.com>',
+            to: to,
+            subject: subject,
+            html: html
+        });
+
+        console.log('✅ Email sent successfully:', info.messageId);
+        return { success: true, messageId: info.messageId };
+    } catch (error) {
+        console.error('❌ Brevo SMTP error:', error);
+        throw error;
+    }
+}
+
 // Gửi email
 async function sendEmail(to, template) {
     try {
-        // Kiểm tra cấu hình email
-        if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
-            console.log('⚠️ Email service not configured. Skipping email send.');
-            return { success: false, message: 'Email service not configured' };
-        }
-        
-        const mailOptions = {
-            from: `"HangHoaMMO" <${process.env.EMAIL_USER}>`,
-            to: to,
-            subject: template.subject,
-            html: template.html
-        };
-        
-        const info = await transporter.sendMail(mailOptions);
-        console.log('✅ Email sent:', info.messageId);
-        return { success: true, messageId: info.messageId };
-        
+        return await sendEmailViaBrevo(to, template.subject, template.html);
     } catch (error) {
-        console.error('❌ Email send error:', error);
+        console.error('❌ Email send error:', error.message);
         return { success: false, error: error.message };
     }
 }
