@@ -132,8 +132,9 @@ router.post('/create', authenticateToken, async (req, res) => {
                 user_id: req.user.id,
                 type: 'purchase',
                 amount: total_amount,
-                description: `Mua hàng - Đơn #${order.id}`,
+                balance_before: wallet.balance,
                 balance_after: newBalance,
+                description: `Mua hàng - Đơn #${order.order_code}`,
                 order_id: order.id
             });
             
