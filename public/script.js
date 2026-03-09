@@ -828,10 +828,18 @@ if (modalRegisterForm) {
             return;
         }
         
-        // Check password strength
-        const { strength } = checkPasswordStrength(password);
-        if (strength < 3) {
-            showNotification('Mật khẩu quá yếu! Vui lòng đáp ứng ít nhất 3/5 yêu cầu.', 'error');
+        // Validate password strength
+        if (password.length < 8) {
+            showNotification('Mật khẩu phải có ít nhất 8 ký tự!', 'error');
+            return;
+        }
+        
+        const hasUpperCase = /[A-Z]/.test(password);
+        const hasLowerCase = /[a-z]/.test(password);
+        const hasNumber = /[0-9]/.test(password);
+        
+        if (!hasUpperCase || !hasLowerCase || !hasNumber) {
+            showNotification('Mật khẩu phải có ít nhất 1 chữ hoa, 1 chữ thường và 1 số!', 'error');
             return;
         }
         
@@ -841,15 +849,6 @@ if (modalRegisterForm) {
         btnSubmit.disabled = true;
         
         try {
-            // Check password strength
-            const { strength } = checkPasswordStrength(password);
-            if (strength < 3) {
-                showNotification('Mật khẩu quá yếu! Vui lòng đáp ứng ít nhất 3/5 yêu cầu.', 'error');
-                btnSubmit.innerHTML = originalHTML;
-                btnSubmit.disabled = false;
-                return;
-            }
-            
             // Gọi API đăng ký
             const data = await apiRequest('/auth/register', {
                 method: 'POST',
