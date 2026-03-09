@@ -22,6 +22,16 @@ router.post('/create', authenticateToken, async (req, res) => {
             });
         }
         
+        // Validate product_id format (should be UUID)
+        for (const item of items) {
+            if (!item.product_id || typeof item.product_id === 'number') {
+                return res.status(400).json({
+                    success: false,
+                    message: 'ID sản phẩm không hợp lệ. Vui lòng refresh trang và thử lại!'
+                });
+            }
+        }
+        
         // If payment method is wallet, check balance and deduct
         if (payment_method === 'wallet') {
             const wallet = await db.getWallet(req.user.id);
