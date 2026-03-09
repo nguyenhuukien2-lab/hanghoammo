@@ -861,7 +861,7 @@ if (modalRegisterForm) {
             localStorage.setItem('authToken', authToken);
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
             
-            showNotification('Đăng ký thành công!');
+            showNotification('Đăng ký thành công! Vui lòng kiểm tra email (cả thư mục Spam/Junk) để nhận thông tin.');
             closeAuthModal();
             updateUserUI();
             checkLoginStatus();
@@ -1198,7 +1198,7 @@ async function confirmPayment() {
         });
         localStorage.setItem('adminProducts', JSON.stringify(adminProducts));
         
-        showNotification('Đặt hàng thành công!');
+        showNotification('Đặt hàng thành công! Vui lòng kiểm tra email (cả thư mục Spam/Junk) để nhận tài khoản.');
         
         cart = [];
         localStorage.setItem('cart', JSON.stringify(cart));

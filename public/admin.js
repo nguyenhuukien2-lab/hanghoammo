@@ -1274,7 +1274,7 @@ async function approveDeposit(depositId, userId, amount) {
             throw new Error(result.message);
         }
         
-        showNotification('Đã duyệt nạp tiền thành công!');
+        showNotification('Đã duyệt nạp tiền thành công! Email thông báo đã được gửi đến khách hàng.');
         loadDepositRequests();
         
     } catch (error) {
