@@ -370,17 +370,22 @@
                 
                 <div class="form-group">
                     <label for="paymentMethod">Phương thức thanh toán *</label>
-                    <select id="paymentMethod" name="payment_method" required>
-                        <option value="momo">MoMo</option>
-                        <option value="bank">Chuyển khoản ngân hàng</option>
+                    <select id="paymentMethod" name="payment_method" required onchange="updatePaymentInfo()">
+                        <option value="">-- Chọn phương thức --</option>
+                        <option value="momo">📱 Ví MoMo</option>
+                        <option value="vietcombank">🏦 Vietcombank</option>
+                        <option value="techcombank">🏦 Techcombank</option>
+                        <option value="mbbank">🏦 MB Bank</option>
+                        <option value="acb">🏦 ACB</option>
+                        <option value="tpbank">🏦 TPBank</option>
                     </select>
                 </div>
                 
-                <div class="payment-info">
-                    <p><strong>📱 Thông tin chuyển khoản:</strong></p>
-                    <p><strong>STK:</strong> 1234567890</p>
-                    <p><strong>Ngân hàng:</strong> ABC Bank</p>
-                    <p><strong>Chủ TK:</strong> NGUYEN VAN A</p>
+                <div class="payment-info" id="paymentInfo" style="display: none;">
+                    <p><strong id="paymentTitle">📱 Thông tin chuyển khoản:</strong></p>
+                    <p><strong>STK/SĐT:</strong> <span id="accountNumber">-</span></p>
+                    <p><strong>Ngân hàng:</strong> <span id="bankName">-</span></p>
+                    <p><strong>Chủ TK:</strong> <span id="accountHolder">-</span></p>
                     <p style="color: #ff4757; margin-top: 10px;">
                         <i class="fas fa-info-circle"></i> Vui lòng chuyển khoản và nhập mã giao dịch bên dưới
                     </p>

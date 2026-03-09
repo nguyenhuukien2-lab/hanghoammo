@@ -82,6 +82,15 @@ async function loadDepositRequests() {
                 'rejected': 'Từ chối'
             };
             
+            const paymentMethodText = {
+                'momo': '📱 MoMo',
+                'vietcombank': '🏦 Vietcombank',
+                'techcombank': '🏦 Techcombank',
+                'mbbank': '🏦 MB Bank',
+                'acb': '🏦 ACB',
+                'tpbank': '🏦 TPBank'
+            };
+            
             return `
                 <div class="deposit-item">
                     <div>
@@ -89,7 +98,7 @@ async function loadDepositRequests() {
                             ${dep.amount.toLocaleString('vi-VN')}đ
                         </div>
                         <div style="color: #666; font-size: 14px; margin-top: 5px;">
-                            ${dep.payment_method === 'momo' ? '📱 MoMo' : '🏦 Chuyển khoản'}
+                            ${paymentMethodText[dep.payment_method] || dep.payment_method}
                         </div>
                         <div style="color: #999; font-size: 13px; margin-top: 3px;">
                             Mã GD: ${dep.transaction_code}
@@ -115,6 +124,66 @@ async function loadDepositRequests() {
     }
 }
 
+// Bank account information
+const bankAccounts = {
+    momo: {
+        title: '📱 Thông tin ví MoMo',
+        accountNumber: '0879062222',
+        bankName: 'Ví MoMo',
+        accountHolder: 'NGUYEN VAN A'
+    },
+    vietcombank: {
+        title: '🏦 Thông tin Vietcombank',
+        accountNumber: '1234567890',
+        bankName: 'Vietcombank (VCB)',
+        accountHolder: 'NGUYEN VAN A'
+    },
+    techcombank: {
+        title: '🏦 Thông tin Techcombank',
+        accountNumber: '19036666666',
+        bankName: 'Techcombank (TCB)',
+        accountHolder: 'NGUYEN VAN A'
+    },
+    mbbank: {
+        title: '🏦 Thông tin MB Bank',
+        accountNumber: '0879062222',
+        bankName: 'MB Bank (MBB)',
+        accountHolder: 'NGUYEN VAN A'
+    },
+    acb: {
+        title: '🏦 Thông tin ACB',
+        accountNumber: '123456789',
+        bankName: 'Á Châu (ACB)',
+        accountHolder: 'NGUYEN VAN A'
+    },
+    tpbank: {
+        title: '🏦 Thông tin TPBank',
+        accountNumber: '0879062222',
+        bankName: 'Tiên Phong (TPBank)',
+        accountHolder: 'NGUYEN VAN A'
+    }
+};
+
+// Update payment info based on selected method
+function updatePaymentInfo() {
+    const paymentMethod = document.getElementById('paymentMethod').value;
+    const paymentInfoDiv = document.getElementById('paymentInfo');
+    
+    if (!paymentMethod) {
+        paymentInfoDiv.style.display = 'none';
+        return;
+    }
+    
+    const bankInfo = bankAccounts[paymentMethod];
+    if (bankInfo) {
+        document.getElementById('paymentTitle').textContent = bankInfo.title;
+        document.getElementById('accountNumber').textContent = bankInfo.accountNumber;
+        document.getElementById('bankName').textContent = bankInfo.bankName;
+        document.getElementById('accountHolder').textContent = bankInfo.accountHolder;
+        paymentInfoDiv.style.display = 'block';
+    }
+}
+
 // Open/close deposit modal
 function openDepositModal() {
     document.getElementById('depositModal').classList.add('active');
@@ -122,6 +191,9 @@ function openDepositModal() {
 
 function closeDepositModal() {
     document.getElementById('depositModal').classList.remove('active');
+    // Reset form and hide payment info
+    document.getElementById('depositForm').reset();
+    document.getElementById('paymentInfo').style.display = 'none';
 }
 
 // Submit deposit request
