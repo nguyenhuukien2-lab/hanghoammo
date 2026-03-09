@@ -13,6 +13,24 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
     
+    // Check if cart has old numeric IDs and clear it
+    const currentCart = JSON.parse(localStorage.getItem('cart')) || [];
+    if (currentCart.length > 0) {
+        const hasOldIds = currentCart.some(item => {
+            const id = item.id || item._id;
+            return typeof id === 'number' || (typeof id === 'string' && id.length < 10);
+        });
+        
+        if (hasOldIds) {
+            console.warn('⚠️ Cart contains old numeric IDs. Clearing cart...');
+            localStorage.removeItem('cart');
+            cart = [];
+            alert('Giỏ hàng đã được làm mới. Vui lòng thêm sản phẩm lại!');
+            window.location.href = 'products.html';
+            return;
+        }
+    }
+    
     loadCheckoutData();
     updateAllSummaries();
     checkLoginStatus(); // Cập nhật trạng thái đăng nhập

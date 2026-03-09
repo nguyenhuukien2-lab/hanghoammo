@@ -1163,6 +1163,21 @@ async function confirmPayment() {
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', async function() {
+    // Validate and clean cart on page load
+    const currentCart = JSON.parse(localStorage.getItem('cart')) || [];
+    if (currentCart.length > 0) {
+        const hasOldIds = currentCart.some(item => {
+            const id = item.id || item._id;
+            return typeof id === 'number' || (typeof id === 'string' && id.length < 10);
+        });
+        
+        if (hasOldIds) {
+            console.warn('⚠️ Clearing cart with old numeric IDs');
+            localStorage.removeItem('cart');
+            cart = [];
+        }
+    }
+    
     updateCartCount();
     updateUserUI();
     
