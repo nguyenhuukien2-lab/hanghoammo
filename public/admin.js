@@ -1170,10 +1170,10 @@ function renderDepositCard(dep) {
                     
                     ${dep.status === 'pending' ? `
                         <div style="display: flex; flex-direction: column; gap: 10px;">
-                            <button onclick="approveDeposit(${dep.id}, ${dep.user_id}, ${dep.amount})" style="background: #26de81; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s;">
+                            <button onclick="window.approveDeposit(${dep.id}, ${dep.user_id}, ${dep.amount})" style="background: #26de81; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s;">
                                 <i class="fas fa-check"></i> Duyệt
                             </button>
-                            <button onclick="rejectDeposit(${dep.id})" style="background: #ff4757; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s;">
+                            <button onclick="window.rejectDeposit(${dep.id})" style="background: #ff4757; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s;">
                                 <i class="fas fa-times"></i> Từ chối
                             </button>
                         </div>
@@ -1185,7 +1185,7 @@ function renderDepositCard(dep) {
 }
 
 // Approve deposit
-async function approveDeposit(depositId, userId, amount) {
+window.approveDeposit = async function approveDeposit(depositId, userId, amount) {
     if (!confirm(`Xác nhận duyệt nạp ${amount.toLocaleString('vi-VN')}đ?`)) {
         return;
     }
@@ -1226,7 +1226,7 @@ async function approveDeposit(depositId, userId, amount) {
 }
 
 // Reject deposit
-async function rejectDeposit(depositId) {
+window.rejectDeposit = async function rejectDeposit(depositId) {
     const reason = prompt('Nhập lý do từ chối:');
     if (!reason || reason.trim() === '') {
         showNotification('Vui lòng nhập lý do từ chối', 'error');
