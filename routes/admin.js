@@ -1,22 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../config/database');
-const { authenticateToken } = require('../middleware/auth');
+const { authenticateToken, requireAdmin } = require('../middleware/auth');
 const supabase = require('../config/supabase');
 
-// Middleware to check if user is admin
-function isAdmin(req, res, next) {
-    if (req.user.role !== 'admin') {
-        return res.status(403).json({
-            success: false,
-            message: 'Chỉ admin mới có quyền truy cập'
-        });
-    }
-    next();
-}
-
 // Get all deposit requests (admin only)
-router.get('/deposits', authenticateToken, isAdmin, async (req, res) => {
+router.get('/deposits', authenticateToken, requireAdmin, async (req, res) => {
     try {
         const { data, error } = await supabase
             .from('deposit_requests')
@@ -51,7 +40,7 @@ router.get('/deposits', authenticateToken, isAdmin, async (req, res) => {
 });
 
 // Approve deposit
-router.post('/approve-deposit', authenticateToken, isAdmin, async (req, res) => {
+router.post('/approve-deposit', authenticateToken, requireAdmin, async (req, res) => {
     try {
         const { deposit_id, user_id, amount } = req.body;
         
@@ -100,7 +89,7 @@ router.post('/approve-deposit', authenticateToken, isAdmin, async (req, res) => 
 });
 
 // Reject deposit
-router.post('/reject-deposit', authenticateToken, isAdmin, async (req, res) => {
+router.post('/reject-deposit', authenticateToken, requireAdmin, async (req, res) => {
     try {
         const { deposit_id, reason } = req.body;
         
@@ -130,7 +119,7 @@ router.post('/reject-deposit', authenticateToken, isAdmin, async (req, res) => {
 });
 
 // Get all users (admin only)
-router.get('/users', authenticateToken, isAdmin, async (req, res) => {
+router.get('/users', authenticateToken, requireAdmin, async (req, res) => {
     try {
         const { data, error } = await supabase
             .from('users')
@@ -153,7 +142,7 @@ router.get('/users', authenticateToken, isAdmin, async (req, res) => {
 });
 
 // Get all orders (admin only)
-router.get('/orders', authenticateToken, isAdmin, async (req, res) => {
+router.get('/orders', authenticateToken, requireAdmin, async (req, res) => {
     try {
         const orders = await db.getAllOrders();
         
