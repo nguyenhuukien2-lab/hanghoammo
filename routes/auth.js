@@ -321,7 +321,77 @@ router.post('/update-profile', async (req, res) => {
     }
 });
 
-// Change password (authenticated)
+// Request OTP for password change
+router.post('/request-password-otp', async (req, res) => {
+    try {
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return res.status(401).json({
+                success: false,
+                message: 'Không có token xác thực'
+            });
+        }
+
+        const token = authHeader.substring(7);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        
+        // Get user
+        const user = await db.getUserById(decoded.userId);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'Không tìm thấy người dùng'
+            });
+        }
+
+        // Generate 6-digit OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        
+        // Store OTP in database with expiry (5 minutes)
+        const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+        
+        await supabase
+            .from('password_reset_otps')
+            .upsert({
+                user_id: decoded.userId,
+                otp: otp,
+                expires_at: expiresAt.toISOString(),
+                used: false
+            }, {
+                onConflict: 'user_id'
+            });
+
+        // Send OTP via email
+        await emailService.sendPasswordOTPEmail(user.name, user.email, otp);
+
+        // Send OTP via Telegram if available
+        if (user.telegram_chat_id) {
+            telegramService.sendTelegramMessage(
+                user.telegram_chat_id,
+                `🔐 <b>Mã xác nhận đổi mật khẩu</b>\n\n` +
+                `Mã OTP của bạn là: <code>${otp}</code>\n\n` +
+                `⏰ Mã có hiệu lực trong 5 phút\n` +
+                `⚠️ Không chia sẻ mã này với bất kỳ ai!`,
+                { parse_mode: 'HTML' }
+            ).catch(err => {
+                console.error('Failed to send Telegram OTP:', err);
+            });
+        }
+
+        res.json({
+            success: true,
+            message: 'Mã OTP đã được gửi qua email và Telegram (nếu có)'
+        });
+    } catch (error) {
+        console.error('Request OTP error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Lỗi khi gửi mã OTP'
+        });
+    }
+});
+
+// Change password (authenticated) with OTP verification
 router.post('/change-password-auth', async (req, res) => {
     try {
         const authHeader = req.headers.authorization;
@@ -335,9 +405,9 @@ router.post('/change-password-auth', async (req, res) => {
         const token = authHeader.substring(7);
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         
-        const { currentPassword, newPassword } = req.body;
+        const { currentPassword, newPassword, otp } = req.body;
         
-        if (!currentPassword || !newPassword) {
+        if (!currentPassword || !newPassword || !otp) {
             return res.status(400).json({
                 success: false,
                 message: 'Vui lòng điền đầy đủ thông tin'
@@ -361,6 +431,36 @@ router.post('/change-password-auth', async (req, res) => {
                 message: 'Mật khẩu hiện tại không đúng'
             });
         }
+
+        // Verify OTP
+        const { data: otpData, error: otpError } = await supabase
+            .from('password_reset_otps')
+            .select('*')
+            .eq('user_id', decoded.userId)
+            .eq('otp', otp)
+            .eq('used', false)
+            .single();
+
+        if (otpError || !otpData) {
+            return res.status(400).json({
+                success: false,
+                message: 'Mã OTP không hợp lệ'
+            });
+        }
+
+        // Check if OTP expired
+        if (new Date(otpData.expires_at) < new Date()) {
+            return res.status(400).json({
+                success: false,
+                message: 'Mã OTP đã hết hạn. Vui lòng yêu cầu mã mới'
+            });
+        }
+
+        // Mark OTP as used
+        await supabase
+            .from('password_reset_otps')
+            .update({ used: true })
+            .eq('user_id', decoded.userId);
 
         // Hash new password
         const hashedPassword = await bcrypt.hash(newPassword, 10);

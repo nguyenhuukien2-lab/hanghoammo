@@ -254,6 +254,69 @@ async function sendEmail(to, template) {
     }
 }
 
+// Template email OTP đổi mật khẩu
+const passwordOTPTemplate = (userName, userEmail, otp) => {
+    return {
+        subject: '🔐 Mã xác nhận đổi mật khẩu - HangHoaMMO',
+        html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f5f5f5;">
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+                    <h1 style="color: white; margin: 0;">🔐 Mã xác nhận OTP</h1>
+                </div>
+                
+                <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px;">
+                    <h2 style="color: #333;">Xin chào ${userName}!</h2>
+                    <p style="color: #666; line-height: 1.6;">
+                        Bạn đã yêu cầu đổi mật khẩu tài khoản. Vui lòng sử dụng mã OTP bên dưới để xác nhận:
+                    </p>
+                    
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 12px; margin: 30px 0; text-align: center;">
+                        <p style="color: white; margin: 0 0 10px 0; font-size: 14px; text-transform: uppercase; letter-spacing: 2px;">Mã OTP của bạn</p>
+                        <div style="background: white; padding: 20px; border-radius: 8px; display: inline-block;">
+                            <span style="font-size: 36px; font-weight: bold; color: #667eea; letter-spacing: 8px; font-family: 'Courier New', monospace;">${otp}</span>
+                        </div>
+                        <p style="color: white; margin: 15px 0 0 0; font-size: 13px;">
+                            <i class="fas fa-clock"></i> Mã có hiệu lực trong <strong>5 phút</strong>
+                        </p>
+                    </div>
+                    
+                    <div style="background: #fff3e0; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ff9800;">
+                        <p style="margin: 0; color: #e65100;">
+                            <strong>⚠️ Lưu ý bảo mật:</strong>
+                        </p>
+                        <ul style="margin: 10px 0 0 0; padding-left: 20px; color: #666;">
+                            <li>Không chia sẻ mã OTP này với bất kỳ ai</li>
+                            <li>HangHoaMMO sẽ không bao giờ yêu cầu mã OTP qua điện thoại</li>
+                            <li>Nếu bạn không yêu cầu đổi mật khẩu, vui lòng bỏ qua email này</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                        <p style="margin: 0; color: #666;"><strong>Thông tin yêu cầu:</strong></p>
+                        <p style="margin: 10px 0 0 0; color: #666;">Email: ${userEmail}</p>
+                        <p style="margin: 5px 0 0 0; color: #666;">Thời gian: ${new Date().toLocaleString('vi-VN')}</p>
+                    </div>
+                    
+                    <p style="color: #666; line-height: 1.6;">
+                        Nếu cần hỗ trợ, vui lòng liên hệ:
+                    </p>
+                    
+                    <ul style="color: #666; line-height: 1.8;">
+                        <li>📱 Telegram: <a href="https://t.me/hanghoammo">@hanghoammo</a></li>
+                        <li>📞 Hotline: 0879.06.2222</li>
+                        <li>🌐 Website: <a href="https://hanghoammo.onrender.com">hanghoammo.onrender.com</a></li>
+                    </ul>
+                </div>
+                
+                <div style="text-align: center; padding: 20px; color: #999; font-size: 12px;">
+                    <p>© 2025 HangHoaMMO. All rights reserved.</p>
+                    <p style="margin-top: 10px;">Email này được gửi tự động, vui lòng không trả lời.</p>
+                </div>
+            </div>
+        `
+    };
+};
+
 // Template email đổi mật khẩu thành công
 const passwordChangedTemplate = (userName, userEmail) => {
     return {
@@ -336,6 +399,11 @@ module.exports = {
     
     sendPasswordChangedEmail: (userName, userEmail) => {
         const template = passwordChangedTemplate(userName, userEmail);
+        return sendEmail(userEmail, template);
+    },
+    
+    sendPasswordOTPEmail: (userName, userEmail, otp) => {
+        const template = passwordOTPTemplate(userName, userEmail, otp);
         return sendEmail(userEmail, template);
     }
 };

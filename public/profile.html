@@ -484,6 +484,29 @@
                                style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
                     </div>
                     
+                    <button type="button" id="requestOtpBtn" onclick="requestOTP()" 
+                            style="width: 100%; padding: 12px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; margin-bottom: 20px;">
+                        <i class="fas fa-paper-plane"></i> Gửi mã OTP
+                    </button>
+                    
+                    <div id="otpSection" style="display: none;">
+                        <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: center;">
+                            <p style="margin: 0; color: #2e7d32; font-size: 14px;">
+                                <i class="fas fa-check-circle"></i> Mã OTP đã được gửi qua email và Telegram
+                            </p>
+                            <p style="margin: 10px 0 0 0; color: #2e7d32; font-size: 13px;">
+                                <i class="fas fa-clock"></i> Thời gian còn lại: <strong id="otpTimer">5:00</strong>
+                            </p>
+                        </div>
+                        
+                        <div class="form-group" style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Mã OTP (6 số)</label>
+                            <input type="text" id="otpCode" required maxlength="6" pattern="[0-9]{6}"
+                                   placeholder="Nhập mã OTP 6 số"
+                                   style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 18px; text-align: center; letter-spacing: 5px; font-family: 'Courier New', monospace;">
+                        </div>
+                    </div>
+                    
                     <div class="form-group" style="margin-bottom: 15px;">
                         <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Mật khẩu mới</label>
                         <input type="password" id="newPassword" required minlength="6"
@@ -499,7 +522,7 @@
                                style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
                     </div>
                     
-                    <button type="submit" class="btn-save-profile" style="width: 100%; margin: 0;">
+                    <button type="submit" id="changePasswordSubmitBtn" class="btn-save-profile" style="width: 100%; margin: 0; display: none;">
                         <i class="fas fa-check"></i>
                         Đổi mật khẩu
                     </button>

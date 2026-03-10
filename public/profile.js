@@ -369,21 +369,90 @@ function getStatusText(status) {
 
 
 // Change password functions
+let otpSent = false;
+let otpTimer = null;
+
 function showChangePasswordModal() {
     document.getElementById('changePasswordModal').style.display = 'flex';
+    otpSent = false;
+    document.getElementById('otpSection').style.display = 'none';
+    document.getElementById('requestOtpBtn').style.display = 'block';
+    document.getElementById('changePasswordSubmitBtn').style.display = 'none';
 }
 
 function closeChangePasswordModal() {
     document.getElementById('changePasswordModal').style.display = 'none';
     document.getElementById('changePasswordForm').reset();
+    otpSent = false;
+    if (otpTimer) clearInterval(otpTimer);
+}
+
+async function requestOTP() {
+    const currentPassword = document.getElementById('currentPassword').value;
+    
+    if (!currentPassword) {
+        alert('❌ Vui lòng nhập mật khẩu hiện tại!');
+        return;
+    }
+    
+    try {
+        const authToken = localStorage.getItem('authToken');
+        const response = await fetch('/api/auth/request-password-otp', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('✅ ' + data.message);
+            otpSent = true;
+            
+            // Show OTP input section
+            document.getElementById('otpSection').style.display = 'block';
+            document.getElementById('requestOtpBtn').style.display = 'none';
+            document.getElementById('changePasswordSubmitBtn').style.display = 'block';
+            
+            // Start countdown timer (5 minutes)
+            let timeLeft = 300; // 5 minutes in seconds
+            const timerDisplay = document.getElementById('otpTimer');
+            
+            otpTimer = setInterval(() => {
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(otpTimer);
+                    timerDisplay.textContent = 'Hết hạn';
+                    alert('⚠️ Mã OTP đã hết hạn. Vui lòng yêu cầu mã mới.');
+                }
+            }, 1000);
+        } else {
+            alert('❌ ' + data.message);
+        }
+    } catch (error) {
+        console.error('Request OTP error:', error);
+        alert('❌ Có lỗi xảy ra khi gửi mã OTP');
+    }
 }
 
 async function handleChangePassword(event) {
     event.preventDefault();
     
+    if (!otpSent) {
+        alert('❌ Vui lòng yêu cầu mã OTP trước!');
+        return;
+    }
+    
     const currentPassword = document.getElementById('currentPassword').value;
     const newPassword = document.getElementById('newPassword').value;
     const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+    const otp = document.getElementById('otpCode').value;
     
     if (newPassword !== confirmNewPassword) {
         alert('❌ Mật khẩu mới không khớp!');
@@ -392,6 +461,11 @@ async function handleChangePassword(event) {
     
     if (newPassword.length < 6) {
         alert('❌ Mật khẩu mới phải có ít nhất 6 ký tự!');
+        return;
+    }
+    
+    if (!otp || otp.length !== 6) {
+        alert('❌ Vui lòng nhập mã OTP 6 số!');
         return;
     }
     
@@ -405,7 +479,8 @@ async function handleChangePassword(event) {
             },
             body: JSON.stringify({
                 currentPassword,
-                newPassword
+                newPassword,
+                otp
             })
         });
         
@@ -414,6 +489,7 @@ async function handleChangePassword(event) {
         if (data.success) {
             alert('✅ ' + data.message);
             closeChangePasswordModal();
+            if (otpTimer) clearInterval(otpTimer);
         } else {
             alert('❌ ' + data.message);
         }
