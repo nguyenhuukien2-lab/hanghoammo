@@ -767,15 +767,83 @@ function closeForgotPasswordModal() {
     }
 }
 
+// Forgot password OTP variables
+let forgotOtpSent = false;
+let forgotOtpTimer = null;
+
+async function requestForgotPasswordOTP() {
+    const email = document.getElementById('forgotEmail').value.trim();
+    const phone = document.getElementById('forgotPhone').value.trim();
+    
+    if (!email || !phone) {
+        showNotification('Vui lòng nhập email và số điện thoại!', 'error');
+        return;
+    }
+    
+    const btn = document.getElementById('requestForgotOtpBtn');
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang gửi...';
+    btn.disabled = true;
+    
+    try {
+        const data = await apiRequest('/auth/request-forgot-password-otp', {
+            method: 'POST',
+            body: JSON.stringify({ email, phone })
+        });
+        
+        showNotification(data.message || 'Mã OTP đã được gửi!', 'success');
+        forgotOtpSent = true;
+        
+        // Show OTP input section
+        document.getElementById('forgotOtpSection').style.display = 'block';
+        document.getElementById('requestForgotOtpBtn').style.display = 'none';
+        document.getElementById('forgotPasswordSubmitBtn').style.display = 'block';
+        
+        // Start countdown timer (5 minutes)
+        let timeLeft = 300;
+        const timerDisplay = document.getElementById('forgotOtpTimer');
+        
+        forgotOtpTimer = setInterval(() => {
+            timeLeft--;
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeLeft <= 0) {
+                clearInterval(forgotOtpTimer);
+                timerDisplay.textContent = 'Hết hạn';
+                showNotification('Mã OTP đã hết hạn. Vui lòng yêu cầu mã mới.', 'error');
+            }
+        }, 1000);
+        
+    } catch (error) {
+        showNotification(error.message || 'Có lỗi xảy ra khi gửi mã OTP!', 'error');
+    } finally {
+        btn.innerHTML = originalHTML;
+        btn.disabled = false;
+    }
+}
+
 async function handleForgotPassword(event) {
     event.preventDefault();
+    
+    if (!forgotOtpSent) {
+        showNotification('Vui lòng yêu cầu mã OTP trước!', 'error');
+        return;
+    }
     
     const form = event.target;
     const email = document.getElementById('forgotEmail').value.trim();
     const phone = document.getElementById('forgotPhone').value.trim();
     const newPassword = document.getElementById('forgotNewPassword').value;
+    const otp = document.getElementById('forgotOtpCode').value.trim();
     
-    const btnSubmit = form.querySelector('.btn-submit');
+    if (!otp || otp.length !== 6) {
+        showNotification('Vui lòng nhập mã OTP 6 số!', 'error');
+        return;
+    }
+    
+    const btnSubmit = document.getElementById('forgotPasswordSubmitBtn');
     const originalHTML = btnSubmit.innerHTML;
     btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
     btnSubmit.disabled = true;
@@ -783,11 +851,13 @@ async function handleForgotPassword(event) {
     try {
         const data = await apiRequest('/auth/change-password', {
             method: 'POST',
-            body: JSON.stringify({ email, phone, newPassword })
+            body: JSON.stringify({ email, phone, newPassword, otp })
         });
         
         showNotification(data.message || 'Đổi mật khẩu thành công!', 'success');
         closeForgotPasswordModal();
+        
+        if (forgotOtpTimer) clearInterval(forgotOtpTimer);
         
         // Mở modal đăng nhập sau 1s
         setTimeout(() => {
@@ -800,6 +870,17 @@ async function handleForgotPassword(event) {
         btnSubmit.innerHTML = originalHTML;
         btnSubmit.disabled = false;
     }
+}
+
+function closeForgotPasswordModal() {
+    document.getElementById('forgotPasswordModal').classList.remove('active');
+    document.body.style.overflow = '';
+    document.getElementById('forgotPasswordForm').reset();
+    forgotOtpSent = false;
+    document.getElementById('forgotOtpSection').style.display = 'none';
+    document.getElementById('requestForgotOtpBtn').style.display = 'block';
+    document.getElementById('forgotPasswordSubmitBtn').style.display = 'none';
+    if (forgotOtpTimer) clearInterval(forgotOtpTimer);
 }
 
 // Modal Register Form Handler

@@ -606,6 +606,31 @@
                     </div>
                 </div>
 
+                <button type="button" id="requestForgotOtpBtn" onclick="requestForgotPasswordOTP()" class="btn-submit" style="margin-bottom: 20px;">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Gửi mã OTP</span>
+                </button>
+
+                <div id="forgotOtpSection" style="display: none;">
+                    <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: center;">
+                        <p style="margin: 0; color: #2e7d32; font-size: 14px;">
+                            <i class="fas fa-check-circle"></i> Mã OTP đã được gửi qua email
+                        </p>
+                        <p style="margin: 10px 0 0 0; color: #2e7d32; font-size: 13px;">
+                            <i class="fas fa-clock"></i> Thời gian còn lại: <strong id="forgotOtpTimer">5:00</strong>
+                        </p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Mã OTP (6 số)</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-shield-alt"></i>
+                            <input type="text" id="forgotOtpCode" maxlength="6" pattern="[0-9]{6}" placeholder="Nhập mã OTP 6 số" 
+                                   style="text-align: center; letter-spacing: 5px; font-family: 'Courier New', monospace; font-size: 18px;">
+                        </div>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label>Mật khẩu mới</label>
                     <div class="input-wrapper">
@@ -615,9 +640,12 @@
                             <i class="fas fa-eye"></i>
                         </button>
                     </div>
+                    <small style="color: #666; font-size: 12px; margin-top: 5px; display: block;">
+                        Tối thiểu 6 ký tự
+                    </small>
                 </div>
 
-                <button type="submit" class="btn-submit">
+                <button type="submit" id="forgotPasswordSubmitBtn" class="btn-submit" style="display: none;">
                     <span>Đặt lại mật khẩu</span>
                     <i class="fas fa-arrow-right"></i>
                 </button>

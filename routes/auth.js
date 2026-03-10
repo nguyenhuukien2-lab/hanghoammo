@@ -146,10 +146,10 @@ router.post('/login', async (req, res) => {
 // Đổi mật khẩu
 router.post('/change-password', async (req, res) => {
     try {
-        const { email, phone, newPassword } = req.body;
+        const { email, phone, newPassword, otp } = req.body;
 
         // Validate
-        if (!email || !phone || !newPassword) {
+        if (!email || !phone || !newPassword || !otp) {
             return res.status(400).json({
                 success: false,
                 message: 'Vui lòng điền đầy đủ thông tin'
@@ -172,15 +172,66 @@ router.post('/change-password', async (req, res) => {
             });
         }
 
+        // Verify OTP
+        const { data: otpData, error: otpError } = await supabase
+            .from('password_reset_otps')
+            .select('*')
+            .eq('user_id', user.id)
+            .eq('otp', otp)
+            .eq('used', false)
+            .single();
+
+        if (otpError || !otpData) {
+            return res.status(400).json({
+                success: false,
+                message: 'Mã OTP không hợp lệ'
+            });
+        }
+
+        // Check if OTP expired
+        if (new Date(otpData.expires_at) < new Date()) {
+            return res.status(400).json({
+                success: false,
+                message: 'Mã OTP đã hết hạn. Vui lòng yêu cầu mã mới'
+            });
+        }
+
+        // Mark OTP as used
+        await supabase
+            .from('password_reset_otps')
+            .update({ used: true })
+            .eq('user_id', user.id);
+
         // Mã hóa mật khẩu mới
         const hashedPassword = await bcrypt.hash(newPassword, 10);
 
         // Cập nhật mật khẩu
-        const supabase = require('../config/supabase');
         await supabase
             .from('users')
             .update({ password: hashedPassword })
             .eq('id', user.id);
+
+        // Send email notification
+        emailService.sendPasswordChangedEmail(user.name, user.email).catch(err => {
+            console.error('Failed to send password changed email:', err);
+        });
+
+        // Send Telegram notification if available
+        if (user.telegram_chat_id) {
+            telegramService.sendTelegramMessage(
+                user.telegram_chat_id,
+                `🔒 <b>Mật khẩu đã thay đổi</b>\n\n` +
+                `Mật khẩu tài khoản của bạn đã được đặt lại thành công.\n\n` +
+                `⏰ Thời gian: ${new Date().toLocaleString('vi-VN')}\n` +
+                `📧 Email: ${user.email}\n\n` +
+                `⚠️ Nếu bạn KHÔNG thực hiện thay đổi này, vui lòng liên hệ ngay với chúng tôi!\n\n` +
+                `📱 Telegram: @hanghoammo\n` +
+                `📞 Hotline: 0879.06.2222`,
+                { parse_mode: 'HTML' }
+            ).catch(err => {
+                console.error('Failed to send Telegram notification:', err);
+            });
+        }
 
         res.json({
             success: true,
@@ -191,6 +242,81 @@ router.post('/change-password', async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Lỗi server khi đổi mật khẩu'
+        });
+    }
+});
+
+// Request OTP for forgot password (public - no auth required)
+router.post('/request-forgot-password-otp', async (req, res) => {
+    try {
+        const { email, phone } = req.body;
+
+        if (!email || !phone) {
+            return res.status(400).json({
+                success: false,
+                message: 'Vui lòng điền email và số điện thoại'
+            });
+        }
+
+        // Find user and verify phone
+        const user = await db.getUserByEmail(email);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'Email không tồn tại'
+            });
+        }
+
+        if (user.phone !== phone) {
+            return res.status(400).json({
+                success: false,
+                message: 'Số điện thoại không khớp'
+            });
+        }
+
+        // Generate 6-digit OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        
+        // Store OTP in database with expiry (5 minutes)
+        const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+        
+        await supabase
+            .from('password_reset_otps')
+            .upsert({
+                user_id: user.id,
+                otp: otp,
+                expires_at: expiresAt.toISOString(),
+                used: false
+            }, {
+                onConflict: 'user_id'
+            });
+
+        // Send OTP via email
+        await emailService.sendPasswordOTPEmail(user.name, user.email, otp);
+
+        // Send OTP via Telegram if available
+        if (user.telegram_chat_id) {
+            telegramService.sendTelegramMessage(
+                user.telegram_chat_id,
+                `🔐 <b>Mã xác nhận đặt lại mật khẩu</b>\n\n` +
+                `Mã OTP của bạn là: <code>${otp}</code>\n\n` +
+                `⏰ Mã có hiệu lực trong 5 phút\n` +
+                `⚠️ Không chia sẻ mã này với bất kỳ ai!`,
+                { parse_mode: 'HTML' }
+            ).catch(err => {
+                console.error('Failed to send Telegram OTP:', err);
+            });
+        }
+
+        res.json({
+            success: true,
+            message: 'Mã OTP đã được gửi qua email' + (user.telegram_chat_id ? ' và Telegram' : '')
+        });
+    } catch (error) {
+        console.error('Request forgot password OTP error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Lỗi khi gửi mã OTP'
         });
     }
 });
