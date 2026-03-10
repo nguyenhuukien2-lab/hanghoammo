@@ -61,6 +61,7 @@ const walletRoutes = require('./routes/wallet');
 const adminRoutes = require('./routes/admin');
 const setupRoutes = require('./routes/setup');
 const ordersRoutes = require('./routes/orders');
+const chatRoutes = require('./routes/chat');
 
 // API Routes with specific rate limiters
 app.use('/api/auth/login', authLimiter);
@@ -73,6 +74,7 @@ app.use('/api/wallet', walletRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/setup', setupRoutes);
 app.use('/api/orders', ordersRoutes);
+app.use('/api/chat', chatRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

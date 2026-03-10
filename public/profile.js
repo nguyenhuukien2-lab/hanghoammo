@@ -4,6 +4,12 @@ document.addEventListener('DOMContentLoaded', function() {
     checkLoginStatus(); // Cập nhật trạng thái đăng nhập
     loadUserProfile();
     loadUserOrders();
+    
+    // Check if on messages tab and start chat
+    const messagesSection = document.getElementById('messages');
+    if (messagesSection && messagesSection.classList.contains('active')) {
+        startChatRefresh();
+    }
 });
 
 async function loadUserProfile() {
@@ -367,6 +373,204 @@ function getStatusText(status) {
     return statuses[status] || status;
 }
 
+
+// ==================== CHAT FUNCTIONS ====================
+
+let chatRefreshInterval = null;
+
+// Load chat messages
+async function loadMessages() {
+    try {
+        const authToken = localStorage.getItem('authToken');
+        if (!authToken) return;
+        
+        const response = await fetch('/api/chat/my-messages', {
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        if (!data.success) return;
+        
+        const messages = data.data || [];
+        const container = document.getElementById('chatMessages');
+        if (!container) return;
+        
+        if (messages.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 40px 20px; color: #999;">
+                    <i class="fas fa-comments" style="font-size: 48px; margin-bottom: 15px; opacity: 0.3;"></i>
+                    <p>Chưa có tin nhắn nào</p>
+                    <p style="font-size: 13px;">Gửi tin nhắn đầu tiên để bắt đầu trò chuyện với admin</p>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = messages.map(msg => {
+            const isUser = msg.sender_type === 'user';
+            const time = formatMessageTime(msg.created_at);
+            
+            return `
+                <div class="chat-message ${isUser ? 'user' : 'admin'}">
+                    <div class="message-bubble">
+                        <div class="message-text">${escapeHtml(msg.message)}</div>
+                        <div class="message-time">${time}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        // Scroll to bottom
+        container.scrollTop = container.scrollHeight;
+        
+        // Mark admin messages as read
+        await markMessagesAsRead();
+        
+    } catch (error) {
+        console.error('Load messages error:', error);
+    }
+}
+
+// Send message
+async function sendMessage(event) {
+    event.preventDefault();
+    
+    const input = document.getElementById('chatInput');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    try {
+        const authToken = localStorage.getItem('authToken');
+        const response = await fetch('/api/chat/send', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            input.value = '';
+            await loadMessages();
+        } else {
+            alert('❌ ' + data.message);
+        }
+    } catch (error) {
+        console.error('Send message error:', error);
+        alert('❌ Không thể gửi tin nhắn');
+    }
+}
+
+// Mark messages as read
+async function markMessagesAsRead() {
+    try {
+        const authToken = localStorage.getItem('authToken');
+        await fetch('/api/chat/mark-read', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
+    } catch (error) {
+        console.error('Mark read error:', error);
+    }
+}
+
+// Format message time
+function formatMessageTime(timestamp) {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diff = now - date;
+    
+    // Less than 1 minute
+    if (diff < 60000) {
+        return 'Vừa xong';
+    }
+    
+    // Less than 1 hour
+    if (diff < 3600000) {
+        const minutes = Math.floor(diff / 60000);
+        return `${minutes} phút trước`;
+    }
+    
+    // Less than 24 hours
+    if (diff < 86400000) {
+        const hours = Math.floor(diff / 3600000);
+        return `${hours} giờ trước`;
+    }
+    
+    // Show date and time
+    return date.toLocaleString('vi-VN', {
+        day: '2-digit',
+        month: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+// Escape HTML to prevent XSS
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Start chat auto-refresh
+function startChatRefresh() {
+    // Load messages immediately
+    loadMessages();
+    
+    // Refresh every 5 seconds
+    if (chatRefreshInterval) {
+        clearInterval(chatRefreshInterval);
+    }
+    chatRefreshInterval = setInterval(loadMessages, 5000);
+}
+
+// Stop chat auto-refresh
+function stopChatRefresh() {
+    if (chatRefreshInterval) {
+        clearInterval(chatRefreshInterval);
+        chatRefreshInterval = null;
+    }
+}
+
+// Override showProfileSection to handle chat
+const _originalShowProfileSection = window.showProfileSection;
+window.showProfileSection = function(sectionId) {
+    // Call original function
+    if (_originalShowProfileSection) {
+        _originalShowProfileSection.call(this, sectionId);
+    } else {
+        // Fallback implementation
+        document.querySelectorAll('.profile-content-section').forEach(section => {
+            section.classList.remove('active');
+        });
+        document.getElementById(sectionId)?.classList.add('active');
+        
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        if (event && event.target) {
+            event.target.closest('.menu-item')?.classList.add('active');
+        }
+    }
+    
+    // Start/stop chat refresh based on section
+    if (sectionId === 'messages') {
+        startChatRefresh();
+    } else {
+        stopChatRefresh();
+    }
+};
 
 // Change password functions
 let otpSent = false;

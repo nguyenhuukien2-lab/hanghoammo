@@ -180,6 +180,7 @@ function showSection(sectionId) {
         'orders': 'Quản lý đơn hàng',
         'customers': 'Quản lý khách hàng',
         'deposits': 'Quản lý nạp tiền',
+        'chat': 'Quản lý Chat',
         'notifications': 'Quản lý thông báo',
         'settings': 'Cài đặt hệ thống'
     };
@@ -191,6 +192,11 @@ function showSection(sectionId) {
     } else if (sectionId === 'accounts') {
         loadAccounts();
         loadProductsForSelect();
+    } else if (sectionId === 'chat') {
+        loadConversations();
+        startAdminChatRefresh();
+    } else {
+        stopAdminChatRefresh();
     }
 }
 
@@ -1492,5 +1498,240 @@ async function deleteAccount(accountId) {
     } catch (error) {
         console.error('Delete account error:', error);
         showNotification('Lỗi khi xóa tài khoản', 'error');
+    }
+}
+
+
+// ==================== CHAT MANAGEMENT ====================
+
+let currentChatUserId = null;
+let adminChatRefreshInterval = null;
+
+// Load conversations list
+async function loadConversations() {
+    try {
+        const data = await apiRequest('/chat/admin/conversations');
+        const conversations = data.data || [];
+        
+        const container = document.getElementById('conversationsList');
+        if (!container) return;
+        
+        if (conversations.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 40px 20px; color: #999;">
+                    <i class="fas fa-inbox" style="font-size: 32px; margin-bottom: 15px; opacity: 0.3;"></i>
+                    <p>Chưa có hội thoại nào</p>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = conversations.map(conv => `
+            <div class="conversation-item ${currentChatUserId === conv.user_id ? 'active' : ''}" 
+                 onclick="selectConversation('${conv.user_id}', '${conv.user_name || 'User'}', '${conv.user_email}')"
+                 style="padding: 15px; border-radius: 8px; cursor: pointer; margin-bottom: 10px; background: ${currentChatUserId === conv.user_id ? '#f0f0ff' : '#f8f9fa'}; transition: all 0.3s;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px; flex-shrink: 0;">
+                        ${(conv.user_name || conv.user_email).charAt(0).toUpperCase()}
+                    </div>
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="font-weight: 600; font-size: 15px; color: #333; margin-bottom: 3px; display: flex; align-items: center; gap: 8px;">
+                            ${conv.user_name || 'User'}
+                            ${conv.unread_count > 0 ? `<span style="background: #ff4757; color: white; font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 700;">${conv.unread_count}</span>` : ''}
+                        </div>
+                        <div style="color: #999; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            ${conv.last_message || 'Chưa có tin nhắn'}
+                        </div>
+                        ${conv.last_message_time ? `
+                            <div style="color: #bbb; font-size: 11px; margin-top: 3px;">
+                                ${formatMessageTime(conv.last_message_time)}
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        
+    } catch (error) {
+        console.error('Load conversations error:', error);
+        showNotification('Không thể tải danh sách hội thoại', 'error');
+    }
+}
+
+// Select conversation
+async function selectConversation(userId, userName, userEmail) {
+    currentChatUserId = userId;
+    
+    // Update header
+    document.getElementById('chatHeader').style.display = 'block';
+    document.getElementById('chatUserName').textContent = userName;
+    document.getElementById('chatUserEmail').textContent = userEmail;
+    document.getElementById('adminChatForm').style.display = 'block';
+    
+    // Highlight selected conversation
+    document.querySelectorAll('.conversation-item').forEach(item => {
+        item.classList.remove('active');
+        item.style.background = '#f8f9fa';
+    });
+    event.target.closest('.conversation-item').classList.add('active');
+    event.target.closest('.conversation-item').style.background = '#f0f0ff';
+    
+    // Load messages
+    await loadAdminChatMessages(userId);
+    
+    // Mark as read
+    await markAdminMessagesAsRead(userId);
+    
+    // Refresh conversations to update unread count
+    await loadConversations();
+}
+
+// Load messages for specific user
+async function loadAdminChatMessages(userId) {
+    try {
+        const data = await apiRequest(`/chat/admin/messages/${userId}`);
+        const messages = data.data || [];
+        
+        const container = document.getElementById('adminChatMessages');
+        if (!container) return;
+        
+        if (messages.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 40px 20px; color: #999;">
+                    <i class="fas fa-comments" style="font-size: 48px; margin-bottom: 15px; opacity: 0.3;"></i>
+                    <p>Chưa có tin nhắn nào</p>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = messages.map(msg => {
+            const isAdmin = msg.sender_type === 'admin';
+            const time = formatMessageTime(msg.created_at);
+            
+            return `
+                <div style="display: flex; justify-content: ${isAdmin ? 'flex-end' : 'flex-start'}; margin-bottom: 15px;">
+                    <div style="max-width: 70%; background: ${isAdmin ? 'linear-gradient(135deg, #667eea, #764ba2)' : 'white'}; color: ${isAdmin ? 'white' : '#333'}; padding: 12px 18px; border-radius: ${isAdmin ? '18px 18px 4px 18px' : '18px 18px 18px 4px'}; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <div style="word-wrap: break-word; margin-bottom: 5px;">${escapeHtml(msg.message)}</div>
+                        <div style="font-size: 11px; opacity: 0.7; text-align: right;">${time}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        // Scroll to bottom
+        container.scrollTop = container.scrollHeight;
+        
+    } catch (error) {
+        console.error('Load admin chat messages error:', error);
+    }
+}
+
+// Send message to user
+async function sendAdminMessage(event) {
+    event.preventDefault();
+    
+    if (!currentChatUserId) {
+        showNotification('Vui lòng chọn hội thoại', 'error');
+        return;
+    }
+    
+    const input = document.getElementById('adminChatInput');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    try {
+        await apiRequest('/chat/admin/send', {
+            method: 'POST',
+            body: JSON.stringify({
+                user_id: currentChatUserId,
+                message: message
+            })
+        });
+        
+        input.value = '';
+        await loadAdminChatMessages(currentChatUserId);
+        await loadConversations();
+        
+    } catch (error) {
+        console.error('Send admin message error:', error);
+        showNotification('Không thể gửi tin nhắn', 'error');
+    }
+}
+
+// Mark user messages as read
+async function markAdminMessagesAsRead(userId) {
+    try {
+        await apiRequest(`/chat/admin/mark-read/${userId}`, {
+            method: 'POST'
+        });
+    } catch (error) {
+        console.error('Mark admin messages read error:', error);
+    }
+}
+
+// Format message time
+function formatMessageTime(timestamp) {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diff = now - date;
+    
+    // Less than 1 minute
+    if (diff < 60000) {
+        return 'Vừa xong';
+    }
+    
+    // Less than 1 hour
+    if (diff < 3600000) {
+        const minutes = Math.floor(diff / 60000);
+        return `${minutes} phút trước`;
+    }
+    
+    // Less than 24 hours
+    if (diff < 86400000) {
+        const hours = Math.floor(diff / 3600000);
+        return `${hours} giờ trước`;
+    }
+    
+    // Show date and time
+    return date.toLocaleString('vi-VN', {
+        day: '2-digit',
+        month: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+// Escape HTML
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Start auto-refresh for admin chat
+function startAdminChatRefresh() {
+    // Load conversations immediately
+    loadConversations();
+    
+    // Refresh every 5 seconds
+    if (adminChatRefreshInterval) {
+        clearInterval(adminChatRefreshInterval);
+    }
+    
+    adminChatRefreshInterval = setInterval(async () => {
+        await loadConversations();
+        if (currentChatUserId) {
+            await loadAdminChatMessages(currentChatUserId);
+        }
+    }, 5000);
+}
+
+// Stop auto-refresh
+function stopAdminChatRefresh() {
+    if (adminChatRefreshInterval) {
+        clearInterval(adminChatRefreshInterval);
+        adminChatRefreshInterval = null;
     }
 }

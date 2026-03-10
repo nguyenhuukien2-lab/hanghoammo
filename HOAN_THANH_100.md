@@ -69,7 +69,13 @@
 - Popular posts
 - Tags cloud
 
-### 12. ✅ Deploy Production
+### 12. ✅ Chat System
+- Chat khách hàng - admin
+- Auto-refresh 5 giây
+- Unread count
+- Lịch sử chat đầy đủ
+
+### 13. ✅ Deploy Production
 - Render: https://hanghoammo.onrender.com
 - Auto deploy từ GitHub
 - Environment variables
@@ -81,9 +87,9 @@
 
 | Mục | Số lượng |
 |-----|----------|
-| Files code | 50+ |
-| Dòng code | 15,000+ |
-| Bảng database | 9 |
+| Files code | 52+ |
+| Dòng code | 16,000+ |
+| Bảng database | 10 |
 | API endpoints | 30+ |
 | Trang HTML | 10 |
 | Email templates | 5 |
@@ -106,6 +112,7 @@
 ✅ Rate Limiting  
 ✅ SEO & Analytics  
 ✅ Blog Page  
+✅ Chat System  
 ✅ Deploy Production  
 
 ---

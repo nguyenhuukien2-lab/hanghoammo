@@ -239,12 +239,22 @@
                     <div class="profile-content-section" id="messages">
                         <div class="section-header">
                             <h2>Tin nhắn</h2>
-                            <p>Chat với người bán và admin</p>
+                            <p>Chat với Admin</p>
                         </div>
-                        <div class="empty-state">
-                            <i class="fas fa-comments"></i>
-                            <h3>Chưa có tin nhắn</h3>
-                            <p>Bạn chưa có cuộc trò chuyện nào</p>
+                        
+                        <div class="chat-container">
+                            <div class="chat-messages" id="chatMessages">
+                                <!-- Messages will be loaded here -->
+                            </div>
+                            
+                            <div class="chat-input-container">
+                                <form id="chatForm" onsubmit="sendMessage(event)">
+                                    <input type="text" id="chatInput" placeholder="Nhập tin nhắn..." required>
+                                    <button type="submit" class="btn-send-message">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
 

@@ -2198,3 +2198,42 @@ function registerUser(email, password, confirmPassword) {
 document.addEventListener('DOMContentLoaded', function() {
     checkLoginStatus();
 });
+
+
+// ==================== QUICK SEARCH FUNCTIONS ====================
+
+// Filter products by category
+function filterByCategory(category) {
+    if (category === 'all') {
+        window.location.href = 'products.html';
+    } else {
+        window.location.href = `products.html?category=${category}`;
+    }
+}
+
+// Quick search function
+function quickSearch(query) {
+    // Live search can be implemented here
+    console.log('Searching for:', query);
+}
+
+// Perform quick search
+function performQuickSearch() {
+    const query = document.getElementById('quickSearchInput')?.value.trim();
+    if (query) {
+        window.location.href = `products.html?search=${encodeURIComponent(query)}`;
+    }
+}
+
+// Add Enter key listener for quick search
+document.addEventListener('DOMContentLoaded', function() {
+    const quickSearchInput = document.getElementById('quickSearchInput');
+    if (quickSearchInput) {
+        quickSearchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                performQuickSearch();
+            }
+        });
+    }
+});
