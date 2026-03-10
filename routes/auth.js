@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const db = require('../config/database');
 const emailService = require('../services/emailService');
 const telegramService = require('../services/telegramService');
+const supabase = require('../config/supabase');
 
 // Đăng ký
 router.post('/register', async (req, res) => {
@@ -234,6 +235,173 @@ router.get('/me', async (req, res) => {
         res.status(401).json({
             success: false,
             message: 'Token không hợp lệ'
+        });
+    }
+});
+
+// Update Telegram Chat ID
+router.post('/update-telegram', async (req, res) => {
+    try {
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return res.status(401).json({
+                success: false,
+                message: 'Không có token xác thực'
+            });
+        }
+
+        const token = authHeader.substring(7);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        
+        const { telegram_chat_id } = req.body;
+        
+        if (!telegram_chat_id) {
+            return res.status(400).json({
+                success: false,
+                message: 'Vui lòng nhập Telegram Chat ID'
+            });
+        }
+
+        // Update telegram_chat_id
+        await supabase
+            .from('users')
+            .update({ telegram_chat_id: telegram_chat_id })
+            .eq('id', decoded.userId);
+
+        res.json({
+            success: true,
+            message: 'Cập nhật Telegram Chat ID thành công!'
+        });
+    } catch (error) {
+        console.error('Update telegram error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Lỗi khi cập nhật Telegram Chat ID'
+        });
+    }
+});
+
+// Update profile
+router.post('/update-profile', async (req, res) => {
+    try {
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return res.status(401).json({
+                success: false,
+                message: 'Không có token xác thực'
+            });
+        }
+
+        const token = authHeader.substring(7);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        
+        const { name, phone } = req.body;
+        
+        // Update user info
+        const { error } = await supabase
+            .from('users')
+            .update({ 
+                name: name || undefined,
+                phone: phone || undefined
+            })
+            .eq('id', decoded.userId);
+
+        if (error) throw error;
+
+        res.json({
+            success: true,
+            message: 'Cập nhật thông tin thành công!'
+        });
+    } catch (error) {
+        console.error('Update profile error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Lỗi khi cập nhật thông tin'
+        });
+    }
+});
+
+// Change password (authenticated)
+router.post('/change-password-auth', async (req, res) => {
+    try {
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return res.status(401).json({
+                success: false,
+                message: 'Không có token xác thực'
+            });
+        }
+
+        const token = authHeader.substring(7);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        
+        const { currentPassword, newPassword } = req.body;
+        
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({
+                success: false,
+                message: 'Vui lòng điền đầy đủ thông tin'
+            });
+        }
+
+        // Get user
+        const user = await db.getUserById(decoded.userId);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'Không tìm thấy người dùng'
+            });
+        }
+
+        // Verify current password
+        const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+        if (!isPasswordValid) {
+            return res.status(400).json({
+                success: false,
+                message: 'Mật khẩu hiện tại không đúng'
+            });
+        }
+
+        // Hash new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        // Update password
+        await supabase
+            .from('users')
+            .update({ password: hashedPassword })
+            .eq('id', decoded.userId);
+
+        // Send email notification (không chờ)
+        emailService.sendPasswordChangedEmail(user.name, user.email).catch(err => {
+            console.error('Failed to send password changed email:', err);
+        });
+
+        // Send Telegram notification if available (không chờ)
+        if (user.telegram_chat_id) {
+            telegramService.sendTelegramMessage(
+                user.telegram_chat_id,
+                `🔒 <b>Mật khẩu đã thay đổi</b>\n\n` +
+                `Mật khẩu tài khoản của bạn đã được thay đổi thành công.\n\n` +
+                `⏰ Thời gian: ${new Date().toLocaleString('vi-VN')}\n` +
+                `📧 Email: ${user.email}\n\n` +
+                `⚠️ Nếu bạn KHÔNG thực hiện thay đổi này, vui lòng liên hệ ngay với chúng tôi!\n\n` +
+                `📱 Telegram: @hanghoammo\n` +
+                `📞 Hotline: 0879.06.2222`,
+                { parse_mode: 'HTML' }
+            ).catch(err => {
+                console.error('Failed to send Telegram notification:', err);
+            });
+        }
+
+        res.json({
+            success: true,
+            message: 'Đổi mật khẩu thành công! Email xác nhận đã được gửi.'
+        });
+    } catch (error) {
+        console.error('Change password error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Lỗi khi đổi mật khẩu'
         });
     }
 });

@@ -217,6 +217,17 @@
                                 <textarea id="address" rows="3" placeholder="Nhập địa chỉ của bạn"></textarea>
                             </div>
 
+                            <div class="form-group">
+                                <label>
+                                    <i class="fab fa-telegram"></i> Telegram Chat ID (Nhận thông báo qua Telegram)
+                                </label>
+                                <input type="text" id="telegramChatId" placeholder="Nhập Telegram Chat ID">
+                                <small style="color: #666; font-size: 12px; margin-top: 5px; display: block;">
+                                    <i class="fas fa-info-circle"></i> 
+                                    <a href="#" onclick="showTelegramGuide(); return false;" style="color: #667eea;">Làm sao để lấy Chat ID?</a>
+                                </small>
+                            </div>
+
                             <button class="btn-save-profile">
                                 <i class="fas fa-save"></i>
                                 Lưu thay đổi
@@ -339,6 +350,31 @@
 
                             <div class="setting-item">
                                 <div class="setting-info">
+                                    <i class="fas fa-lock"></i>
+                                    <div>
+                                        <strong>Đổi mật khẩu</strong>
+                                        <span>Thay đổi mật khẩu tài khoản</span>
+                                    </div>
+                                </div>
+                                <button class="btn-setting" onclick="showChangePasswordModal()">Thay đổi</button>
+                            </div>
+
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <i class="fas fa-bell"></i>
+                                    <div>
+                                        <strong>Thông báo</strong>
+                                        <span>Cài đặt thông báo email</span>
+                                    </div>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider-switch"></span>
+                                </label>
+                            </div>
+
+                            <div class="setting-item">
+                                <div class="setting-info">
                                     <i class="fas fa-moon"></i>
                                     <div>
                                         <strong>Chế độ tối</strong>
@@ -384,6 +420,92 @@
     <!-- Floating Telegram Button -->
     <div class="floating-telegram" onclick="openTelegramModal()" title="Tham gia Telegram">
         <i class="fab fa-telegram-plane"></i>
+    </div>
+
+    <!-- Telegram Guide Modal -->
+    <div class="modal" id="telegramGuideModal" style="display: none;">
+        <div class="modal-overlay" onclick="closeTelegramGuide()"></div>
+        <div class="modal-content" style="max-width: 600px;">
+            <button class="modal-close" onclick="closeTelegramGuide()">×</button>
+            <div style="padding: 20px;">
+                <h2 style="color: #667eea; margin-bottom: 20px;">
+                    <i class="fab fa-telegram"></i> Hướng dẫn lấy Telegram Chat ID
+                </h2>
+                
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <h3 style="color: #333; margin-bottom: 15px;">Bước 1: Mở Telegram Bot</h3>
+                    <p style="color: #666; margin-bottom: 10px;">Nhấn vào link hoặc tìm kiếm bot:</p>
+                    <a href="https://t.me/hanghoammo_shop_bot" target="_blank" 
+                       style="display: inline-block; background: #0088cc; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; margin-bottom: 10px;">
+                        <i class="fab fa-telegram"></i> @hanghoammo_shop_bot
+                    </a>
+                </div>
+
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <h3 style="color: #333; margin-bottom: 15px;">Bước 2: Gửi lệnh /start</h3>
+                    <p style="color: #666;">Gửi tin nhắn <code style="background: #e0e0e0; padding: 3px 8px; border-radius: 4px;">/start</code> cho bot</p>
+                </div>
+
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <h3 style="color: #333; margin-bottom: 15px;">Bước 3: Nhận Chat ID</h3>
+                    <p style="color: #666;">Bot sẽ trả lời và gửi cho bạn Chat ID (dạng số)</p>
+                    <p style="color: #666; margin-top: 10px;">Ví dụ: <code style="background: #e0e0e0; padding: 3px 8px; border-radius: 4px;">6649932330</code></p>
+                </div>
+
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                    <h3 style="color: #333; margin-bottom: 15px;">Bước 4: Nhập vào form</h3>
+                    <p style="color: #666;">Copy Chat ID và dán vào ô "Telegram Chat ID" ở trên, sau đó nhấn "Lưu thay đổi"</p>
+                </div>
+
+                <div style="margin-top: 20px; padding: 15px; background: #e8f5e9; border-radius: 8px;">
+                    <p style="color: #2e7d32; margin: 0;">
+                        <i class="fas fa-check-circle"></i> 
+                        Sau khi lưu, bạn sẽ nhận thông báo qua Telegram khi có đơn hàng mới, nạp tiền thành công!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div class="modal" id="changePasswordModal" style="display: none;">
+        <div class="modal-overlay" onclick="closeChangePasswordModal()"></div>
+        <div class="modal-content" style="max-width: 500px;">
+            <button class="modal-close" onclick="closeChangePasswordModal()">×</button>
+            <div style="padding: 20px;">
+                <h2 style="color: #667eea; margin-bottom: 20px;">
+                    <i class="fas fa-lock"></i> Đổi mật khẩu
+                </h2>
+                
+                <form id="changePasswordForm" onsubmit="handleChangePassword(event)">
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Mật khẩu hiện tại</label>
+                        <input type="password" id="currentPassword" required 
+                               style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Mật khẩu mới</label>
+                        <input type="password" id="newPassword" required minlength="6"
+                               style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
+                        <small style="color: #666; font-size: 12px; margin-top: 5px; display: block;">
+                            Tối thiểu 6 ký tự
+                        </small>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Xác nhận mật khẩu mới</label>
+                        <input type="password" id="confirmNewPassword" required
+                               style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
+                    </div>
+                    
+                    <button type="submit" class="btn-save-profile" style="width: 100%; margin: 0;">
+                        <i class="fas fa-check"></i>
+                        Đổi mật khẩu
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>

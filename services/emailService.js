@@ -254,6 +254,69 @@ async function sendEmail(to, template) {
     }
 }
 
+// Template email đổi mật khẩu thành công
+const passwordChangedTemplate = (userName, userEmail) => {
+    return {
+        subject: '🔒 Mật khẩu đã được thay đổi - HangHoaMMO',
+        html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f5f5f5;">
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+                    <h1 style="color: white; margin: 0;">🔒 Mật khẩu đã thay đổi</h1>
+                </div>
+                
+                <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px;">
+                    <h2 style="color: #333;">Xin chào ${userName}!</h2>
+                    <p style="color: #666; line-height: 1.6;">
+                        Mật khẩu tài khoản của bạn đã được thay đổi thành công vào lúc <strong>${new Date().toLocaleString('vi-VN')}</strong>.
+                    </p>
+                    
+                    <div style="background: #fff3e0; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ff9800;">
+                        <p style="margin: 0; color: #e65100;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <strong>Lưu ý bảo mật:</strong>
+                        </p>
+                        <p style="margin: 10px 0 0 0; color: #666;">
+                            Nếu bạn KHÔNG thực hiện thay đổi này, vui lòng liên hệ ngay với chúng tôi để bảo vệ tài khoản.
+                        </p>
+                    </div>
+                    
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                        <p style="margin: 0; color: #666;"><strong>Thông tin tài khoản:</strong></p>
+                        <p style="margin: 10px 0 0 0; color: #666;">Email: ${userEmail}</p>
+                        <p style="margin: 5px 0 0 0; color: #666;">Thời gian: ${new Date().toLocaleString('vi-VN')}</p>
+                    </div>
+                    
+                    <p style="color: #666; line-height: 1.6;">
+                        Để bảo vệ tài khoản của bạn:
+                    </p>
+                    
+                    <ul style="color: #666; line-height: 1.8;">
+                        <li>Không chia sẻ mật khẩu với bất kỳ ai</li>
+                        <li>Sử dụng mật khẩu mạnh và khác nhau cho mỗi tài khoản</li>
+                        <li>Đăng xuất khỏi các thiết bị không sử dụng</li>
+                        <li>Cập nhật Telegram Chat ID để nhận thông báo bảo mật</li>
+                    </ul>
+                    
+                    <p style="color: #666; line-height: 1.6;">
+                        Nếu cần hỗ trợ, vui lòng liên hệ:
+                    </p>
+                    
+                    <ul style="color: #666; line-height: 1.8;">
+                        <li>📱 Telegram: <a href="https://t.me/hanghoammo">@hanghoammo</a></li>
+                        <li>📞 Hotline: 0879.06.2222</li>
+                        <li>🌐 Website: <a href="https://hanghoammo.onrender.com">hanghoammo.onrender.com</a></li>
+                    </ul>
+                </div>
+                
+                <div style="text-align: center; padding: 20px; color: #999; font-size: 12px;">
+                    <p>© 2025 HangHoaMMO. All rights reserved.</p>
+                    <p style="margin-top: 10px;">Email này được gửi tự động, vui lòng không trả lời.</p>
+                </div>
+            </div>
+        `
+    };
+};
+
 // Export functions
 module.exports = {
     sendRegisterEmail: (userName, userEmail) => {
@@ -268,6 +331,11 @@ module.exports = {
     
     sendDepositApprovedEmail: (userEmail, userName, amount, newBalance) => {
         const template = depositApprovedTemplate(userName, amount, newBalance);
+        return sendEmail(userEmail, template);
+    },
+    
+    sendPasswordChangedEmail: (userName, userEmail) => {
+        const template = passwordChangedTemplate(userName, userEmail);
         return sendEmail(userEmail, template);
     }
 };
