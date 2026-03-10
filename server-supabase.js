@@ -1,16 +1,58 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Security middleware
+app.use(helmet({
+    contentSecurityPolicy: false, // Disable for now to allow inline scripts
+    crossOriginEmbedderPolicy: false
+}));
+
+// Rate limiting
+const generalLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs
+    message: {
+        success: false,
+        message: 'Quá nhiều request từ IP này. Vui lòng thử lại sau 15 phút.'
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 5, // Limit each IP to 5 login/register requests per windowMs
+    message: {
+        success: false,
+        message: 'Quá nhiều lần đăng nhập/đăng ký. Vui lòng thử lại sau 15 phút.'
+    },
+    skipSuccessfulRequests: true, // Don't count successful requests
+});
+
+const otpLimiter = rateLimit({
+    windowMs: 5 * 60 * 1000, // 5 minutes
+    max: 3, // Limit each IP to 3 OTP requests per 5 minutes
+    message: {
+        success: false,
+        message: 'Quá nhiều lần yêu cầu OTP. Vui lòng thử lại sau 5 phút.'
+    },
+});
+
 // Middleware
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.static('public'));
+
+// Apply general rate limiter to all routes
+app.use('/api/', generalLimiter);
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -20,7 +62,11 @@ const adminRoutes = require('./routes/admin');
 const setupRoutes = require('./routes/setup');
 const ordersRoutes = require('./routes/orders');
 
-// API Routes
+// API Routes with specific rate limiters
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/register', authLimiter);
+app.use('/api/auth/request-password-otp', otpLimiter);
+app.use('/api/auth/request-forgot-password-otp', otpLimiter);
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productsRoutes);
 app.use('/api/wallet', walletRoutes);
