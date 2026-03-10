@@ -1,0 +1,112 @@
+<!-- Google Analytics & Facebook Pixel -->
+<!-- 
+    Hướng dẫn cài đặt:
+    
+    1. GOOGLE ANALYTICS:
+       - Truy cập: https://analytics.google.com
+       - Tạo tài khoản và property mới
+       - Lấy Measurement ID (dạng G-XXXXXXXXXX)
+       - Thay thế YOUR_GA_MEASUREMENT_ID bên dưới
+    
+    2. FACEBOOK PIXEL:
+       - Truy cập: https://business.facebook.com/events_manager
+       - Tạo Pixel mới
+       - Lấy Pixel ID
+       - Thay thế YOUR_FB_PIXEL_ID bên dưới
+    
+    3. CÁCH SỬ DỤNG:
+       - Copy toàn bộ code bên dưới
+       - Paste vào <head> của tất cả các file HTML
+       - Hoặc include file này vào header
+-->
+
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=YOUR_GA_MEASUREMENT_ID"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'YOUR_GA_MEASUREMENT_ID');
+</script>
+
+<!-- Facebook Pixel Code -->
+<script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', 'YOUR_FB_PIXEL_ID');
+  fbq('track', 'PageView');
+</script>
+<noscript>
+  <img height="1" width="1" style="display:none"
+       src="https://www.facebook.com/tr?id=YOUR_FB_PIXEL_ID&ev=PageView&noscript=1"/>
+</noscript>
+<!-- End Facebook Pixel Code -->
+
+<!-- 
+    TRACKING EVENTS:
+    
+    Đăng ký:
+    fbq('track', 'CompleteRegistration');
+    gtag('event', 'sign_up', { method: 'Email' });
+    
+    Đăng nhập:
+    fbq('track', 'Login');
+    gtag('event', 'login', { method: 'Email' });
+    
+    Xem sản phẩm:
+    fbq('track', 'ViewContent', {
+        content_name: 'Product Name',
+        content_ids: ['product_id'],
+        content_type: 'product',
+        value: 100000,
+        currency: 'VND'
+    });
+    gtag('event', 'view_item', {
+        items: [{
+            item_id: 'product_id',
+            item_name: 'Product Name',
+            price: 100000
+        }]
+    });
+    
+    Thêm vào giỏ:
+    fbq('track', 'AddToCart', {
+        content_name: 'Product Name',
+        content_ids: ['product_id'],
+        content_type: 'product',
+        value: 100000,
+        currency: 'VND'
+    });
+    gtag('event', 'add_to_cart', {
+        items: [{
+            item_id: 'product_id',
+            item_name: 'Product Name',
+            price: 100000
+        }]
+    });
+    
+    Mua hàng:
+    fbq('track', 'Purchase', {
+        value: 100000,
+        currency: 'VND',
+        content_ids: ['product_id'],
+        content_type: 'product'
+    });
+    gtag('event', 'purchase', {
+        transaction_id: 'order_id',
+        value: 100000,
+        currency: 'VND',
+        items: [{
+            item_id: 'product_id',
+            item_name: 'Product Name',
+            price: 100000,
+            quantity: 1
+        }]
+    });
+-->
