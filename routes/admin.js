@@ -4,6 +4,7 @@ const db = require('../config/database');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 const supabase = require('../config/supabase');
 const emailService = require('../services/emailService');
+const telegramService = require('../services/telegramService');
 
 // Get all deposit requests (admin only)
 router.get('/deposits', authenticateToken, requireAdmin, async (req, res) => {
@@ -84,6 +85,18 @@ router.post('/approve-deposit', authenticateToken, requireAdmin, async (req, res
             ).catch(err => {
                 console.error('Failed to send deposit approved email:', err);
             });
+
+            // Gửi Telegram notification nếu có chat_id
+            if (user.telegram_chat_id) {
+                telegramService.sendDepositApprovedNotification(
+                    user.telegram_chat_id,
+                    user.name,
+                    amount,
+                    newBalance
+                ).catch(err => {
+                    console.error('Failed to send Telegram notification:', err);
+                });
+            }
         }
         
         res.json({

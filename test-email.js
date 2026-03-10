@@ -4,12 +4,12 @@ const emailService = require('./services/emailService');
 
 async function testEmail() {
     console.log('Testing email service...');
-    console.log('BREVO_API_KEY:', process.env.BREVO_SMTP_KEY ? '***configured***' : 'NOT SET');
+    console.log('BREVO_API_KEY:', process.env.BREVO_API_KEY ? '***configured***' : 'NOT SET');
     
     try {
         const result = await emailService.sendRegisterEmail(
-            'Test User',
-            'huukiennguyen711@gmail.com'
+            'Nguyễn Thị Thanh Minh',
+            'nguyenthithanhminh15051980@gmail.com'
         );
         
         console.log('Result:', result);

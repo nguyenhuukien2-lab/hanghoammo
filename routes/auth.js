@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../config/database');
 const emailService = require('../services/emailService');
+const telegramService = require('../services/telegramService');
 
 // Đăng ký
 router.post('/register', async (req, res) => {
@@ -50,6 +51,13 @@ router.post('/register', async (req, res) => {
         emailService.sendRegisterEmail(name, email).catch(err => {
             console.error('Failed to send welcome email:', err);
         });
+
+        // Gửi Telegram notification nếu có chat_id (không chờ)
+        if (req.body.telegram_chat_id) {
+            telegramService.sendRegisterNotification(req.body.telegram_chat_id, name, email).catch(err => {
+                console.error('Failed to send Telegram notification:', err);
+            });
+        }
 
         res.status(201).json({
             success: true,

@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require('../config/database');
 const { authenticateToken } = require('../middleware/auth');
 const emailService = require('../services/emailService');
+const telegramService = require('../services/telegramService');
 
 // Create order and deduct from wallet
 router.post('/create', authenticateToken, async (req, res) => {
@@ -150,6 +151,20 @@ router.post('/create', authenticateToken, async (req, res) => {
             ).catch(err => {
                 console.error('Failed to send order email:', err);
             });
+
+            // Gửi Telegram notification nếu có chat_id (không chờ)
+            if (req.user.telegram_chat_id) {
+                telegramService.sendOrderNotification(
+                    req.user.telegram_chat_id,
+                    req.user.name,
+                    order.order_code,
+                    total_amount,
+                    items,
+                    deliveredAccounts
+                ).catch(err => {
+                    console.error('Failed to send Telegram notification:', err);
+                });
+            }
             
             return res.json({
                 success: true,
