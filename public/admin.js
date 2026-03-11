@@ -1130,25 +1130,56 @@ async function loadDepositRequests() {
         
         let html = '';
         
-        // Pending deposits
+        // Show summary stats
+        html += `
+            <div class="deposit-stats" style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
+                <div class="stat-card" style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 8px; flex: 1; min-width: 150px;">
+                    <div style="color: #856404; font-weight: 600;">⏳ Chờ duyệt</div>
+                    <div style="font-size: 24px; font-weight: 700; color: #856404;">${pending.length}</div>
+                </div>
+                <div class="stat-card" style="background: #d4edda; border: 1px solid #c3e6cb; padding: 15px; border-radius: 8px; flex: 1; min-width: 150px;">
+                    <div style="color: #155724; font-weight: 600;">✅ Đã duyệt</div>
+                    <div style="font-size: 24px; font-weight: 700; color: #155724;">${approved.length}</div>
+                </div>
+                <div class="stat-card" style="background: #f8d7da; border: 1px solid #f5c6cb; padding: 15px; border-radius: 8px; flex: 1; min-width: 150px;">
+                    <div style="color: #721c24; font-weight: 600;">❌ Đã từ chối</div>
+                    <div style="font-size: 24px; font-weight: 700; color: #721c24;">${rejected.length}</div>
+                </div>
+            </div>
+        `;
+        
+        // Pending deposits (priority)
         if (pending.length > 0) {
-            html += '<h4 style="margin: 20px 0; color: #ffa502;">⏳ Chờ duyệt (' + pending.length + ')</h4>';
-            html += pending.map(dep => renderDepositCard(dep)).join('');
+            html += '<h4 style="margin: 20px 0; color: #ffa502; display: flex; align-items: center; gap: 10px;"><i class="fas fa-clock"></i> Chờ duyệt (' + pending.length + ') <span style="background: #ff6b6b; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px;">CẦN XỬ LÝ</span></h4>';
+            html += pending.map(dep => renderDepositCard(dep, true)).join('');
         }
         
         // Approved deposits
         if (approved.length > 0) {
-            html += '<h4 style="margin: 20px 0; color: #26de81;">✅ Đã duyệt (' + approved.length + ')</h4>';
-            html += approved.map(dep => renderDepositCard(dep)).join('');
+            html += '<h4 style="margin: 20px 0; color: #26de81;"><i class="fas fa-check-circle"></i> Đã duyệt (' + approved.length + ')</h4>';
+            html += approved.slice(0, 10).map(dep => renderDepositCard(dep)).join(''); // Show only recent 10
+            if (approved.length > 10) {
+                html += `<p style="text-align: center; color: #666; margin: 10px 0;">... và ${approved.length - 10} yêu cầu khác</p>`;
+            }
         }
         
         // Rejected deposits
         if (rejected.length > 0) {
-            html += '<h4 style="margin: 20px 0; color: #ff4757;">❌ Đã từ chối (' + rejected.length + ')</h4>';
-            html += rejected.map(dep => renderDepositCard(dep)).join('');
+            html += '<h4 style="margin: 20px 0; color: #ff4757;"><i class="fas fa-times-circle"></i> Đã từ chối (' + rejected.length + ')</h4>';
+            html += rejected.slice(0, 5).map(dep => renderDepositCard(dep)).join(''); // Show only recent 5
+            if (rejected.length > 5) {
+                html += `<p style="text-align: center; color: #666; margin: 10px 0;">... và ${rejected.length - 5} yêu cầu khác</p>`;
+            }
         }
         
         container.innerHTML = html;
+        
+        // Update page title with pending count
+        if (pending.length > 0) {
+            document.title = `(${pending.length}) Admin - HangHoaMMO`;
+        } else {
+            document.title = 'Admin - HangHoaMMO';
+        }
         
     } catch (error) {
         console.error('Failed to load deposit requests:', error);
@@ -1735,3 +1766,91 @@ function stopAdminChatRefresh() {
         adminChatRefreshInterval = null;
     }
 }
+// Auto-refresh deposits every 30 seconds
+let depositRefreshInterval;
+
+function startDepositAutoRefresh() {
+    // Clear existing interval
+    if (depositRefreshInterval) {
+        clearInterval(depositRefreshInterval);
+    }
+    
+    // Start new interval
+    depositRefreshInterval = setInterval(() => {
+        const currentSection = document.querySelector('.sidebar-item.active')?.getAttribute('data-section');
+        if (currentSection === 'deposits') {
+            loadDepositRequests();
+        }
+    }, 30000); // 30 seconds
+}
+
+function stopDepositAutoRefresh() {
+    if (depositRefreshInterval) {
+        clearInterval(depositRefreshInterval);
+        depositRefreshInterval = null;
+    }
+}
+
+// Start auto-refresh when deposits section is active
+document.addEventListener('DOMContentLoaded', function() {
+    const depositsMenuItem = document.querySelector('[data-section="deposits"]');
+    if (depositsMenuItem) {
+        depositsMenuItem.addEventListener('click', function() {
+            startDepositAutoRefresh();
+        });
+    }
+    
+    // Stop auto-refresh when leaving deposits section
+    document.querySelectorAll('.sidebar-item').forEach(item => {
+        item.addEventListener('click', function() {
+            const section = this.getAttribute('data-section');
+            if (section !== 'deposits') {
+                stopDepositAutoRefresh();
+            }
+        });
+    });
+});
+
+// Add refresh button to deposits section
+function addRefreshButton() {
+    const depositsSection = document.getElementById('deposits');
+    if (depositsSection && !depositsSection.querySelector('.refresh-btn')) {
+        const refreshBtn = document.createElement('button');
+        refreshBtn.className = 'refresh-btn';
+        refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Làm mới';
+        refreshBtn.style.cssText = `
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        `;
+        
+        refreshBtn.addEventListener('click', function() {
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang tải...';
+            loadDepositRequests().finally(() => {
+                this.innerHTML = '<i class="fas fa-sync-alt"></i> Làm mới';
+            });
+        });
+        
+        depositsSection.style.position = 'relative';
+        depositsSection.appendChild(refreshBtn);
+    }
+}
+
+// Call addRefreshButton when deposits section is shown
+const originalShowSection = showSection;
+showSection = function(sectionId) {
+    originalShowSection(sectionId);
+    if (sectionId === 'deposits') {
+        setTimeout(addRefreshButton, 100);
+    }
+};

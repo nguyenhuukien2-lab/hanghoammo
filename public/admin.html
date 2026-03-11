@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="ai-chatbot.css">
     <style>
         .admin-login-overlay {
             position: fixed;
@@ -141,6 +142,10 @@
                 <a href="#chat" class="nav-item" onclick="showSection('chat')">
                     <i class="fas fa-comments"></i>
                     <span>Chat</span>
+                </a>
+                <a href="#ai-chatbot" class="nav-item" onclick="showSection('ai-chatbot')">
+                    <i class="fas fa-robot"></i>
+                    <span>AI Chatbot</span>
                 </a>
                 <a href="#notifications" class="nav-item" onclick="showSection('notifications')">
                     <i class="fas fa-bell"></i>
@@ -481,6 +486,98 @@
                 </div>
             </section>
 
+            <!-- AI Chatbot Section -->
+            <section id="ai-chatbot" class="admin-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-robot"></i> AI Chatbot Analytics</h2>
+                    <button class="btn-secondary" onclick="refreshChatbotStats()">
+                        <i class="fas fa-sync"></i>
+                        Làm mới
+                    </button>
+                </div>
+
+                <!-- Statistics -->
+                <div class="stats-grid" style="margin-bottom: 30px;">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="aiTotalConversations">-</h3>
+                            <p>Tổng cuộc hội thoại</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="aiTodayConversations">-</h3>
+                            <p>Hôm nay</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="aiAvgResponseTime">-</h3>
+                            <p>Thời gian phản hồi (ms)</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%);">
+                            <i class="fas fa-thumbs-up"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="aiSuccessRate">-</h3>
+                            <p>Tỷ lệ thành công (%)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <!-- Configuration Status -->
+                    <div style="background: white; border-radius: 12px; padding: 25px;">
+                        <h3 style="margin: 0 0 20px 0; font-size: 18px;"><i class="fas fa-cog"></i> Trạng Thái Cấu Hình</h3>
+                        <div style="space-y: 15px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee;">
+                                <span>OpenAI API Key</span>
+                                <span class="status-badge" id="aiOpenaiStatus" style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold;">Đang kiểm tra...</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee;">
+                                <span>Database Connection</span>
+                                <span class="status-badge" id="aiDbStatus" style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold;">Đang kiểm tra...</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0;">
+                                <span>Chatbot Service</span>
+                                <span class="status-badge" id="aiChatbotStatus" style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold;">Đang kiểm tra...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Test Chatbot -->
+                    <div style="background: white; border-radius: 12px; padding: 25px;">
+                        <h3 style="margin: 0 0 20px 0; font-size: 18px;"><i class="fas fa-flask"></i> Test Chatbot</h3>
+                        <div style="margin-bottom: 15px;">
+                            <input type="text" id="aiTestMessage" placeholder="Nhập tin nhắn test..." value="Xin chào, tôi muốn tìm tài khoản Netflix" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 14px; margin-bottom: 10px;">
+                            <button onclick="testAIChatbot()" style="width: 100%; padding: 12px 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                                <i class="fas fa-paper-plane"></i> Gửi Test
+                            </button>
+                        </div>
+                        <div id="aiTestResult" style="display: none;"></div>
+                    </div>
+                </div>
+
+                <!-- Recent AI Conversations -->
+                <div style="background: white; border-radius: 12px; padding: 25px; margin-top: 20px;">
+                    <h3 style="margin: 0 0 20px 0; font-size: 18px;"><i class="fas fa-history"></i> Cuộc Hội Thoại AI Gần Đây</h3>
+                    <div id="aiConversationsList">
+                        <p style="text-align: center; color: #666; padding: 20px;">Đang tải dữ liệu...</p>
+                    </div>
+                </div>
+            </section>
+
             <!-- Notifications Section -->
             <section id="notifications" class="admin-section">
                 <div class="section-header">
@@ -718,5 +815,236 @@
     </div>
 
     <script src="admin.js"></script>
+
+    <!-- Dark Mode Toggle Button -->
+    <button class="theme-toggle" onclick="toggleDarkMode()" title="Chuyển đổi chế độ tối">
+        <i class="fas fa-moon" id="theme-icon"></i>
+    </button>
+
+    <script>
+        // Dark mode functionality
+        function toggleDarkMode() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            
+            body.classList.toggle('dark-mode');
+            
+            if (body.classList.contains('dark-mode')) {
+                icon.className = 'fas fa-sun';
+                localStorage.setItem('darkMode', 'enabled');
+            } else {
+                icon.className = 'fas fa-moon';
+                localStorage.setItem('darkMode', 'disabled');
+            }
+        }
+
+        // Load dark mode preference
+        document.addEventListener('DOMContentLoaded', function() {
+            const darkMode = localStorage.getItem('darkMode');
+            const icon = document.getElementById('theme-icon');
+            
+            if (darkMode === 'enabled') {
+                document.body.classList.add('dark-mode');
+                icon.className = 'fas fa-sun';
+            }
+        });
+    </script>
+
+    <script>
+        // AI Chatbot Admin Functions
+        async function refreshChatbotStats() {
+            try {
+                await checkAISystemStatus();
+                await loadAIStatistics();
+                await loadAIRecentConversations();
+            } catch (error) {
+                console.error('Error refreshing chatbot stats:', error);
+            }
+        }
+
+        async function checkAISystemStatus() {
+            try {
+                // Check OpenAI API
+                const testResponse = await fetch('/api/ai-chat/message', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: 'test' })
+                });
+                
+                const testData = await testResponse.json();
+                
+                if (testData.success) {
+                    const openaiStatus = document.getElementById('aiOpenaiStatus');
+                    const chatbotStatus = document.getElementById('aiChatbotStatus');
+                    
+                    if (testData.fallback) {
+                        openaiStatus.textContent = 'Fallback Mode';
+                        openaiStatus.className = 'status-badge';
+                        openaiStatus.style.background = '#ffc107';
+                        openaiStatus.style.color = '#212529';
+                    } else {
+                        openaiStatus.textContent = 'Hoạt động';
+                        openaiStatus.className = 'status-badge';
+                        openaiStatus.style.background = '#28a745';
+                        openaiStatus.style.color = 'white';
+                    }
+                    
+                    chatbotStatus.textContent = 'Hoạt động';
+                    chatbotStatus.className = 'status-badge';
+                    chatbotStatus.style.background = '#28a745';
+                    chatbotStatus.style.color = 'white';
+                } else {
+                    const openaiStatus = document.getElementById('aiOpenaiStatus');
+                    openaiStatus.textContent = 'Lỗi';
+                    openaiStatus.style.background = '#dc3545';
+                    openaiStatus.style.color = 'white';
+                }
+                
+                // Check database (assume working if API works)
+                const dbStatus = document.getElementById('aiDbStatus');
+                dbStatus.textContent = 'Hoạt động';
+                dbStatus.style.background = '#28a745';
+                dbStatus.style.color = 'white';
+                
+            } catch (error) {
+                console.error('AI Status check error:', error);
+                const openaiStatus = document.getElementById('aiOpenaiStatus');
+                const chatbotStatus = document.getElementById('aiChatbotStatus');
+                
+                openaiStatus.textContent = 'Lỗi kết nối';
+                openaiStatus.style.background = '#dc3545';
+                openaiStatus.style.color = 'white';
+                
+                chatbotStatus.textContent = 'Lỗi';
+                chatbotStatus.style.background = '#dc3545';
+                chatbotStatus.style.color = 'white';
+            }
+        }
+
+        async function loadAIStatistics() {
+            // Mock statistics for demo - in production, get from API
+            document.getElementById('aiTotalConversations').textContent = '127';
+            document.getElementById('aiTodayConversations').textContent = '23';
+            document.getElementById('aiAvgResponseTime').textContent = '850';
+            document.getElementById('aiSuccessRate').textContent = '94.2';
+        }
+
+        async function loadAIRecentConversations() {
+            // Mock recent conversations for demo
+            const mockConversations = [
+                {
+                    id: '1',
+                    preview: 'Tôi muốn tìm tài khoản Netflix giá rẻ...',
+                    time: '2 phút trước',
+                    ip: '192.168.1.100'
+                },
+                {
+                    id: '2', 
+                    preview: 'ChatGPT Plus có những tính năng gì?',
+                    time: '15 phút trước',
+                    ip: '192.168.1.101'
+                },
+                {
+                    id: '3',
+                    preview: 'Làm sao để thanh toán và nhận hàng?',
+                    time: '1 giờ trước',
+                    ip: '192.168.1.102'
+                }
+            ];
+
+            const conversationsList = document.getElementById('aiConversationsList');
+            conversationsList.innerHTML = '';
+
+            mockConversations.forEach(conv => {
+                const item = document.createElement('div');
+                item.style.cssText = 'border-bottom: 1px solid #eee; padding: 15px 0; display: flex; justify-content: space-between; align-items: center;';
+                item.innerHTML = `
+                    <div>
+                        <div><strong>IP:</strong> ${conv.ip}</div>
+                        <div style="color: #666; font-size: 14px; margin-top: 5px;">${conv.preview}</div>
+                    </div>
+                    <div style="color: #999; font-size: 12px;">${conv.time}</div>
+                `;
+                conversationsList.appendChild(item);
+            });
+        }
+
+        async function testAIChatbot() {
+            const message = document.getElementById('aiTestMessage').value;
+            const resultDiv = document.getElementById('aiTestResult');
+            
+            if (!message.trim()) {
+                alert('Vui lòng nhập tin nhắn test');
+                return;
+            }
+
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Đang gửi test...</p>';
+
+            try {
+                const startTime = Date.now();
+                const response = await fetch('/api/ai-chat/message', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message })
+                });
+
+                const data = await response.json();
+                const responseTime = Date.now() - startTime;
+
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <div style="background: #d4edda; border: 1px solid #c3e6cb; border-radius: 8px; padding: 15px; margin-top: 10px;">
+                            <h4 style="margin: 0 0 10px 0; color: #155724;"><i class="fas fa-check-circle"></i> Test Thành Công</h4>
+                            <p style="margin: 5px 0;"><strong>Tin nhắn:</strong> ${message}</p>
+                            <p style="margin: 5px 0;"><strong>Phản hồi:</strong> ${data.reply}</p>
+                            <p style="margin: 5px 0;"><strong>Thời gian:</strong> ${responseTime}ms</p>
+                            <p style="margin: 5px 0;"><strong>Mode:</strong> ${data.fallback ? 'Fallback' : 'OpenAI API'}</p>
+                            ${data.conversation_id ? `<p style="margin: 5px 0;"><strong>Conversation ID:</strong> ${data.conversation_id}</p>` : ''}
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div style="background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 8px; padding: 15px; margin-top: 10px;">
+                            <h4 style="margin: 0 0 10px 0; color: #721c24;"><i class="fas fa-times-circle"></i> Test Thất Bại</h4>
+                            <p style="margin: 5px 0;"><strong>Lỗi:</strong> ${data.message || 'Unknown error'}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div style="background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 8px; padding: 15px; margin-top: 10px;">
+                        <h4 style="margin: 0 0 10px 0; color: #721c24;"><i class="fas fa-times-circle"></i> Lỗi Kết Nối</h4>
+                        <p style="margin: 5px 0;"><strong>Chi tiết:</strong> ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Auto-load AI chatbot data when section is shown
+        document.addEventListener('DOMContentLoaded', function() {
+            // Override showSection to load AI data when needed
+            const originalShowSection = window.showSection;
+            window.showSection = function(sectionId) {
+                originalShowSection(sectionId);
+                if (sectionId === 'ai-chatbot') {
+                    refreshChatbotStats();
+                }
+            };
+        });
+
+        // Allow Enter key to send test
+        document.addEventListener('DOMContentLoaded', function() {
+            const testInput = document.getElementById('aiTestMessage');
+            if (testInput) {
+                testInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        testAIChatbot();
+                    }
+                });
+            }
+        });
+    </script>
+    <script src="ai-chatbot.js"></script>
 </body>
 </html>

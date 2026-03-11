@@ -6,6 +6,7 @@
     <title>Đơn hàng của tôi - HangHoaMMO</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="ai-chatbot.css">
     <style>
         .orders-container {
             max-width: 1200px;
@@ -268,6 +269,7 @@
     </div>
 
     <script src="script.js"></script>
+    <script src="ai-chatbot.js"></script>
     <script>
         let allOrders = [];
         let currentFilter = 'all';
@@ -428,6 +430,40 @@
                 currency: 'VND' 
             }).format(price);
         }
+    </script>
+
+    <!-- Dark Mode Toggle Button -->
+    <button class="theme-toggle" onclick="toggleDarkMode()" title="Chuyển đổi chế độ tối">
+        <i class="fas fa-moon" id="theme-icon"></i>
+    </button>
+
+    <script>
+        // Dark mode functionality
+        function toggleDarkMode() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            
+            body.classList.toggle('dark-mode');
+            
+            if (body.classList.contains('dark-mode')) {
+                icon.className = 'fas fa-sun';
+                localStorage.setItem('darkMode', 'enabled');
+            } else {
+                icon.className = 'fas fa-moon';
+                localStorage.setItem('darkMode', 'disabled');
+            }
+        }
+
+        // Load dark mode preference
+        document.addEventListener('DOMContentLoaded', function() {
+            const darkMode = localStorage.getItem('darkMode');
+            const icon = document.getElementById('theme-icon');
+            
+            if (darkMode === 'enabled') {
+                document.body.classList.add('dark-mode');
+                icon.className = 'fas fa-sun';
+            }
+        });
     </script>
 </body>
 </html>

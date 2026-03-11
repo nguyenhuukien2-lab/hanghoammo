@@ -23,7 +23,8 @@
     <meta name="twitter:title" content="HangHoaMMO - Shop Tài Khoản & Dịch Vụ Số">
     <meta name="twitter:description" content="Shop bán tài khoản Netflix, Spotify, ChatGPT giá rẻ">
     
-    <link rel="stylesheet" href="style.css?v=1.1">
+    <link rel="stylesheet" href="style.css?v=2.0">
+    <link rel="stylesheet" href="ai-chatbot.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -306,6 +307,69 @@
         </div>
     </section>
 
+    <!-- AI Chatbot Demo Section -->
+    <section class="ai-chatbot-demo-section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 80px 0; margin-top: 60px;">
+        <div class="container">
+            <div class="demo-content" style="text-align: center; color: white;">
+                <div class="demo-header" style="margin-bottom: 50px;">
+                    <h2 style="font-size: 36px; margin-bottom: 15px; font-weight: 800;">🤖 AI Tư Vấn Thông Minh</h2>
+                    <p style="font-size: 18px; opacity: 0.9; max-width: 600px; margin: 0 auto;">
+                        Trợ lý AI giúp bạn tìm sản phẩm phù hợp, trả lời câu hỏi và hỗ trợ mua hàng 24/7
+                    </p>
+                </div>
+
+                <div class="demo-features" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; margin-bottom: 50px;">
+                    <div class="demo-feature" style="background: rgba(255,255,255,0.1); padding: 30px; border-radius: 15px; backdrop-filter: blur(10px);">
+                        <div style="font-size: 48px; margin-bottom: 20px;">🎯</div>
+                        <h3 style="margin-bottom: 15px; font-size: 20px;">Tư Vấn Chính Xác</h3>
+                        <p style="opacity: 0.9; line-height: 1.6;">AI hiểu nhu cầu và gợi ý sản phẩm phù hợp nhất</p>
+                    </div>
+                    <div class="demo-feature" style="background: rgba(255,255,255,0.1); padding: 30px; border-radius: 15px; backdrop-filter: blur(10px);">
+                        <div style="font-size: 48px; margin-bottom: 20px;">⚡</div>
+                        <h3 style="margin-bottom: 15px; font-size: 20px;">Phản Hồi Tức Thì</h3>
+                        <p style="opacity: 0.9; line-height: 1.6;">Trả lời ngay lập tức, không cần chờ đợi</p>
+                    </div>
+                    <div class="demo-feature" style="background: rgba(255,255,255,0.1); padding: 30px; border-radius: 15px; backdrop-filter: blur(10px);">
+                        <div style="font-size: 48px; margin-bottom: 20px;">🛒</div>
+                        <h3 style="margin-bottom: 15px; font-size: 20px;">Hỗ Trợ Mua Hàng</h3>
+                        <p style="opacity: 0.9; line-height: 1.6;">Hướng dẫn từ A-Z quy trình mua hàng</p>
+                    </div>
+                </div>
+
+                <div class="demo-actions" style="margin-bottom: 40px;">
+                    <button onclick="openAIChatbot()" style="background: white; color: #667eea; border: none; padding: 18px 40px; border-radius: 30px; font-size: 18px; font-weight: 700; cursor: pointer; margin: 0 15px 15px 0; transition: all 0.3s ease; box-shadow: 0 5px 20px rgba(0,0,0,0.2);" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+                        <i class="fas fa-comments"></i> Thử Ngay Chatbot
+                    </button>
+                    <button onclick="openAIChatbot('Tôi muốn tìm tài khoản Netflix giá rẻ')" style="background: rgba(255,255,255,0.2); color: white; border: 2px solid white; padding: 16px 35px; border-radius: 30px; font-size: 16px; font-weight: 600; cursor: pointer; margin: 0 15px 15px 0; transition: all 0.3s ease;" onmouseover="this.style.background='white'; this.style.color='#667eea'" onmouseout="this.style.background='rgba(255,255,255,0.2)'; this.style.color='white'">
+                        <i class="fas fa-play"></i> Demo Tìm Netflix
+                    </button>
+                </div>
+
+                <div class="demo-examples" style="background: rgba(255,255,255,0.1); border-radius: 20px; padding: 40px; backdrop-filter: blur(10px);">
+                    <h3 style="margin-bottom: 30px; font-size: 24px;">💬 Câu Hỏi Mẫu - Click để thử</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
+                        <div onclick="openAIChatbot('Tôi muốn xem phim Netflix, có tài khoản nào không?')" style="background: rgba(255,255,255,0.15); padding: 20px; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; text-align: left;" onmouseover="this.style.background='rgba(255,255,255,0.25)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'; this.style.transform='translateY(0)'">
+                            <i class="fas fa-film" style="margin-right: 10px; color: #ffd700;"></i>
+                            Tôi muốn xem phim Netflix, có tài khoản nào không?
+                        </div>
+                        <div onclick="openAIChatbot('ChatGPT Plus có gì đặc biệt?')" style="background: rgba(255,255,255,0.15); padding: 20px; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; text-align: left;" onmouseover="this.style.background='rgba(255,255,255,0.25)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'; this.style.transform='translateY(0)'">
+                            <i class="fas fa-robot" style="margin-right: 10px; color: #00d4aa;"></i>
+                            ChatGPT Plus có gì đặc biệt?
+                        </div>
+                        <div onclick="openAIChatbot('Làm sao để thanh toán và nhận hàng?')" style="background: rgba(255,255,255,0.15); padding: 20px; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; text-align: left;" onmouseover="this.style.background='rgba(255,255,255,0.25)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'; this.style.transform='translateY(0)'">
+                            <i class="fas fa-credit-card" style="margin-right: 10px; color: #ff6b6b;"></i>
+                            Làm sao để thanh toán và nhận hàng?
+                        </div>
+                        <div onclick="openAIChatbot('Có khuyến mãi gì không?')" style="background: rgba(255,255,255,0.15); padding: 20px; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; text-align: left;" onmouseover="this.style.background='rgba(255,255,255,0.25)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'; this.style.transform='translateY(0)'">
+                            <i class="fas fa-tags" style="margin-right: 10px; color: #4ecdc4;"></i>
+                            Có khuyến mãi gì không?
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
@@ -486,6 +550,11 @@
                 <button type="submit" class="btn-submit">
                     <span>Đăng nhập</span>
                     <i class="fas fa-arrow-right"></i>
+                </button>
+
+                <!-- Development only: Reset rate limit button -->
+                <button type="button" class="btn-reset-rate-limit" onclick="resetRateLimit()" style="display: none; margin-top: 10px; background: #f59e0b; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 12px;">
+                    <i class="fas fa-refresh"></i> Reset Rate Limit (Dev)
                 </button>
 
                 <div class="auth-form-footer">
@@ -755,6 +824,7 @@
     </div>
 
     <script src="script.js"></script>
+    <script src="ai-chatbot.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async function() {
             // Đảm bảo modal đóng khi load trang
@@ -872,6 +942,40 @@
                 }
             }
         }
+    </script>
+
+    <!-- Dark Mode Toggle Button -->
+    <button class="theme-toggle" onclick="toggleDarkMode()" title="Chuyển đổi chế độ tối">
+        <i class="fas fa-moon" id="theme-icon"></i>
+    </button>
+
+    <script>
+        // Dark mode functionality
+        function toggleDarkMode() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            
+            body.classList.toggle('dark-mode');
+            
+            if (body.classList.contains('dark-mode')) {
+                icon.className = 'fas fa-sun';
+                localStorage.setItem('darkMode', 'enabled');
+            } else {
+                icon.className = 'fas fa-moon';
+                localStorage.setItem('darkMode', 'disabled');
+            }
+        }
+
+        // Load dark mode preference
+        document.addEventListener('DOMContentLoaded', function() {
+            const darkMode = localStorage.getItem('darkMode');
+            const icon = document.getElementById('theme-icon');
+            
+            if (darkMode === 'enabled') {
+                document.body.classList.add('dark-mode');
+                icon.className = 'fas fa-sun';
+            }
+        });
     </script>
 </body>
 </html>

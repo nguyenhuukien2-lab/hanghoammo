@@ -659,7 +659,20 @@ if (modalLoginForm) {
             updateUserUI();
             checkLoginStatus();
         } catch (error) {
-            showNotification(error.message || 'Đăng nhập thất bại!', 'error');
+            let errorMessage = error.message || 'Đăng nhập thất bại!';
+            
+            // Special handling for rate limit errors
+            if (errorMessage.includes('Quá nhiều') || errorMessage.includes('rate limit')) {
+                errorMessage += ' 💡 Tip: Bạn có thể click nút "Reset Rate Limit" bên dưới nếu đang test.';
+                
+                // Show reset button if in development
+                const resetButton = this.querySelector('.btn-reset-rate-limit');
+                if (resetButton && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+                    resetButton.style.display = 'block';
+                }
+            }
+            
+            showNotification(errorMessage, 'error');
         } finally {
             btnSubmit.innerHTML = originalHTML;
             btnSubmit.disabled = false;
@@ -2202,6 +2215,95 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ==================== QUICK SEARCH FUNCTIONS ====================
 
+let allProducts = [];
+
+// Load products for search
+async function loadProductsForSearch() {
+    try {
+        const response = await fetch('/api/products');
+        const data = await response.json();
+        if (data.success) {
+            allProducts = data.data || [];
+        }
+    } catch (error) {
+        console.error('Load products error:', error);
+    }
+}
+
+// Quick search with live results
+function quickSearch(query) {
+    if (!query || query.trim().length < 2) {
+        hideQuickSearchResults();
+        return;
+    }
+    
+    const searchTerm = query.toLowerCase().trim();
+    const results = allProducts.filter(product => 
+        product.name.toLowerCase().includes(searchTerm) ||
+        (product.category && product.category.toLowerCase().includes(searchTerm))
+    ).slice(0, 5); // Limit to 5 results
+    
+    showQuickSearchResults(results);
+}
+
+// Show quick search results dropdown
+function showQuickSearchResults(results) {
+    const input = document.getElementById('quickSearchInput');
+    if (!input) return;
+    
+    let dropdown = document.getElementById('quickSearchDropdown');
+    if (!dropdown) {
+        dropdown = document.createElement('div');
+        dropdown.id = 'quickSearchDropdown';
+        dropdown.className = 'quick-search-dropdown';
+        input.parentElement.appendChild(dropdown);
+    }
+    
+    if (results.length === 0) {
+        dropdown.innerHTML = `
+            <div class="search-result-item no-results">
+                <i class="fas fa-search"></i>
+                <span>Không tìm thấy sản phẩm</span>
+            </div>
+        `;
+    } else {
+        dropdown.innerHTML = results.map(product => `
+            <div class="search-result-item" onclick="goToProduct(${product.id})">
+                <img src="${product.image}" alt="${product.name}">
+                <div class="search-result-info">
+                    <div class="search-result-name">${product.name}</div>
+                    <div class="search-result-price">${formatPrice(product.price)}</div>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    dropdown.style.display = 'block';
+}
+
+// Hide quick search results
+function hideQuickSearchResults() {
+    const dropdown = document.getElementById('quickSearchDropdown');
+    if (dropdown) {
+        setTimeout(() => {
+            dropdown.style.display = 'none';
+        }, 200);
+    }
+}
+
+// Go to product detail
+function goToProduct(productId) {
+    window.location.href = `product-detail.html?id=${productId}`;
+}
+
+// Perform quick search (Enter or button click)
+function performQuickSearch() {
+    const query = document.getElementById('quickSearchInput')?.value.trim();
+    if (query) {
+        window.location.href = `products.html?search=${encodeURIComponent(query)}`;
+    }
+}
+
 // Filter products by category
 function filterByCategory(category) {
     if (category === 'all') {
@@ -2211,22 +2313,11 @@ function filterByCategory(category) {
     }
 }
 
-// Quick search function
-function quickSearch(query) {
-    // Live search can be implemented here
-    console.log('Searching for:', query);
-}
-
-// Perform quick search
-function performQuickSearch() {
-    const query = document.getElementById('quickSearchInput')?.value.trim();
-    if (query) {
-        window.location.href = `products.html?search=${encodeURIComponent(query)}`;
-    }
-}
-
 // Add Enter key listener for quick search
 document.addEventListener('DOMContentLoaded', function() {
+    // Load products for search
+    loadProductsForSearch();
+    
     const quickSearchInput = document.getElementById('quickSearchInput');
     if (quickSearchInput) {
         quickSearchInput.addEventListener('keypress', function(e) {
@@ -2235,5 +2326,50 @@ document.addEventListener('DOMContentLoaded', function() {
                 performQuickSearch();
             }
         });
+        
+        // Hide dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!quickSearchInput.contains(e.target)) {
+                hideQuickSearchResults();
+            }
+        });
+    }
+});
+
+// Reset Rate Limit (Development only)
+async function resetRateLimit() {
+    try {
+        const response = await fetch('/api/reset-rate-limit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('Đã reset rate limit thành công!', 'success');
+        } else {
+            showNotification(result.message || 'Không thể reset rate limit', 'error');
+        }
+    } catch (error) {
+        console.error('Reset rate limit error:', error);
+        showNotification('Lỗi khi reset rate limit', 'error');
+    }
+}
+
+// Show reset button in development
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're in development (localhost or specific domains)
+    const isDevelopment = window.location.hostname === 'localhost' || 
+                         window.location.hostname === '127.0.0.1' ||
+                         window.location.hostname.includes('dev');
+    
+    if (isDevelopment) {
+        const resetButton = document.querySelector('.btn-reset-rate-limit');
+        if (resetButton) {
+            resetButton.style.display = 'block';
+        }
     }
 });

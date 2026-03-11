@@ -28,7 +28,7 @@ const generalLimiter = rateLimit({
 
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 5, // Limit each IP to 5 login/register requests per windowMs
+    max: process.env.NODE_ENV === 'development' ? 50 : 5, // More lenient in development
     message: {
         success: false,
         message: 'Quá nhiều lần đăng nhập/đăng ký. Vui lòng thử lại sau 15 phút.'
@@ -38,7 +38,7 @@ const authLimiter = rateLimit({
 
 const otpLimiter = rateLimit({
     windowMs: 5 * 60 * 1000, // 5 minutes
-    max: 3, // Limit each IP to 3 OTP requests per 5 minutes
+    max: process.env.NODE_ENV === 'development' ? 20 : 3, // More lenient in development
     message: {
         success: false,
         message: 'Quá nhiều lần yêu cầu OTP. Vui lòng thử lại sau 5 phút.'
@@ -55,13 +55,14 @@ app.use(express.static('public'));
 app.use('/api/', generalLimiter);
 
 // Import routes
-const authRoutes = require('./routes/auth');
-const productsRoutes = require('./routes/products');
-const walletRoutes = require('./routes/wallet');
-const adminRoutes = require('./routes/admin');
-const setupRoutes = require('./routes/setup');
-const ordersRoutes = require('./routes/orders');
-const chatRoutes = require('./routes/chat');
+const authRoutes = require('./src/routes/auth');
+const productsRoutes = require('./src/routes/products');
+const walletRoutes = require('./src/routes/wallet');
+const adminRoutes = require('./src/routes/admin');
+const setupRoutes = require('./src/routes/setup');
+const ordersRoutes = require('./src/routes/orders');
+const chatRoutes = require('./src/routes/chat');
+const aiChatRoutes = require('./src/routes/ai-chat');
 
 // API Routes with specific rate limiters
 app.use('/api/auth/login', authLimiter);
@@ -75,6 +76,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/setup', setupRoutes);
 app.use('/api/orders', ordersRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/ai-chat', aiChatRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -83,6 +85,26 @@ app.get('/api/health', (req, res) => {
         message: 'Server đang hoạt động',
         database: 'Supabase PostgreSQL',
         timestamp: new Date().toISOString()
+    });
+});
+
+// Reset rate limit (development only)
+app.post('/api/reset-rate-limit', (req, res) => {
+    if (process.env.NODE_ENV !== 'development') {
+        return res.status(403).json({
+            success: false,
+            message: 'Chỉ khả dụng trong môi trường development'
+        });
+    }
+    
+    // Reset rate limiters
+    generalLimiter.resetKey(req.ip);
+    authLimiter.resetKey(req.ip);
+    otpLimiter.resetKey(req.ip);
+    
+    res.json({
+        success: true,
+        message: 'Đã reset rate limit cho IP này'
     });
 });
 
