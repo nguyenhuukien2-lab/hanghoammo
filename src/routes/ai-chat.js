@@ -3,10 +3,13 @@ const router = express.Router();
 const OpenAI = require('openai');
 const supabase = require('../config/supabase');
 
-// Initialize OpenAI
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY
-});
+// Initialize OpenAI only if API key is available
+let openai = null;
+if (process.env.OPENAI_API_KEY) {
+    openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY
+    });
+}
 
 // Get products for AI context
 async function getProductsContext() {
@@ -130,6 +133,13 @@ LUÔN sử dụng emoji và format đẹp để dễ đọc.`;
         }
 
         // Call OpenAI API
+        if (!openai) {
+            return res.status(503).json({
+                success: false,
+                message: 'AI Chatbot hiện không khả dụng. Vui lòng liên hệ admin qua Telegram hoặc email.'
+            });
+        }
+
         const completion = await openai.chat.completions.create({
             model: 'gpt-3.5-turbo',
             messages: conversationHistory,
