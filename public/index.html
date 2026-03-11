@@ -3,817 +3,979 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HangHoaMMO - Mua tài khoản số, phần mềm & dịch vụ MMO an toàn</title>
+    <title>HangHoaMMO - Shop Tài Khoản & Dịch Vụ Số Uy Tín #1</title>
     
-    <link rel="stylesheet" href="style.css?v=4.0">
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="HangHoaMMO - Shop bán tài khoản Netflix, Spotify, ChatGPT, Canva Pro, VPN và các dịch vụ số uy tín. Giá rẻ, bảo hành đầy đủ, giao hàng tự động 24/7.">
+    <meta name="keywords" content="mua tài khoản netflix, spotify premium, chatgpt plus, canva pro, vpn, youtube premium, tài khoản giá rẻ">
+    <meta name="author" content="HangHoaMMO">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="HangHoaMMO - Shop Tài Khoản & Dịch Vụ Số Uy Tín #1">
+    <meta property="og:description" content="Shop bán tài khoản Netflix, Spotify, ChatGPT, Canva Pro giá rẻ, bảo hành đầy đủ">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://hanghoammo.com">
+    <meta property="og:image" content="https://hanghoammo.com/logo.png">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="HangHoaMMO - Shop Tài Khoản & Dịch Vụ Số">
+    <meta name="twitter:description" content="Shop bán tài khoản Netflix, Spotify, ChatGPT giá rẻ">
+    
+    <link rel="stylesheet" href="style.css?v=2.0">
     <link rel="stylesheet" href="ai-chatbot.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #f5f7fa;
-            color: #333;
-        }
-
-        /* Header */
-        .main-header {
-            background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .header-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 15px 20px;
-            display: flex;
-            align-items: center;
-            gap: 30px;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-            color: #333;
-            min-width: 180px;
-        }
-
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 20px;
-        }
-
-        .logo-text {
-            font-size: 18px;
-            font-weight: 700;
-        }
-
-        .header-search {
-            flex: 1;
-            max-width: 600px;
-            position: relative;
-        }
-
-        .header-search input {
-            width: 100%;
-            padding: 12px 50px 12px 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 25px;
-            font-size: 14px;
-            transition: all 0.3s;
-        }
-
-        .header-search input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .header-search button {
-            position: absolute;
-            right: 5px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            color: white;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .header-btn {
-            padding: 10px 20px;
-            border-radius: 20px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-login {
-            background: white;
-            color: #667eea;
-            border: 2px solid #667eea;
-        }
-
-        .btn-login:hover {
-            background: #f0f4ff;
-        }
-
-        .btn-register {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .btn-register:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-        }
-
-        .cart-icon {
-            position: relative;
-            width: 45px;
-            height: 45px;
-            background: #f0f4ff;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .cart-icon:hover {
-            background: #667eea;
-            color: white;
-        }
-
-        .cart-badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: #ff4757;
-            color: white;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: 700;
-        }
-
-        /* Hero Banner */
-        .hero-banner {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 60px 20px;
-            text-align: center;
-            color: white;
-        }
-
-        .hero-content {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .hero-title {
-            font-size: 36px;
-            font-weight: 800;
-            margin-bottom: 15px;
-            line-height: 1.3;
-        }
-
-        .hero-subtitle {
-            font-size: 16px;
-            opacity: 0.9;
-            margin-bottom: 30px;
-        }
-
-        .hero-search {
-            max-width: 600px;
-            margin: 0 auto;
-            position: relative;
-        }
-
-        .hero-search input {
-            width: 100%;
-            padding: 18px 60px 18px 25px;
-            border: none;
-            border-radius: 30px;
-            font-size: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-
-        .hero-search button {
-            position: absolute;
-            right: 8px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            color: white;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-        }
-
-        /* Main Content */
-        .main-content {
-            max-width: 1400px;
-            margin: 40px auto;
-            padding: 0 20px;
-            display: grid;
-            grid-template-columns: 200px 1fr 200px;
-            gap: 20px;
-        }
-
-        /* Sidebar Ads */
-        .sidebar-ad {
-            position: sticky;
-            top: 100px;
-            height: fit-content;
-        }
-
-        .ad-card {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-
-        .ad-card img {
-            width: 100%;
-            border-radius: 10px;
-            margin-bottom: 15px;
-        }
-
-        .ad-card h3 {
-            font-size: 16px;
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        .ad-card p {
-            font-size: 13px;
-            color: #666;
-            margin-bottom: 15px;
-        }
-
-        .ad-card button {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        /* Products Section */
-        .products-section {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-
-        /* Category Tabs */
-        .category-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 25px;
-            overflow-x: auto;
-            padding-bottom: 10px;
-        }
-
-        .category-tabs::-webkit-scrollbar {
-            height: 5px;
-        }
-
-        .category-tabs::-webkit-scrollbar-thumb {
-            background: #e0e0e0;
-            border-radius: 5px;
-        }
-
-        .category-tab {
-            padding: 10px 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 20px;
-            background: white;
-            color: #666;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s;
-            white-space: nowrap;
-        }
-
-        .category-tab:hover {
-            border-color: #667eea;
-            color: #667eea;
-        }
-
-        .category-tab.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-color: transparent;
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-
-        .section-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: #333;
-        }
-
-        .view-all {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        /* Products Grid */
-        .products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
-        }
-
-        .product-card {
-            background: white;
-            border: 1px solid #f0f0f0;
-            border-radius: 12px;
-            padding: 15px;
-            transition: all 0.3s;
-            cursor: pointer;
-        }
-
-        .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            border-color: #667eea;
-        }
-
-        .product-image {
-            width: 100%;
-            height: 150px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #f8f9fa;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            overflow: hidden;
-        }
-
-        .product-image img {
-            max-width: 80%;
-            max-height: 80%;
-            object-fit: contain;
-        }
-
-        .product-name {
-            font-size: 14px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            min-height: 40px;
-        }
-
-        .product-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .product-rating {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 13px;
-            color: #ffa502;
-        }
-
-        .product-sold {
-            font-size: 12px;
-            color: #999;
-        }
-
-        .product-price {
-            font-size: 18px;
-            font-weight: 700;
-            color: #667eea;
-            margin-bottom: 12px;
-        }
-
-        .product-seller {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 0;
-            border-top: 1px solid #f0f0f0;
-            margin-top: 10px;
-        }
-
-        .seller-avatar {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 11px;
-            font-weight: 700;
-        }
-
-        .seller-name {
-            font-size: 12px;
-            color: #666;
-            font-weight: 500;
-        }
-
-        .btn-add-cart {
-            width: 100%;
-            padding: 10px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.3s;
-        }
-
-        .btn-add-cart:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        /* Responsive */
-        @media (max-width: 1200px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-
-            .sidebar-ad {
-                display: none;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .header-container {
-                flex-wrap: wrap;
-            }
-
-            .header-search {
-                order: 3;
-                width: 100%;
-                max-width: 100%;
-            }
-
-            .hero-title {
-                font-size: 24px;
-            }
-
-            .products-grid {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-                gap: 15px;
-            }
-        }
-
-        /* Notification */
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: white;
-            padding: 15px 20px;
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-            z-index: 10000;
-            transform: translateX(400px);
-            transition: transform 0.3s;
-        }
-
-        .notification.show {
-            transform: translateX(0);
-        }
-
-        .notification.success {
-            border-left: 4px solid #26de81;
-        }
-
-        .notification.error {
-            border-left: 4px solid #ff4757;
-        }
-
-        .notification.info {
-            border-left: 4px solid #667eea;
-        }
-    </style>
 </head>
 <body>
+    <!-- Announcement Bar (Chạy chữ) -->
+    <div class="announcement-bar">
+        <div class="announcement-content">
+            <marquee behavior="scroll" direction="left" scrollamount="5">
+                <span>🎉 Chào mừng Tết Nguyên Đán 2025! 🧧 Giảm giá đến 50% tất cả sản phẩm 🎊 Telegram: @hanghoammo 📞 Hotline: 0879.06.2222 💝 Miễn phí ship - Giao hàng tức thì 24/7</span>
+            </marquee>
+        </div>
+    </div>
+
     <!-- Header -->
-    <header class="main-header">
-        <div class="header-container">
-            <a href="index.html" class="logo">
-                <div class="logo-icon">
-                    <i class="fas fa-store"></i>
-                </div>
-                <span class="logo-text">HangHoaMMO</span>
-            </a>
+    <header class="header-new">
+        <div class="main-header-new">
+            <div class="container">
+                <div class="header-wrapper">
+                    <div class="logo-new">
+                        <a href="index.html">
+                            <div class="logo-box">
+                                <i class="fas fa-store"></i>
+                            </div>
+                            <div class="logo-info">
+                                <h1>HangHoa<span>MMO</span></h1>
+                                <p>Chợ MMO uy tín #1</p>
+                            </div>
+                        </a>
+                    </div>
 
-            <div class="header-search">
-                <input type="text" placeholder="Tìm kiếm sản phẩm, dịch vụ..." id="headerSearchInput">
-                <button onclick="performSearch()">
-                    <i class="fas fa-search"></i>
-                </button>
-            </div>
+                    <div class="search-box-new">
+                        <input type="text" id="searchInputHome" placeholder="Tìm kiếm sản phẩm, dịch vụ..." oninput="showSearchResults(this.value)" onfocus="showSearchResults(this.value)" onblur="hideSearchResults()">
+                        <button onclick="performSearch()"><i class="fas fa-search"></i></button>
+                        <div class="search-dropdown" id="searchDropdown"></div>
+                    </div>
 
-            <div class="header-actions">
-                <button class="header-btn btn-login" onclick="openAuthModal('login')">
-                    <i class="fas fa-sign-in-alt"></i>
-                    <span>Đăng nhập</span>
-                </button>
-                <button class="header-btn btn-register" onclick="openAuthModal('register')">
-                    <i class="fas fa-user-plus"></i>
-                    <span>Đăng ký</span>
-                </button>
-                <div class="cart-icon" onclick="toggleCart()">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span class="cart-badge" id="cartCount">0</span>
+                    <div class="header-right">
+                        <a href="blog.html" class="btn-icon-text">
+                            <i class="fas fa-blog"></i>
+                            <span>Blogs</span>
+                        </a>
+                        
+                        <!-- Wallet link - Show when logged in -->
+                        <a href="wallet.html" class="btn-icon-text" id="walletLink" style="display: none;">
+                            <i class="fas fa-wallet"></i>
+                            <span>Ví tiền</span>
+                        </a>
+                        
+                        <button class="btn-icon" onclick="toggleDarkMode()" title="Chế độ tối">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                        
+                        <!-- Show when not logged in -->
+                        <div id="authButtons">
+                            <button class="btn-auth login" onclick="openAuthModal('login')">
+                                <i class="fas fa-sign-in-alt"></i>
+                                <span>Đăng nhập</span>
+                            </button>
+                            <button class="btn-auth register" onclick="openAuthModal('register')">
+                                <i class="fas fa-user-plus"></i>
+                                <span>Đăng ký</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Show when logged in -->
+                        <a href="profile.html" class="user-profile-btn" id="userProfileBtn" style="display: none;">
+                            <div class="user-avatar-small">
+                                <span id="userAvatarInitial">U</span>
+                            </div>
+                            <span id="userNameDisplay">User</span>
+                        </a>
+                        
+                        <div class="cart-btn" onclick="toggleCart()">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="cart-badge" id="cartCount">0</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- Hero Banner -->
-    <section class="hero-banner">
-        <div class="hero-content">
-            <h1 class="hero-title">Mua tài khoản số, phần mềm & dịch vụ MMO an toàn</h1>
-            <p class="hero-subtitle">Hàng nghìn sản phẩm chất lượng, giá tốt nhất thị trường</p>
+    <!-- Maintenance Banner -->
+    <div class="maintenance-banner-new" id="maintenanceBanner" style="display: none;">
+        <div class="maintenance-overlay"></div>
+        <div class="container">
+            <div class="maintenance-content-new">
+                <div class="maintenance-icon-wrapper">
+                    <div class="maintenance-icon-bg"></div>
+                    <i class="fas fa-tools maintenance-icon"></i>
+                </div>
+                <div class="maintenance-info">
+                    <div class="maintenance-badge">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>Thông báo hệ thống</span>
+                    </div>
+                    <h3 class="maintenance-title">Website đang bảo trì</h3>
+                    <p class="maintenance-message" id="maintenanceText">
+                        Chúng tôi đang nâng cấp hệ thống để mang đến trải nghiệm tốt hơn cho bạn. 
+                        Vui lòng quay lại sau ít phút.
+                    </p>
+                    <div class="maintenance-meta">
+                        <div class="maintenance-time">
+                            <i class="fas fa-clock"></i>
+                            <span>Dự kiến hoàn thành: <strong id="maintenanceETA">30 phút</strong></span>
+                        </div>
+                        <div class="maintenance-contact">
+                            <i class="fas fa-headset"></i>
+                            <span>Hỗ trợ: <a href="#" id="maintenanceTelegram">Telegram</a></span>
+                        </div>
+                    </div>
+                </div>
+                <button class="maintenance-close-new" onclick="closeMaintenanceBanner()" title="Đóng thông báo">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Banner Section -->
+    <section class="hero-banner-home">
+        <div class="container">
+            <!-- Quick Search Section -->
+            <div class="quick-search-section">
+                <div class="quick-search-header">
+                    <div class="search-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <div class="search-title">
+                        <h2>Tìm kiếm nhanh</h2>
+                        <p>Giao tự động 24/7</p>
+                    </div>
+                </div>
+                
+                <div class="search-input-wrapper">
+                    <input type="text" class="search-input-large" placeholder='Tìm Netflix", "Canva", "ChatGPT", dịch vụ...' id="quickSearchInput" oninput="quickSearch(this.value)">
+                    <button class="search-btn-large" onclick="performQuickSearch()">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                
+                <div class="quick-features">
+                    <div class="feature-item">
+                        <i class="fas fa-shield-check"></i>
+                        <span>Escrow bảo vệ người mua</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-truck-fast"></i>
+                        <span>Giao tự động</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-headset"></i>
+                        <span>Hỗ trợ 24/7</span>
+                    </div>
+                </div>
+            </div>
             
-            <div class="hero-search">
-                <input type="text" placeholder="Bạn đang tìm kiếm gì?" id="heroSearchInput">
-                <button onclick="performSearch()">
-                    <i class="fas fa-search"></i>
+            <!-- Category Quick Access -->
+            <div class="category-grid-home">
+                <h3 class="category-grid-title">DANH MỤC NỔI BẬT</h3>
+                <p class="category-grid-subtitle">Chọn nhanh theo nhu cầu</p>
+                
+                <div class="category-items">
+                    <div class="category-card" onclick="filterByCategory('ai')">
+                        <div class="category-icon ai-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="category-info">
+                            <h4>AI & Công Nghệ</h4>
+                            <p>Xem sản phẩm</p>
+                        </div>
+                    </div>
+                    
+                    <div class="category-card" onclick="filterByCategory('entertainment')">
+                        <div class="category-icon entertainment-icon">
+                            <i class="fas fa-film"></i>
+                        </div>
+                        <div class="category-info">
+                            <h4>Giải Trí</h4>
+                            <p>Xem sản phẩm</p>
+                        </div>
+                    </div>
+                    
+                    <div class="category-card" onclick="filterByCategory('software')">
+                        <div class="category-icon email-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="category-info">
+                            <h4>Email</h4>
+                            <p>Xem sản phẩm</p>
+                        </div>
+                    </div>
+                    
+                    <div class="category-card" onclick="filterByCategory('service')">
+                        <div class="category-icon service-icon">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <div class="category-info">
+                            <h4>Dịch Vụ MXH</h4>
+                            <p>Xem sản phẩm</p>
+                        </div>
+                    </div>
+                    
+                    <div class="category-card" onclick="filterByCategory('design')">
+                        <div class="category-icon design-icon">
+                            <i class="fas fa-palette"></i>
+                        </div>
+                        <div class="category-info">
+                            <h4>Phần Mềm & Thiết Kế</h4>
+                            <p>Xem sản phẩm</p>
+                        </div>
+                    </div>
+                    
+                    <div class="category-card" onclick="filterByCategory('vpn')">
+                        <div class="category-icon vpn-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="category-info">
+                            <h4>Tiện ích & khác</h4>
+                            <p>Xem sản phẩm</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tabs Section -->
+    <section class="tabs-section">
+        <div class="container">
+            <div class="tabs-wrapper">
+                <button class="tab-btn active" onclick="filterByCategory('all')">
+                    <span>Tất cả</span>
+                </button>
+                <button class="tab-btn" onclick="filterByCategory('ai')">
+                    <span>AI & Công Nghệ</span>
+                </button>
+                <button class="tab-btn" onclick="filterByCategory('service')">
+                    <span>Dịch Vụ MMO</span>
+                </button>
+                <button class="tab-btn" onclick="filterByCategory('software')">
+                    <span>Email</span>
+                </button>
+                <button class="tab-btn" onclick="filterByCategory('entertainment')">
+                    <span>Giải Trí</span>
+                </button>
+                <button class="tab-btn" onclick="filterByCategory('design')">
+                    <span>Phần Mềm & Thiết Kế</span>
+                </button>
+                <button class="tab-btn" onclick="filterByCategory('vpn')">
+                    <span>Tiện Ích & Khác</span>
                 </button>
             </div>
         </div>
     </section>
 
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Left Sidebar Ad -->
-        <aside class="sidebar-ad">
-            <div class="ad-card">
-                <img src="https://via.placeholder.com/200x300/667eea/ffffff?text=Facebook+Ads" alt="Facebook Ad">
-                <h3>Facebook Premium</h3>
-                <p>Tài khoản Facebook chất lượng cao</p>
-                <button onclick="window.location.href='products.html?category=social'">
-                    Xem ngay
+    <!-- Featured Products Section -->
+    <section class="featured-products-section">
+        <div class="container">
+            <div class="section-header-home">
+                <h2>SẢN PHẨM NỔI BẬT</h2>
+                <a href="products.html" class="view-all-home">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="products-slider" id="featuredProducts">
+                <!-- Products loaded by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- New Products Section -->
+    <section class="new-products-section">
+        <div class="container">
+            <div class="section-header-home">
+                <h2>SẢN PHẨM MỚI NHẤT</h2>
+                <a href="products.html" class="view-all-home">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="products-grid-home" id="newProducts">
+                <!-- Products loaded by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Chatbot Demo Section -->
+    <section class="ai-chatbot-demo-section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 80px 0; margin-top: 60px;">
+        <div class="container">
+            <div class="demo-content" style="text-align: center; color: white;">
+                <div class="demo-header" style="margin-bottom: 50px;">
+                    <h2 style="font-size: 36px; margin-bottom: 15px; font-weight: 800;">🤖 AI Tư Vấn Thông Minh</h2>
+                    <p style="font-size: 18px; opacity: 0.9; max-width: 600px; margin: 0 auto;">
+                        Trợ lý AI giúp bạn tìm sản phẩm phù hợp, trả lời câu hỏi và hỗ trợ mua hàng 24/7
+                    </p>
+                </div>
+
+                <div class="demo-features" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; margin-bottom: 50px;">
+                    <div class="demo-feature" style="background: rgba(255,255,255,0.1); padding: 30px; border-radius: 15px; backdrop-filter: blur(10px);">
+                        <div style="font-size: 48px; margin-bottom: 20px;">🎯</div>
+                        <h3 style="margin-bottom: 15px; font-size: 20px;">Tư Vấn Chính Xác</h3>
+                        <p style="opacity: 0.9; line-height: 1.6;">AI hiểu nhu cầu và gợi ý sản phẩm phù hợp nhất</p>
+                    </div>
+                    <div class="demo-feature" style="background: rgba(255,255,255,0.1); padding: 30px; border-radius: 15px; backdrop-filter: blur(10px);">
+                        <div style="font-size: 48px; margin-bottom: 20px;">⚡</div>
+                        <h3 style="margin-bottom: 15px; font-size: 20px;">Phản Hồi Tức Thì</h3>
+                        <p style="opacity: 0.9; line-height: 1.6;">Trả lời ngay lập tức, không cần chờ đợi</p>
+                    </div>
+                    <div class="demo-feature" style="background: rgba(255,255,255,0.1); padding: 30px; border-radius: 15px; backdrop-filter: blur(10px);">
+                        <div style="font-size: 48px; margin-bottom: 20px;">🛒</div>
+                        <h3 style="margin-bottom: 15px; font-size: 20px;">Hỗ Trợ Mua Hàng</h3>
+                        <p style="opacity: 0.9; line-height: 1.6;">Hướng dẫn từ A-Z quy trình mua hàng</p>
+                    </div>
+                </div>
+
+                <div class="demo-actions" style="margin-bottom: 40px;">
+                    <button onclick="openAIChatbot()" style="background: white; color: #667eea; border: none; padding: 18px 40px; border-radius: 30px; font-size: 18px; font-weight: 700; cursor: pointer; margin: 0 15px 15px 0; transition: all 0.3s ease; box-shadow: 0 5px 20px rgba(0,0,0,0.2);" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+                        <i class="fas fa-comments"></i> Thử Ngay Chatbot
+                    </button>
+                    <button onclick="openAIChatbot('Tôi muốn tìm tài khoản Netflix giá rẻ')" style="background: rgba(255,255,255,0.2); color: white; border: 2px solid white; padding: 16px 35px; border-radius: 30px; font-size: 16px; font-weight: 600; cursor: pointer; margin: 0 15px 15px 0; transition: all 0.3s ease;" onmouseover="this.style.background='white'; this.style.color='#667eea'" onmouseout="this.style.background='rgba(255,255,255,0.2)'; this.style.color='white'">
+                        <i class="fas fa-play"></i> Demo Tìm Netflix
+                    </button>
+                </div>
+
+                <div class="demo-examples" style="background: rgba(255,255,255,0.1); border-radius: 20px; padding: 40px; backdrop-filter: blur(10px);">
+                    <h3 style="margin-bottom: 30px; font-size: 24px;">💬 Câu Hỏi Mẫu - Click để thử</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
+                        <div onclick="openAIChatbot('Tôi muốn xem phim Netflix, có tài khoản nào không?')" style="background: rgba(255,255,255,0.15); padding: 20px; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; text-align: left;" onmouseover="this.style.background='rgba(255,255,255,0.25)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'; this.style.transform='translateY(0)'">
+                            <i class="fas fa-film" style="margin-right: 10px; color: #ffd700;"></i>
+                            Tôi muốn xem phim Netflix, có tài khoản nào không?
+                        </div>
+                        <div onclick="openAIChatbot('ChatGPT Plus có gì đặc biệt?')" style="background: rgba(255,255,255,0.15); padding: 20px; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; text-align: left;" onmouseover="this.style.background='rgba(255,255,255,0.25)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'; this.style.transform='translateY(0)'">
+                            <i class="fas fa-robot" style="margin-right: 10px; color: #00d4aa;"></i>
+                            ChatGPT Plus có gì đặc biệt?
+                        </div>
+                        <div onclick="openAIChatbot('Làm sao để thanh toán và nhận hàng?')" style="background: rgba(255,255,255,0.15); padding: 20px; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; text-align: left;" onmouseover="this.style.background='rgba(255,255,255,0.25)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'; this.style.transform='translateY(0)'">
+                            <i class="fas fa-credit-card" style="margin-right: 10px; color: #ff6b6b;"></i>
+                            Làm sao để thanh toán và nhận hàng?
+                        </div>
+                        <div onclick="openAIChatbot('Có khuyến mãi gì không?')" style="background: rgba(255,255,255,0.15); padding: 20px; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; text-align: left;" onmouseover="this.style.background='rgba(255,255,255,0.25)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'; this.style.transform='translateY(0)'">
+                            <i class="fas fa-tags" style="margin-right: 10px; color: #4ecdc4;"></i>
+                            Có khuyến mãi gì không?
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-col">
+                    <div class="footer-logo">
+                        <div class="logo-icon">
+                            <i class="fas fa-shopping-bag"></i>
+                        </div>
+                        <span>HangHoa<span class="highlight">MMO</span></span>
+                    </div>
+                    <p>Nền tảng mua bán tài khoản, dịch vụ số uy tín hàng đầu Việt Nam.</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Liên kết</h3>
+                    <ul>
+                        <li><a href="index.html">Trang chủ</a></li>
+                        <li><a href="products.html">Sản phẩm</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Liên hệ</h3>
+                    <ul class="contact-info">
+                        <li><i class="fas fa-phone"></i> 0879.06.2222</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 HangHoaMMO. Tất cả quyền được bảo lưu.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Cart Modal -->
+    <div class="cart-modal" id="cartModal">
+        <div class="cart-overlay" onclick="toggleCart()"></div>
+        <div class="cart-panel">
+            <div class="cart-header">
+                <h3><i class="fas fa-shopping-cart"></i> Giỏ hàng (<span id="cartItemCount">0</span>)</h3>
+                <button class="close-btn" onclick="toggleCart()">×</button>
+            </div>
+            <div class="cart-body" id="cartBody">
+                <div class="empty-cart">
+                    <i class="fas fa-shopping-cart"></i>
+                    <p>Giỏ hàng của bạn đang trống</p>
+                </div>
+            </div>
+            <div class="cart-summary">
+                <div class="summary-row">
+                    <span>Tạm tính (<span id="summaryItemCount">0</span> sản phẩm)</span>
+                    <span id="subtotal">0đ</span>
+                </div>
+                <div class="summary-row total">
+                    <span>Tổng cộng</span>
+                    <span class="total-amount" id="totalAmount">0đ</span>
+                </div>
+            </div>
+            <div class="cart-footer">
+                <button class="btn-checkout" onclick="checkout()">
+                    <i class="fas fa-credit-card"></i>
+                    <span>Thanh toán ngay</span>
                 </button>
             </div>
-        </aside>
+        </div>
+    </div>
 
-        <!-- Products Section -->
-        <main class="products-section">
-            <!-- Category Tabs -->
-            <div class="category-tabs">
-                <button class="category-tab active" data-category="all">Tất cả</button>
-                <button class="category-tab" data-category="ai">AI Tools</button>
-                <button class="category-tab" data-category="design">Thiết kế</button>
-                <button class="category-tab" data-category="entertainment">Giải trí</button>
-                <button class="category-tab" data-category="software">Phần mềm</button>
-                <button class="category-tab" data-category="service">Dịch vụ</button>
-                <button class="category-tab" data-category="vpn">VPN</button>
+    <!-- Checkout Modal -->
+    <div class="checkout-modal" id="checkoutModal">
+        <div class="checkout-overlay" onclick="closeCheckoutModal()"></div>
+        <div class="checkout-panel">
+            <div class="checkout-header">
+                <button class="back-btn" onclick="closeCheckoutModal()">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h3>Thanh toán</h3>
+                <button class="close-btn" onclick="closeCheckoutModal()">×</button>
+            </div>
+            
+            <div class="checkout-body">
+                <div class="checkout-section">
+                    <h4><i class="fas fa-shopping-bag"></i> Đơn hàng của bạn</h4>
+                    <div id="checkoutItems"></div>
+                </div>
+
+                <div class="checkout-section">
+                    <h4><i class="fas fa-credit-card"></i> Phương thức thanh toán</h4>
+                    <div class="payment-methods">
+                        <label class="payment-method">
+                            <input type="radio" name="payment" value="momo" checked>
+                            <div class="method-content">
+                                <i class="fas fa-wallet"></i>
+                                <span>Ví MoMo</span>
+                            </div>
+                        </label>
+                        <label class="payment-method">
+                            <input type="radio" name="payment" value="bank">
+                            <div class="method-content">
+                                <i class="fas fa-university"></i>
+                                <span>Chuyển khoản</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="checkout-section">
+                    <h4><i class="fas fa-user"></i> Thông tin nhận hàng</h4>
+                    <form id="checkoutForm">
+                        <div class="form-group">
+                            <input type="text" placeholder="Họ và tên *" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="tel" placeholder="Số điện thoại *" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" placeholder="Email *" required>
+                        </div>
+                        <div class="form-group">
+                            <textarea placeholder="Ghi chú (tùy chọn)" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
             </div>
 
-            <div class="section-header">
-                <h2 class="section-title">Sản phẩm nổi bật</h2>
-                <a href="products.html" class="view-all">
-                    Xem tất cả <i class="fas fa-arrow-right"></i>
-                </a>
-            </div>
-
-            <div class="products-grid" id="productsGrid">
-                <!-- Products will be loaded here -->
-            </div>
-        </main>
-
-        <!-- Right Sidebar Ad -->
-        <aside class="sidebar-ad">
-            <div class="ad-card">
-                <img src="https://via.placeholder.com/200x300/764ba2/ffffff?text=TikTok+Ads" alt="TikTok Ad">
-                <h3>TikTok Premium</h3>
-                <p>Tài khoản TikTok uy tín</p>
-                <button onclick="window.location.href='products.html?category=social'">
-                    Xem ngay
+            <div class="checkout-footer">
+                <div class="checkout-total">
+                    <span>Tổng thanh toán:</span>
+                    <span class="amount" id="checkoutTotal">0đ</span>
+                </div>
+                <button class="btn-confirm-payment" onclick="confirmPayment()">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Xác nhận thanh toán</span>
                 </button>
             </div>
-        </aside>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div class="auth-modal" id="authModal">
+        <div class="auth-modal-overlay" onclick="closeAuthModal()"></div>
+        <div class="auth-modal-content">
+            <button class="auth-modal-close" onclick="closeAuthModal()">×</button>
+            
+            <div class="auth-modal-header">
+                <div class="auth-modal-logo">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span>HangHoaMMO</span>
+                </div>
+                <h2 id="authModalTitle">Chào mừng trở lại!</h2>
+                <p id="authModalSubtitle">Đăng nhập để tiếp tục mua sắm</p>
+            </div>
+
+            <div class="auth-modal-tabs">
+                <button class="auth-tab active" data-tab="login" onclick="switchAuthTab('login')">Đăng nhập</button>
+                <button class="auth-tab" data-tab="register" onclick="switchAuthTab('register')">Đăng ký</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="modalLoginForm" class="auth-modal-form active">
+                <div class="form-group">
+                    <label>Email</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" placeholder="you@email.com" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Mật khẩu</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="modalLoginPassword" placeholder="••••••••" required>
+                        <button type="button" class="toggle-password" onclick="toggleModalPassword('modalLoginPassword', event)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <span>Đăng nhập</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+
+                <!-- Development only: Reset rate limit button -->
+                <button type="button" class="btn-reset-rate-limit" onclick="resetRateLimit()" style="display: none; margin-top: 10px; background: #f59e0b; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 12px;">
+                    <i class="fas fa-refresh"></i> Reset Rate Limit (Dev)
+                </button>
+
+                <div class="auth-form-footer">
+                    <a href="#" onclick="event.preventDefault(); showForgotPasswordForm()">Quên mật khẩu?</a>
+                </div>
+            </form>
+
+            <!-- Register Form -->
+            <form id="modalRegisterForm" class="auth-modal-form">
+                <div class="form-group">
+                    <label>Họ và tên</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-user"></i>
+                        <input type="text" placeholder="Nguyễn Văn A" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" placeholder="you@email.com" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Số điện thoại</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-phone"></i>
+                        <input type="tel" placeholder="0909123456" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Mật khẩu</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="modalRegisterPassword" placeholder="••••••••" required>
+                        <button type="button" class="toggle-password" onclick="toggleModalPassword('modalRegisterPassword', event)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <small style="color: #666; font-size: 12px; margin-top: 5px; display: block;">
+                        <i class="fas fa-info-circle"></i> Tối thiểu 8 ký tự, có chữ hoa, chữ thường và số
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label>Xác nhận mật khẩu</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="modalRegisterConfirmPassword" placeholder="••••••••" required>
+                        <button type="button" class="toggle-password" onclick="toggleModalPassword('modalRegisterConfirmPassword', event)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <span>Đăng ký</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="modalRegisterForm" class="auth-modal-form">
+                <div class="form-group">
+                    <label>Họ và tên</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-user"></i>
+                        <input type="text" placeholder="Nguyễn Văn A" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" placeholder="you@email.com" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Số điện thoại</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-phone"></i>
+                        <input type="tel" placeholder="0909123456" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Mật khẩu</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="modalRegisterPassword" placeholder="••••••••" required oninput="updatePasswordStrength('modalRegisterPassword', 'passwordStrengthBar', 'passwordStrengthText')">
+                        <button type="button" class="toggle-password" onclick="toggleModalPassword('modalRegisterPassword', event)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="password-strength-container">
+                        <div id="passwordStrengthBar" class="password-strength-bar"></div>
+                        <span id="passwordStrengthText" class="password-strength-text"></span>
+                    </div>
+                    <div id="passwordRequirements" class="password-requirements" style="display: none;"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>Xác nhận mật khẩu</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="modalConfirmPassword" placeholder="••••••••" required>
+                        <button type="button" class="toggle-password" onclick="toggleModalPassword('modalConfirmPassword', event)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <span>Đăng ký</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </form>
+        </div>
     </div>
 
     <!-- Notification -->
     <div id="notification" class="notification"></div>
 
-    <!-- AI Chatbot -->
-    <div id="ai-chatbot-container"></div>
+    <!-- Forgot Password Modal -->
+    <div class="auth-modal" id="forgotPasswordModal" style="display: none;">
+        <div class="auth-modal-overlay" onclick="closeForgotPasswordModal()"></div>
+        <div class="auth-modal-content">
+            <button class="auth-modal-close" onclick="closeForgotPasswordModal()">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div class="auth-modal-header">
+                <div class="auth-modal-logo">
+                    <i class="fas fa-key"></i>
+                    <span>Quên mật khẩu</span>
+                </div>
+                <h2>Khôi phục mật khẩu</h2>
+                <p>Nhập email và số điện thoại để đặt lại mật khẩu</p>
+            </div>
+
+            <form id="forgotPasswordForm" onsubmit="handleForgotPassword(event)">
+                <div class="form-group">
+                    <label>Email đã đăng ký</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="forgotEmail" placeholder="you@email.com" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Số điện thoại đã đăng ký</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-phone"></i>
+                        <input type="tel" id="forgotPhone" placeholder="0909123456" required>
+                    </div>
+                </div>
+
+                <button type="button" id="requestForgotOtpBtn" onclick="requestForgotPasswordOTP()" class="btn-submit" style="margin-bottom: 20px;">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Gửi mã OTP</span>
+                </button>
+
+                <div id="forgotOtpSection" style="display: none;">
+                    <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: center;">
+                        <p style="margin: 0; color: #2e7d32; font-size: 14px;">
+                            <i class="fas fa-check-circle"></i> Mã OTP đã được gửi qua email
+                        </p>
+                        <p style="margin: 10px 0 0 0; color: #2e7d32; font-size: 13px;">
+                            <i class="fas fa-clock"></i> Thời gian còn lại: <strong id="forgotOtpTimer">5:00</strong>
+                        </p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Mã OTP (6 số)</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-shield-alt"></i>
+                            <input type="text" id="forgotOtpCode" maxlength="6" pattern="[0-9]{6}" placeholder="Nhập mã OTP 6 số" 
+                                   style="text-align: center; letter-spacing: 5px; font-family: 'Courier New', monospace; font-size: 18px;">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Mật khẩu mới</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="forgotNewPassword" placeholder="••••••••" required minlength="6">
+                        <button type="button" class="toggle-password" onclick="toggleModalPassword('forgotNewPassword', event)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <small style="color: #666; font-size: 12px; margin-top: 5px; display: block;">
+                        Tối thiểu 6 ký tự
+                    </small>
+                </div>
+
+                <button type="submit" id="forgotPasswordSubmitBtn" class="btn-submit" style="display: none;">
+                    <span>Đặt lại mật khẩu</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+
+                <div class="auth-form-footer">
+                    <a href="#" onclick="event.preventDefault(); closeForgotPasswordModal(); openAuthModal('login')">Quay lại đăng nhập</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Telegram Join Modal -->
+    <div class="telegram-modal" id="telegramModal">
+        <div class="telegram-modal-content">
+            <div class="telegram-modal-header">
+                <div class="telegram-icon">
+                    <i class="fab fa-telegram-plane"></i>
+                </div>
+                <div class="telegram-header-text">
+                    <h3>Tham gia Telegram</h3>
+                    <p>Nhận thông báo cập nhật nhanh nhất</p>
+                </div>
+                <button class="telegram-modal-close" onclick="closeTelegramModal()">×</button>
+            </div>
+            <div class="telegram-modal-body">
+                <p class="telegram-description">
+                    Tham gia kênh Telegram để nhận thông báo về <strong>tính năng mới, cập nhật hệ thống</strong>, và <strong>thông tin quan trọng</strong> ngay lập tức.
+                </p>
+                
+                <div class="telegram-channel-box">
+                    <div class="telegram-channel-avatar">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="telegram-channel-info">
+                        <h4>HangHoaMMO Channel</h4>
+                        <p>@hanghoammo</p>
+                    </div>
+                    <a href="#" class="telegram-channel-link" target="_blank">
+                        <i class="fas fa-external-link-alt"></i>
+                    </a>
+                </div>
+                
+                <div class="telegram-info-box">
+                    <p>
+                        <i class="fas fa-info-circle"></i>
+                        Chúng tôi sẽ gửi thông báo qua Telegram khi có <strong>tính năng mới, thay đổi chính sách</strong>, hoặc <strong>sự kiện đặc biệt</strong>. Không spam!
+                    </p>
+                </div>
+            </div>
+            <div class="telegram-modal-footer">
+                <button class="btn-telegram-later" onclick="closeTelegramModal()">
+                    Để sau
+                </button>
+                <button class="btn-telegram-join" onclick="joinTelegram()">
+                    <i class="fab fa-telegram-plane"></i>
+                    Tham gia ngay
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Telegram Button -->
+    <div class="floating-telegram" onclick="openTelegramModal()" title="Tham gia Telegram">
+        <i class="fab fa-telegram-plane"></i>
+    </div>
 
     <script src="script.js"></script>
     <script src="ai-chatbot.js"></script>
-    
     <script>
-        // Load products on page load
         document.addEventListener('DOMContentLoaded', async function() {
-            await loadProducts();
-            renderHomeProducts();
+            // Đảm bảo modal đóng khi load trang
+            const authModal = document.getElementById('authModal');
+            if (authModal) {
+                authModal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+            
             updateCartCount();
-            checkLoginStatus();
+            updateUserUI();
+            checkLoginStatus(); // Cập nhật trạng thái đăng nhập
+            
+            await loadProducts();
+            
+            // Featured products (5 products)
+            const featuredContainer = document.getElementById('featuredProducts');
+            if (featuredContainer) {
+                const featured = products.slice(0, 5);
+                renderProductsExplore(featured, featuredContainer);
+            }
+            
+            // New products (12 products)
+            const newContainer = document.getElementById('newProducts');
+            if (newContainer) {
+                const newProds = products.slice(0, 12);
+                renderProductsExplore(newProds, newContainer);
+            }
         });
 
-        function renderHomeProducts() {
-            const grid = document.getElementById('productsGrid');
-            if (!grid) return;
+        function renderProductsExplore(productsToRender, container) {
+            if (!container) return;
+            container.innerHTML = '';
 
-            // Show first 12 products
-            const productsToShow = products.slice(0, 12);
-            
-            grid.innerHTML = productsToShow.map(product => {
+            productsToRender.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card-explore';
                 const productId = product._id || product.id;
-                const sellerName = product.seller || 'kien29';
-                const sellerInitial = sellerName.charAt(0).toUpperCase();
                 
-                return `
-                    <div class="product-card" onclick="viewProduct('${productId}')">
-                        <div class="product-image">
-                            <img src="${product.image}" alt="${product.name}">
+                productCard.innerHTML = `
+                    <div class="product-image-explore">
+                        <img src="${product.image}" alt="${product.name}">
+                        ${product.badge ? `<span class="badge-explore ${product.badge.toLowerCase()}">${product.badge}</span>` : ''}
+                    </div>
+                    <div class="product-info-explore">
+                        <h3 class="product-name-explore">${product.name}</h3>
+                        <div class="product-price-explore">
+                            <span class="price-current">${product.price.toLocaleString('vi-VN')}đ</span>
                         </div>
-                        <div class="product-name">${product.name}</div>
-                        <div class="product-meta">
-                            <div class="product-rating">
+                        <div class="product-meta-explore">
+                            <div class="rating-explore">
                                 <i class="fas fa-star"></i>
                                 <span>5.0</span>
                             </div>
-                            <span class="product-sold">Đã bán ${product.sold || 0}</span>
+                            <span class="sold-explore">Đã bán ${product.sold || 0}</span>
                         </div>
-                        <div class="product-price">${product.price.toLocaleString('vi-VN')}đ</div>
-                        <div class="product-seller">
-                            <div class="seller-avatar">${sellerInitial}</div>
-                            <span class="seller-name">${sellerName}</span>
+                        <div class="product-vendor-explore">
+                            <img src="https://ui-avatars.com/api/?name=Manh98&background=667eea&color=fff&size=32" alt="Vendor">
+                            <span>Mạnh98</span>
                         </div>
-                        <button class="btn-add-cart" onclick="event.stopPropagation(); addToCart('${productId}')">
-                            <i class="fas fa-cart-plus"></i> Thêm vào giỏ
-                        </button>
+                        <div class="product-actions-home">
+                            <button class="btn-view-detail-home" onclick="event.stopPropagation(); viewProductDetail('${productId}')">
+                                <i class="fas fa-eye"></i> Xem chi tiết
+                            </button>
+                            <button class="btn-add-cart-home" onclick="event.stopPropagation(); addToCart('${productId}')">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </div>
                     </div>
                 `;
-            }).join('');
-        }
-
-        // Category filter
-        document.addEventListener('DOMContentLoaded', function() {
-            const categoryTabs = document.querySelectorAll('.category-tab');
-            
-            categoryTabs.forEach(tab => {
-                tab.addEventListener('click', function() {
-                    // Update active tab
-                    categoryTabs.forEach(t => t.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    // Filter products
-                    const category = this.dataset.category;
-                    filterProducts(category);
-                });
+                
+                // Click vào card để xem chi tiết
+                productCard.onclick = () => viewProductDetail(productId);
+                productCard.style.cursor = 'pointer';
+                
+                container.appendChild(productCard);
             });
-        });
+        }
 
-        function filterProducts(category) {
-            const grid = document.getElementById('productsGrid');
-            if (!grid) return;
-
-            let filteredProducts = products;
+        // Filter products by category
+        function filterByCategory(category) {
+            // Update active tab
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.closest('.tab-btn').classList.add('active');
             
+            // Filter products
+            let filtered = products;
             if (category !== 'all') {
-                filteredProducts = products.filter(p => p.category === category);
+                filtered = products.filter(p => p.category === category);
             }
             
-            // Show first 12 products
-            const productsToShow = filteredProducts.slice(0, 12);
+            // Update featured products
+            const featuredContainer = document.getElementById('featuredProducts');
+            if (featuredContainer) {
+                const featured = filtered.slice(0, 5);
+                renderProductsExplore(featured, featuredContainer);
+            }
             
-            grid.innerHTML = productsToShow.map(product => {
-                const productId = product._id || product.id;
-                const sellerName = product.seller || 'kien29';
-                const sellerInitial = sellerName.charAt(0).toUpperCase();
-                
-                return `
-                    <div class="product-card" onclick="viewProduct('${productId}')">
-                        <div class="product-image">
-                            <img src="${product.image}" alt="${product.name}">
-                        </div>
-                        <div class="product-name">${product.name}</div>
-                        <div class="product-meta">
-                            <div class="product-rating">
-                                <i class="fas fa-star"></i>
-                                <span>5.0</span>
-                            </div>
-                            <span class="product-sold">Đã bán ${product.sold || 0}</span>
-                        </div>
-                        <div class="product-price">${product.price.toLocaleString('vi-VN')}đ</div>
-                        <div class="product-seller">
-                            <div class="seller-avatar">${sellerInitial}</div>
-                            <span class="seller-name">${sellerName}</span>
-                        </div>
-                        <button class="btn-add-cart" onclick="event.stopPropagation(); addToCart('${productId}')">
-                            <i class="fas fa-cart-plus"></i> Thêm vào giỏ
-                        </button>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function viewProduct(productId) {
-            window.location.href = `product-detail.html?id=${productId}`;
-        }
-
-        function performSearch() {
-            const headerInput = document.getElementById('headerSearchInput');
-            const heroInput = document.getElementById('heroSearchInput');
-            const query = headerInput.value || heroInput.value;
+            // Update new products
+            const newContainer = document.getElementById('newProducts');
+            if (newContainer) {
+                const newProds = filtered.slice(0, 12);
+                renderProductsExplore(newProds, newContainer);
+            }
             
-            if (query.trim()) {
-                window.location.href = `products.html?search=${encodeURIComponent(query)}`;
+            // Show message if no products
+            if (filtered.length === 0) {
+                if (featuredContainer) {
+                    featuredContainer.innerHTML = '<p style="text-align: center; padding: 40px; color: #666;">Không có sản phẩm trong danh mục này</p>';
+                }
+                if (newContainer) {
+                    newContainer.innerHTML = '<p style="text-align: center; padding: 40px; color: #666;">Không có sản phẩm trong danh mục này</p>';
+                }
+            }
+        }
+    </script>
+
+    <!-- Dark Mode Toggle Button -->
+    <button class="theme-toggle" onclick="toggleDarkMode()" title="Chuyển đổi chế độ tối">
+        <i class="fas fa-moon" id="theme-icon"></i>
+    </button>
+
+    <script>
+        // Dark mode functionality
+        function toggleDarkMode() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            
+            body.classList.toggle('dark-mode');
+            
+            if (body.classList.contains('dark-mode')) {
+                icon.className = 'fas fa-sun';
+                localStorage.setItem('darkMode', 'enabled');
+            } else {
+                icon.className = 'fas fa-moon';
+                localStorage.setItem('darkMode', 'disabled');
             }
         }
 
-        // Enter key search
-        document.getElementById('headerSearchInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') performSearch();
+        // Load dark mode preference
+        document.addEventListener('DOMContentLoaded', function() {
+            const darkMode = localStorage.getItem('darkMode');
+            const icon = document.getElementById('theme-icon');
+            
+            if (darkMode === 'enabled') {
+                document.body.classList.add('dark-mode');
+                icon.className = 'fas fa-sun';
+            }
         });
-
-        document.getElementById('heroSearchInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') performSearch();
-        });
-
-        function checkLoginStatus() {
-            const authToken = localStorage.getItem('authToken');
-            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-            
-            if (authToken && currentUser) {
-                // Update header to show user info
-                const headerActions = document.querySelector('.header-actions');
-                headerActions.innerHTML = `
-                    <a href="profile.html" style="text-decoration: none; color: #333; display: flex; align-items: center; gap: 10px;">
-                        <div style="width: 35px; height: 35px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;">
-                            ${currentUser.email.charAt(0).toUpperCase()}
-                        </div>
-                        <span style="font-weight: 600;">${currentUser.email.split('@')[0]}</span>
-                    </a>
-                    <div class="cart-icon" onclick="toggleCart()">
-                        <i class="fas fa-shopping-cart"></i>
-                        <span class="cart-badge" id="cartCount">0</span>
-                    </div>
-                `;
-                updateCartCount();
-            }
-        }
     </script>
 </body>
 </html>
