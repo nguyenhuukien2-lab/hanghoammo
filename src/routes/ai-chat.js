@@ -16,7 +16,7 @@ async function getProductsContext() {
     try {
         const { data: products, error } = await supabase
             .from('products')
-            .select('name, price, description, category, stock, image')
+            .select('name, price, description, category, image')
             .eq('status', 'active')
             .order('created_at', { ascending: false })
             .limit(30);
@@ -271,7 +271,7 @@ router.get('/products/:category?', async (req, res) => {
         
         let query = supabase
             .from('products')
-            .select('name, price, description, category, stock, image')
+            .select('name, price, description, category, image')
             .eq('status', 'active')
             .order('created_at', { ascending: false });
             
