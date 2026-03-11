@@ -1,304 +1,256 @@
 // Wallet.js - Quản lý ví tiền
 
-// Load wallet info
-async function loadWalletInfo() {
-    try {
-        const data = await apiRequest('/wallet');
-        const balance = data.data.balance || 0;
-        
-        document.getElementById('walletBalance').textContent = 
-            balance.toLocaleString('vi-VN') + 'đ';
-    } catch (error) {
-        console.error('Failed to load wallet info:', error);
-        showNotification('Không thể tải thông tin ví', 'error');
-    }
-}
-
-// Load transaction history
-async function loadTransactions() {
-    try {
-        const data = await apiRequest('/wallet/transactions');
-        const transactions = data.data || [];
-        
-        const listEl = document.getElementById('transactionList');
-        if (transactions.length === 0) {
-            listEl.innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-receipt"></i>
-                    <p>Chưa có giao dịch nào</p>
-                </div>
-            `;
-            return;
-        }
-        
-        listEl.innerHTML = transactions.map(tx => {
-            const isDeposit = tx.type === 'deposit';
-            return `
-                <div class="transaction-item">
-                    <div>
-                        <div class="tx-type">
-                            ${isDeposit ? '💰 Nạp tiền' : '🛒 Mua hàng'}
-                        </div>
-                        <div class="tx-date">${new Date(tx.created_at).toLocaleString('vi-VN')}</div>
-                        ${tx.description ? `<div style="color: #999; font-size: 13px; margin-top: 3px;">${tx.description}</div>` : ''}
-                    </div>
-                    <div style="text-align: right;">
-                        <div class="tx-amount ${isDeposit ? 'positive' : 'negative'}">
-                            ${isDeposit ? '+' : '-'}${tx.amount.toLocaleString('vi-VN')}đ
-                        </div>
-                        <div style="color: #999; font-size: 13px; margin-top: 3px;">
-                            Số dư: ${tx.balance_after.toLocaleString('vi-VN')}đ
-                        </div>
-                    </div>
-                </div>
-            `;
-        }).join('');
-    } catch (error) {
-        console.error('Failed to load transactions:', error);
-    }
-}
-
-// Load deposit requests
-async function loadDepositRequests() {
-    try {
-        const data = await apiRequest('/wallet/deposits');
-        const deposits = data.data || [];
-        
-        const listEl = document.getElementById('depositRequestList');
-        if (deposits.length === 0) {
-            listEl.innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-inbox"></i>
-                    <p>Chưa có yêu cầu nạp tiền nào</p>
-                </div>
-            `;
-            return;
-        }
-        
-        listEl.innerHTML = deposits.map(dep => {
-            const statusText = {
-                'pending': 'Chờ duyệt',
-                'approved': 'Đã duyệt',
-                'rejected': 'Từ chối'
-            };
-            
-            const paymentMethodText = {
-                'momo': '📱 MoMo',
-                'vietinbank': '🏦 VietinBank'
-            };
-            
-            return `
-                <div class="deposit-item">
-                    <div>
-                        <div style="font-weight: 600; font-size: 18px; color: #333;">
-                            ${dep.amount.toLocaleString('vi-VN')}đ
-                        </div>
-                        <div style="color: #666; font-size: 14px; margin-top: 5px;">
-                            ${paymentMethodText[dep.payment_method] || dep.payment_method}
-                        </div>
-                        ${dep.note ? `<div style="color: #999; font-size: 13px; margin-top: 3px;">Nội dung: ${dep.note}</div>` : ''}
-                        <div class="dep-date">${new Date(dep.created_at).toLocaleString('vi-VN')}</div>
-                    </div>
-                    <div>
-                        <span class="deposit-status status-${dep.status}">
-                            ${statusText[dep.status] || dep.status}
-                        </span>
-                        ${dep.status === 'rejected' && dep.reject_reason ? `
-                            <div style="color: #ff4757; font-size: 13px; margin-top: 5px;">
-                                Lý do: ${dep.reject_reason}
-                            </div>
-                        ` : ''}
-                    </div>
-                </div>
-            `;
-        }).join('');
-    } catch (error) {
-        console.error('Failed to load deposit requests:', error);
-    }
-}
+let selectedBank = null;
+let selectedAmount = 0;
 
 // Bank account information
 const bankAccounts = {
-    momo: {
-        title: '📱 Thông tin ví MoMo',
-        accountNumber: '0879062222',
-        bankName: 'Ví MoMo',
-        accountHolder: 'NGUYEN HUU KIEN',
-        bin: '9704', // MoMo BIN code
-        template: 'compact'
+    mbbank: {
+        name: 'MB Bank',
+        accountNumber: '6808688668',
+        accountHolder: 'DINH GIA TOAN',
+        bin: '970422'
     },
-    vietinbank: {
-        title: '🏦 Thông tin VietinBank',
-        accountNumber: '101884511335',
-        bankName: 'VietinBank CN BAC DA NANG - HOI SO',
-        accountHolder: 'NGUYEN HUU KIEN',
-        bin: '970415', // VietinBank BIN code
-        template: 'compact'
+    bidv: {
+        name: 'BIDV',
+        accountNumber: '12345678901',
+        accountHolder: 'NGUYEN VAN A',
+        bin: '970418'
+    },
+    kienlongbank: {
+        name: 'Kien Long Bank',
+        accountNumber: '98765432101',
+        accountHolder: 'TRAN THI B',
+        bin: '970452'
     }
 };
 
-// Generate QR Code using VietQR API
-function generateQRCode(bankInfo, amount, content) {
-    // VietQR API: https://api.vietqr.io/v2/generate
-    const qrData = {
-        accountNo: bankInfo.accountNumber,
-        accountName: bankInfo.accountHolder,
-        acqId: bankInfo.bin,
-        amount: amount || 0,
-        addInfo: content || 'Nap tien HangHoaMMO',
-        format: 'text',
-        template: bankInfo.template
-    };
-    
-    // Create QR URL
-    const qrUrl = `https://img.vietqr.io/image/${qrData.acqId}-${qrData.accountNo}-${qrData.template}.png?amount=${qrData.amount}&addInfo=${encodeURIComponent(qrData.addInfo)}&accountName=${encodeURIComponent(qrData.accountName)}`;
-    
-    return qrUrl;
-}
-
-// Update payment info based on selected method
-function updatePaymentInfo() {
-    const paymentMethod = document.getElementById('paymentMethod').value;
-    const paymentInfoDiv = document.getElementById('paymentInfo');
-    const amount = parseInt(document.getElementById('depositAmount').value) || 0;
-    
-    if (!paymentMethod) {
-        paymentInfoDiv.style.display = 'none';
-        return;
-    }
-    
-    const bankInfo = bankAccounts[paymentMethod];
-    if (bankInfo) {
-        // Generate transfer content with user email
-        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-        const userEmail = currentUser ? currentUser.email : 'user';
-        const transferContent = `NAPTHE ${userEmail.split('@')[0]}`;
-        
-        // Update text info
-        document.getElementById('paymentTitle').textContent = bankInfo.title;
-        document.getElementById('accountNumber').textContent = bankInfo.accountNumber;
-        document.getElementById('bankName').textContent = bankInfo.bankName;
-        document.getElementById('accountHolder').textContent = bankInfo.accountHolder;
-        document.getElementById('transferContent').textContent = transferContent;
-        
-        // Auto-fill note field
-        document.getElementById('depositNote').value = transferContent;
-        
-        // Generate and display QR code
-        const qrUrl = generateQRCode(bankInfo, amount, transferContent);
-        const qrImage = document.getElementById('qrCodeImage');
-        qrImage.src = qrUrl;
-        qrImage.style.display = 'block';
-        
-        paymentInfoDiv.style.display = 'block';
-    }
-}
-
-// Update QR when amount changes
-document.getElementById('depositAmount').addEventListener('input', function() {
-    const paymentMethod = document.getElementById('paymentMethod').value;
-    if (paymentMethod) {
-        updatePaymentInfo();
-    }
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    initializeWallet();
 });
 
-// Open/close deposit modal
-function openDepositModal() {
-    document.getElementById('depositModal').classList.add('active');
-}
+function initializeWallet() {
+    // Bank selection
+    const bankOptions = document.querySelectorAll('.bank-option');
+    bankOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            bankOptions.forEach(opt => opt.classList.remove('selected'));
+            this.classList.add('selected');
+            selectedBank = this.dataset.bank;
+        });
+    });
 
-function closeDepositModal() {
-    document.getElementById('depositModal').classList.remove('active');
-    // Reset form and hide payment info
-    document.getElementById('depositForm').reset();
-    document.getElementById('paymentInfo').style.display = 'none';
-}
+    // Quick amount buttons
+    const quickAmountBtns = document.querySelectorAll('.quick-amount-btn');
+    quickAmountBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const amount = parseInt(this.dataset.amount);
+            document.getElementById('depositAmount').value = amount;
+            selectedAmount = amount;
+        });
+    });
 
-// Submit deposit request
-const depositForm = document.getElementById('depositForm');
-if (depositForm) {
-    depositForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(this);
-        const amount = parseInt(formData.get('amount'));
-        const payment_method = formData.get('payment_method');
-        const note = formData.get('note');
-        
-        // Validate amount
-        if (amount < 10000) {
-            showNotification('Số tiền nạp tối thiểu là 10.000đ', 'error');
-            return;
-        }
-        
-        // Validate note
-        if (!note || note.trim() === '') {
-            showNotification('Vui lòng nhập nội dung chuyển khoản hoặc mã giao dịch', 'error');
-            return;
-        }
-        
-        const btnSubmit = this.querySelector('.btn-submit-deposit');
-        const originalHTML = btnSubmit.innerHTML;
-        btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang gửi...';
-        btnSubmit.disabled = true;
-        
-        try {
-            await apiRequest('/wallet/deposit', {
-                method: 'POST',
-                body: JSON.stringify({
-                    amount,
-                    payment_method,
-                    transaction_code: note.substring(0, 50), // Use first 50 chars of note as transaction code
-                    note
-                })
-            });
+    // Amount input
+    document.getElementById('depositAmount').addEventListener('input', function() {
+        selectedAmount = parseInt(this.value) || 0;
+    });
+
+    // Generate button
+    document.getElementById('generateBtn').addEventListener('click', generatePaymentCode);
+
+    // Payment tabs
+    const paymentTabs = document.querySelectorAll('.payment-tab');
+    paymentTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            paymentTabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
             
-            showNotification('Gửi yêu cầu nạp tiền thành công! Vui lòng chờ admin duyệt.');
-            closeDepositModal();
-            this.reset();
-            
-            // Reload deposit requests
-            loadDepositRequests();
-        } catch (error) {
-            showNotification(error.message || 'Gửi yêu cầu thất bại', 'error');
-        } finally {
-            btnSubmit.innerHTML = originalHTML;
-            btnSubmit.disabled = false;
-        }
+            if (this.dataset.tab === 'usdt') {
+                showNotification('Tính năng USDT đang được phát triển', 'info');
+            }
+        });
     });
 }
 
-// Check if user is logged in
-function checkWalletAuth() {
-    const authToken = localStorage.getItem('authToken');
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    
-    if (!authToken || !currentUser) {
-        showNotification('Vui lòng đăng nhập để xem ví tiền!', 'error');
-        setTimeout(() => {
-            window.location.href = 'index.html';
-        }, 1500);
-        return false;
+// Generate payment code
+function generatePaymentCode() {
+    // Validate
+    if (!selectedBank) {
+        showNotification('Vui lòng chọn ngân hàng', 'error');
+        return;
     }
-    return true;
+
+    if (!selectedAmount || selectedAmount < 10000) {
+        showNotification('Số tiền tối thiểu là 10.000đ', 'error');
+        return;
+    }
+
+    // Get bank info
+    const bankInfo = bankAccounts[selectedBank];
+    
+    // Generate transfer content
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    const userEmail = currentUser ? currentUser.email : 'user';
+    const transferContent = `CSH22D2C736 NAP${userEmail.split('@')[0].substring(0, 8).toUpperCase()}`;
+    
+    // Generate QR code
+    const qrUrl = generateQRCode(bankInfo, selectedAmount, transferContent);
+    
+    // Update UI
+    document.getElementById('qrCodeImage').src = qrUrl;
+    document.getElementById('displayAmount').textContent = selectedAmount.toLocaleString('vi-VN');
+    document.getElementById('transferContent').textContent = transferContent;
+    document.getElementById('bankName').textContent = bankInfo.name;
+    document.getElementById('accountNumber').textContent = bankInfo.accountNumber;
+    document.getElementById('accountHolder').textContent = bankInfo.accountHolder;
+    
+    // Show payment info section
+    document.getElementById('paymentInfoSection').classList.add('active');
+    
+    // Scroll to payment info
+    document.getElementById('paymentInfoSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    
+    // Start checking payment status
+    startPaymentCheck(transferContent, selectedAmount);
 }
 
-// Initialize
-document.addEventListener('DOMContentLoaded', function() {
-    // Check auth first
-    if (!checkWalletAuth()) {
+// Generate QR Code using VietQR API
+function generateQRCode(bankInfo, amount, content) {
+    const qrUrl = `https://img.vietqr.io/image/${bankInfo.bin}-${bankInfo.accountNumber}-compact.png?amount=${amount}&addInfo=${encodeURIComponent(content)}&accountName=${encodeURIComponent(bankInfo.accountHolder)}`;
+    return qrUrl;
+}
+
+// Copy functions
+function copyAmount() {
+    const amount = selectedAmount;
+    navigator.clipboard.writeText(amount).then(() => {
+        showNotification('Đã copy số tiền', 'success');
+    });
+}
+
+function copyContent() {
+    const content = document.getElementById('transferContent').textContent;
+    navigator.clipboard.writeText(content).then(() => {
+        showNotification('Đã copy nội dung chuyển khoản', 'success');
+    });
+}
+
+function copyAccountNumber() {
+    const accountNumber = document.getElementById('accountNumber').textContent;
+    navigator.clipboard.writeText(accountNumber).then(() => {
+        showNotification('Đã copy số tài khoản', 'success');
+    });
+}
+
+// Check payment status
+let paymentCheckInterval = null;
+
+function startPaymentCheck(transferContent, amount) {
+    // Clear existing interval
+    if (paymentCheckInterval) {
+        clearInterval(paymentCheckInterval);
+    }
+    
+    // Check every 5 seconds
+    paymentCheckInterval = setInterval(async () => {
+        try {
+            const response = await apiRequest('/wallet/check-payment', {
+                method: 'POST',
+                body: JSON.stringify({
+                    transfer_content: transferContent,
+                    amount: amount
+                })
+            });
+            
+            if (response.data && response.data.paid) {
+                clearInterval(paymentCheckInterval);
+                showNotification('Thanh toán thành công! Số dư đã được cập nhật.', 'success');
+                setTimeout(() => {
+                    window.location.href = 'profile.html#wallet';
+                }, 2000);
+            }
+        } catch (error) {
+            console.error('Payment check error:', error);
+        }
+    }, 5000);
+}
+
+// Manual check payment
+async function checkPayment() {
+    const transferContent = document.getElementById('transferContent').textContent;
+    const amount = selectedAmount;
+    
+    const btn = event.target;
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang kiểm tra...';
+    btn.disabled = true;
+    
+    try {
+        const response = await apiRequest('/wallet/check-payment', {
+            method: 'POST',
+            body: JSON.stringify({
+                transfer_content: transferContent,
+                amount: amount
+            })
+        });
+        
+        if (response.data && response.data.paid) {
+            showNotification('Thanh toán thành công! Số dư đã được cập nhật.', 'success');
+            setTimeout(() => {
+                window.location.href = 'profile.html#wallet';
+            }, 2000);
+        } else {
+            showNotification('Chưa nhận được thanh toán. Vui lòng thử lại sau.', 'info');
+        }
+    } catch (error) {
+        showNotification(error.message || 'Kiểm tra thất bại', 'error');
+    } finally {
+        btn.innerHTML = originalHTML;
+        btn.disabled = false;
+    }
+}
+
+// Reset form
+function resetForm() {
+    // Clear interval
+    if (paymentCheckInterval) {
+        clearInterval(paymentCheckInterval);
+    }
+    
+    // Hide payment info
+    document.getElementById('paymentInfoSection').classList.remove('active');
+    
+    // Reset selections
+    document.querySelectorAll('.bank-option').forEach(opt => opt.classList.remove('selected'));
+    document.getElementById('depositAmount').value = '';
+    selectedBank = null;
+    selectedAmount = 0;
+    
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Open PayOS page
+function openPayOS() {
+    const bankInfo = bankAccounts[selectedBank];
+    if (!bankInfo) {
+        showNotification('Vui lòng chọn ngân hàng', 'error');
         return;
     }
     
-    // Load all data
-    loadWalletInfo();
-    loadTransactions();
-    loadDepositRequests();
+    const transferContent = document.getElementById('transferContent').textContent;
+    const amount = selectedAmount;
     
-    // Auto refresh every 30 seconds
-    setInterval(() => {
-        loadWalletInfo();
-        loadTransactions();
-        loadDepositRequests();
-    }, 30000);
+    // Generate PayOS URL (example)
+    const payosUrl = `https://pay.payos.vn/transfer?bank=${bankInfo.bin}&account=${bankInfo.accountNumber}&amount=${amount}&content=${encodeURIComponent(transferContent)}`;
+    
+    window.open(payosUrl, '_blank');
+}
+
+// Cleanup on page unload
+window.addEventListener('beforeunload', function() {
+    if (paymentCheckInterval) {
+        clearInterval(paymentCheckInterval);
+    }
 });
