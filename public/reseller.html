@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reseller Dashboard - HangHoaMMO</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="reseller.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header-new">
+        <div class="main-header-new">
+            <div class="container">
+                <div class="header-wrapper">
+                    <div class="logo-new">
+                        <a href="index.html">
+                            <div class="logo-box">
+                                <i class="fas fa-store"></i>
+                            </div>
+                            <div class="logo-info">
+                                <h1>HangHoa<span>MMO</span></h1>
+                                <p>Reseller Dashboard</p>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="header-right">
+                        <a href="index.html" class="btn-icon-text">
+                            <i class="fas fa-home"></i>
+                            <span>Trang chủ</span>
+                        </a>
+                        <a href="profile.html" class="btn-icon-text">
+                            <i class="fas fa-user"></i>
+                            <span>Profile</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container reseller-container">
+        <!-- Tier Progress Card -->
+        <div class="tier-progress-card">
+            <div class="tier-header">
+                <div class="tier-badge" id="currentTierBadge">
+                    <i class="fas fa-crown"></i>
+                    <span id="currentTierName">Member</span>
+                </div>
+                <div class="tier-benefits">
+                    <span class="benefit-item" id="discountBenefit">
+                        <i class="fas fa-percent"></i> Giảm 0%
+                    </span>
+                    <span class="benefit-item" id="commissionBenefit">
+                        <i class="fas fa-coins"></i> Hoa hồng 0%
+                    </span>
+                </div>
+            </div>
+            
+            <div class="tier-progress">
+                <div class="progress-info">
+                    <span>Tổng chi tiêu: <strong id="totalSpent">0đ</strong></span>
+                    <span id="nextTierInfo">Cần <strong id="remainingAmount">0đ</strong> để lên <strong id="nextTierName">VIP</strong></span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+                <div class="progress-percent" id="progressPercent">0%</div>
+            </div>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <div class="reseller-tabs">
+            <button class="tab-btn active" data-tab="overview">
+                <i class="fas fa-chart-line"></i> Tổng quan
+            </button>
+            <button class="tab-btn" data-tab="tiers">
+                <i class="fas fa-layer-group"></i> Cấp bậc
+            </button>
+            <button class="tab-btn" data-tab="api">
+                <i class="fas fa-code"></i> API Keys
+            </button>
+            <button class="tab-btn" data-tab="referral">
+                <i class="fas fa-users"></i> Giới thiệu
+            </button>
+            <button class="tab-btn" data-tab="commission">
+                <i class="fas fa-money-bill-wave"></i> Hoa hồng
+            </button>
+        </div>
+
+        <!-- Tab Contents -->
+        <div class="tab-content active" id="overview">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalOrders">0</h3>
+                        <p>Tổng đơn hàng</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalRevenue">0đ</h3>
+                        <p>Tổng doanh thu</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalReferrals">0</h3>
+                        <p>Người giới thiệu</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalCommission">0đ</h3>
+                        <p>Tổng hoa hồng</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quick-actions">
+                <h3><i class="fas fa-bolt"></i> Hành động nhanh</h3>
+                <div class="action-buttons">
+                    <button class="action-btn" onclick="switchTab('api')">
+                        <i class="fas fa-key"></i>
+                        <span>Tạo API Key</span>
+                    </button>
+                    <button class="action-btn" onclick="switchTab('referral')">
+                        <i class="fas fa-share-alt"></i>
+                        <span>Chia sẻ link giới thiệu</span>
+                    </button>
+                    <button class="action-btn" onclick="window.location.href='products.html'">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span>Mua hàng</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="tiers">
+            <div class="tiers-info">
+                <h3><i class="fas fa-info-circle"></i> Thông tin các cấp bậc</h3>
+                <p>Chi tiêu nhiều hơn để nâng cấp và nhận ưu đãi tốt hơn!</p>
+            </div>
+            <div class="tiers-grid" id="tiersGrid">
+                <!-- Tiers will be loaded here -->
+            </div>
+        </div>
+
+        <div class="tab-content" id="api">
+            <div class="api-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-code"></i> API Keys</h3>
+                    <button class="btn-primary" onclick="createAPIKey()" id="createAPIBtn">
+                        <i class="fas fa-plus"></i> Tạo API Key
+                    </button>
+                </div>
+                
+                <div class="api-info-box">
+                    <i class="fas fa-info-circle"></i>
+                    <div>
+                        <strong>Lưu ý:</strong> API Keys cho phép bạn tự động lấy hàng qua API. 
+                        Chỉ dành cho Reseller và Agency.
+                    </div>
+                </div>
+
+                <div class="api-keys-list" id="apiKeysList">
+                    <!-- API keys will be loaded here -->
+                </div>
+
+                <div class="api-docs">
+                    <h4><i class="fas fa-book"></i> Tài liệu API</h4>
+                    <div class="api-endpoint">
+                        <code>GET /api/reseller/products</code>
+                        <p>Lấy danh sách sản phẩm với giá reseller</p>
+                    </div>
+                    <div class="api-endpoint">
+                        <code>POST /api/reseller/orders</code>
+                        <p>Tạo đơn hàng tự động</p>
+                    </div>
+                    <div class="api-endpoint">
+                        <code>GET /api/reseller/orders/:id</code>
+                        <p>Lấy thông tin đơn hàng</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="referral">
+            <div class="referral-section">
+                <div class="referral-code-box">
+                    <h3><i class="fas fa-gift"></i> Mã giới thiệu của bạn</h3>
+                    <div class="code-display">
+                        <input type="text" id="referralCode" readonly>
+                        <button onclick="copyReferralCode()">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                    <div class="link-display">
+                        <input type="text" id="referralLink" readonly>
+                        <button onclick="copyReferralLink()">
+                            <i class="fas fa-link"></i> Copy Link
+                        </button>
+                    </div>
+                    <div class="share-buttons">
+                        <button class="share-btn facebook" onclick="shareToFacebook()">
+                            <i class="fab fa-facebook"></i> Facebook
+                        </button>
+                        <button class="share-btn telegram" onclick="shareToTelegram()">
+                            <i class="fab fa-telegram"></i> Telegram
+                        </button>
+                        <button class="share-btn twitter" onclick="shareToTwitter()">
+                            <i class="fab fa-twitter"></i> Twitter
+                        </button>
+                    </div>
+                </div>
+
+                <div class="referrals-list">
+                    <h3><i class="fas fa-users"></i> Người bạn đã giới thiệu</h3>
+                    <div id="referralsList">
+                        <!-- Referrals will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="commission">
+            <div class="commission-summary">
+                <div class="summary-card">
+                    <h4>Tổng hoa hồng</h4>
+                    <p class="amount" id="commissionTotal">0đ</p>
+                </div>
+                <div class="summary-card">
+                    <h4>Đang chờ</h4>
+                    <p class="amount pending" id="commissionPending">0đ</p>
+                </div>
+                <div class="summary-card">
+                    <h4>Đã nhận</h4>
+                    <p class="amount paid" id="commissionPaid">0đ</p>
+                </div>
+            </div>
+
+            <div class="commission-history">
+                <h3><i class="fas fa-history"></i> Lịch sử hoa hồng</h3>
+                <div class="table-responsive">
+                    <table id="commissionTable">
+                        <thead>
+                            <tr>
+                                <th>Ngày</th>
+                                <th>Người mua</th>
+                                <th>Đơn hàng</th>
+                                <th>Giá trị đơn</th>
+                                <th>Tỷ lệ</th>
+                                <th>Hoa hồng</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody id="commissionTableBody">
+                            <!-- Commission history will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal tạo API Key -->
+    <div class="modal" id="apiKeyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-key"></i> Tạo API Key mới</h3>
+                <button class="close-btn" onclick="closeAPIKeyModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Tên API Key (gợi nhớ)</label>
+                    <input type="text" id="apiKeyName" placeholder="VD: My App API">
+                </div>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Lưu ý:</strong> API Secret chỉ hiển thị 1 lần duy nhất. Hãy lưu lại ngay!
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeAPIKeyModal()">Hủy</button>
+                <button class="btn-primary" onclick="confirmCreateAPIKey()">Tạo</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal hiển thị API Secret -->
+    <div class="modal" id="apiSecretModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-check-circle"></i> API Key đã tạo thành công</h3>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <strong>Quan trọng:</strong> Lưu API Secret ngay! Bạn sẽ không thể xem lại.
+                </div>
+                <div class="form-group">
+                    <label>API Key</label>
+                    <div class="code-display">
+                        <input type="text" id="newAPIKey" readonly>
+                        <button onclick="copyText('newAPIKey')">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>API Secret</label>
+                    <div class="code-display">
+                        <input type="text" id="newAPISecret" readonly>
+                        <button onclick="copyText('newAPISecret')">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" onclick="closeAPISecretModal()">Đã lưu</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="reseller.js"></script>
+</body>
+</html>

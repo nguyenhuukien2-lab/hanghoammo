@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Rate Limit</title>
+    <style>
+        body {
+            font-family: Arial;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 400px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        button {
+            padding: 15px 40px;
+            font-size: 16px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .links {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        .links a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        .links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔓 Reset Rate Limit</h1>
+        <p>Xóa giới hạn request để có thể đăng nhập lại</p>
+        
+        <button id="resetBtn" onclick="resetLimit()">
+            Reset Rate Limit
+        </button>
+        
+        <div id="result" class="result"></div>
+        
+        <div class="links">
+            <a href="login-new.html">← Đăng nhập</a>
+            <a href="index.html">Trang chủ</a>
+        </div>
+    </div>
+    
+    <script>
+        async function resetLimit() {
+            const btn = document.getElementById('resetBtn');
+            const result = document.getElementById('result');
+            
+            btn.disabled = true;
+            btn.textContent = '⏳ Đang reset...';
+            result.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/reset-rate-limit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                result.style.display = 'block';
+                
+                if (data.success) {
+                    result.className = 'result success';
+                    result.innerHTML = `
+                        ✅ ${data.message}<br><br>
+                        Bạn có thể đăng nhập lại ngay bây giờ!
+                    `;
+                    
+                    // Auto redirect after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = 'login-new.html';
+                    }, 2000);
+                } else {
+                    result.className = 'result error';
+                    result.innerHTML = `❌ ${data.message}`;
+                    btn.disabled = false;
+                    btn.textContent = 'Reset Rate Limit';
+                }
+            } catch (error) {
+                result.style.display = 'block';
+                result.className = 'result error';
+                result.innerHTML = `❌ Lỗi: ${error.message}`;
+                btn.disabled = false;
+                btn.textContent = 'Reset Rate Limit';
+            }
+        }
+    </script>
+</body>
+</html>

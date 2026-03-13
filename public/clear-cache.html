@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Xóa Cache</title>
+    <style>
+        body {
+            font-family: Arial;
+            padding: 50px;
+            text-align: center;
+        }
+        button {
+            padding: 20px 40px;
+            font-size: 18px;
+            background: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #ff3838;
+        }
+        .success {
+            color: green;
+            font-size: 20px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Xóa Cache Sản Phẩm</h1>
+    <p>Click nút bên dưới để xóa cache và chỉ dùng dữ liệu từ database</p>
+    
+    <button onclick="clearAll()">🗑️ Xóa Cache</button>
+    
+    <div id="result"></div>
+    
+    <script>
+        function clearAll() {
+            // Xóa cache sản phẩm
+            localStorage.removeItem('adminProducts');
+            
+            // Hiển thị kết quả
+            document.getElementById('result').innerHTML = `
+                <div class="success">
+                    ✅ Đã xóa cache thành công!<br><br>
+                    <a href="index.html">← Về trang chủ</a> | 
+                    <a href="products.html">Xem sản phẩm →</a>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

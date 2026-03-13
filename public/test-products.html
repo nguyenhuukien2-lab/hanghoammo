@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Products</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .product { border: 1px solid #ddd; padding: 10px; margin: 10px 0; }
+        .info { background: #f0f0f0; padding: 10px; margin: 10px 0; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Test Products Loading</h1>
+    
+    <div class="info">
+        <h3>Console Log:</h3>
+        <div id="log"></div>
+    </div>
+    
+    <button onclick="testLoadProducts()">Load Products</button>
+    <button onclick="clearCache()">Clear Cache</button>
+    <button onclick="showCache()">Show Cache</button>
+    
+    <h3>Products (<span id="count">0</span>):</h3>
+    <div id="products"></div>
+    
+    <script src="script.js"></script>
+    <script>
+        function log(msg) {
+            const logDiv = document.getElementById('log');
+            logDiv.innerHTML += '<div>' + new Date().toLocaleTimeString() + ': ' + msg + '</div>';
+            console.log(msg);
+        }
+        
+        async function testLoadProducts() {
+            log('🔄 Loading products...');
+            await loadProducts();
+            log('✅ Products loaded: ' + products.length);
+            displayProducts();
+        }
+        
+        function displayProducts() {
+            const container = document.getElementById('products');
+            const count = document.getElementById('count');
+            
+            count.textContent = products.length;
+            
+            container.innerHTML = products.slice(0, 10).map(p => `
+                <div class="product">
+                    <strong>${p.name}</strong><br>
+                    ID: ${p._id || p.id}<br>
+                    Price: ${p.price.toLocaleString('vi-VN')}đ<br>
+                    Category: ${p.category || 'N/A'}
+                </div>
+            `).join('');
+        }
+        
+        function clearCache() {
+            localStorage.removeItem('adminProducts');
+            log('🗑️ Cache cleared');
+        }
+        
+        function showCache() {
+            const cache = localStorage.getItem('adminProducts');
+            if (cache) {
+                try {
+                    const data = JSON.parse(cache);
+                    if (data.products) {
+                        log('📦 Cache has ' + data.products.length + ' products (timestamp: ' + new Date(data.timestamp).toLocaleString() + ')');
+                    } else {
+                        log('📦 Cache has ' + data.length + ' products (old format)');
+                    }
+                } catch (e) {
+                    log('❌ Cache parse error: ' + e.message);
+                }
+            } else {
+                log('❌ No cache found');
+            }
+        }
+        
+        // Auto load on page load
+        window.addEventListener('DOMContentLoaded', testLoadProducts);
+    </script>
+</body>
+</html>

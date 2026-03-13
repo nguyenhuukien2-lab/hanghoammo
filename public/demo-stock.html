@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Stock Features - HangHoaMMO</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container" style="padding: 2rem 0;">
+        <h1>🎯 Demo Tính Năng Stock & UX</h1>
+        
+        <!-- Flash Sale Banner Demo -->
+        <div class="flash-sale-banner" style="margin: 2rem 0;">
+            <div class="flash-sale-header">
+                <h3 class="flash-sale-title">⚡ Flash Sale Netflix Premium</h3>
+                <div class="flash-sale-discount">-50%</div>
+            </div>
+            <div class="countdown-timer" id="demo-countdown">
+                <div class="countdown-item">
+                    <span class="countdown-number">01</span>
+                    <span class="countdown-label">Ngày</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="countdown-number">12</span>
+                    <span class="countdown-label">Giờ</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="countdown-number">34</span>
+                    <span class="countdown-label">Phút</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="countdown-number">56</span>
+                    <span class="countdown-label">Giây</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stock Indicators Demo -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 2rem 0;">
+            <div class="demo-card">
+                <h4>✅ Còn hàng</h4>
+                <div class="stock-indicator in-stock">
+                    <i class="fas fa-check-circle"></i> 25 có sẵn
+                </div>
+            </div>
+            
+            <div class="demo-card">
+                <h4>⚠️ Sắp hết</h4>
+                <div class="stock-indicator low-stock">
+                    <i class="fas fa-exclamation-triangle"></i> Sắp hết (3 còn lại)
+                </div>
+            </div>
+            
+            <div class="demo-card">
+                <h4>❌ Hết hàng</h4>
+                <div class="stock-indicator out-of-stock">
+                    <i class="fas fa-times-circle"></i> Hết hàng
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Card Demo -->
+        <div class="products-grid" style="margin: 2rem 0;">
+            <div class="product-card" data-product-id="demo-1">
+                <div class="product-image">
+                    <img src="https://via.placeholder.com/300x200/667eea/ffffff?text=Netflix+Premium" alt="Netflix Premium">
+                    <div class="product-urgency">Chỉ còn 2!</div>
+                    <div class="tier-discount-badge">-15%</div>
+                    <button class="btn-wishlist-home">
+                        <i class="far fa-heart"></i>
+                    </button>
+                </div>
+                <div class="product-info">
+                    <h3 class="product-name">Netflix Premium 1 Tháng</h3>
+                    <div class="flash-sale-price">
+                        <span class="flash-sale-current">45,000đ</span>
+                        <span class="flash-sale-original">90,000đ</span>
+                        <span class="flash-sale-badge">-50%</span>
+                    </div>
+                    <div class="stock-indicator low-stock">
+                        <i class="fas fa-exclamation-triangle"></i> Sắp hết (2 còn lại)
+                    </div>
+                    <div class="product-meta">
+                        <div class="product-rating">
+                            <i class="fas fa-star"></i>
+                            <span>4.9</span>
+                        </div>
+                        <span class="product-sold">Đã bán 156</span>
+                    </div>
+                    <div class="product-previews">
+                        <img src="https://via.placeholder.com/60x45/667eea/ffffff?text=P1" 
+                             class="preview-thumbnail blurred" 
+                             data-preview='{"title":"Demo Netflix Account","url":"https://via.placeholder.com/400x300/667eea/ffffff?text=Netflix+Demo","is_blurred":true,"description":"Tài khoản Netflix Premium với đầy đủ tính năng"}'>
+                        <img src="https://via.placeholder.com/60x45/764ba2/ffffff?text=P2" 
+                             class="preview-thumbnail blurred"
+                             data-preview='{"title":"Profile Settings","url":"https://via.placeholder.com/400x300/764ba2/ffffff?text=Profile+Settings","is_blurred":true}'>
+                        <img src="https://via.placeholder.com/60x45/ff6b6b/ffffff?text=P3" 
+                             class="preview-thumbnail blurred"
+                             data-preview='{"title":"Subscription Info","url":"https://via.placeholder.com/400x300/ff6b6b/ffffff?text=Subscription","is_blurred":true}'>
+                        <div class="preview-count-badge">+2</div>
+                    </div>
+                    <div class="product-actions-home">
+                        <button class="btn-add-to-cart-home">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span>Thêm giỏ hàng</span>
+                        </button>
+                    </div>
+                    <div class="flash-sale-banner" style="margin-top: 0.75rem;">
+                        <div class="flash-sale-header">
+                            <h4 class="flash-sale-title">Flash Sale Netflix</h4>
+                            <div class="flash-sale-discount">-50%</div>
+                        </div>
+                        <div class="flash-sale-countdown" id="countdown-demo-1"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card" data-product-id="demo-2">
+                <div class="product-image">
+                    <img src="https://via.placeholder.com/300x200/28a745/ffffff?text=Canva+Pro" alt="Canva Pro">
+                    <button class="btn-wishlist-home">
+                        <i class="far fa-heart"></i>
+                    </button>
+                </div>
+                <div class="product-info">
+                    <h3 class="product-name">Canva Pro 1 Năm</h3>
+                    <div class="product-price-group">
+                        <div class="product-price">150,000đ</div>
+                        <div class="product-price-old">180,000đ</div>
+                        <div class="product-discount tier-discount">-15% Tier</div>
+                    </div>
+                    <div class="stock-indicator in-stock">
+                        <i class="fas fa-check-circle"></i> 15 có sẵn
+                    </div>
+                    <div class="product-meta">
+                        <div class="product-rating">
+                            <i class="fas fa-star"></i>
+                            <span>5.0</span>
+                        </div>
+                        <span class="product-sold">Đã bán 89</span>
+                    </div>
+                    <div class="product-actions-home">
+                        <button class="btn-add-to-cart-home">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span>Thêm giỏ hàng</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card" data-product-id="demo-3">
+                <div class="product-image">
+                    <img src="https://via.placeholder.com/300x200/dc3545/ffffff?text=ChatGPT+Plus" alt="ChatGPT Plus">
+                    <button class="btn-wishlist-home">
+                        <i class="far fa-heart"></i>
+                    </button>
+                </div>
+                <div class="product-info">
+                    <h3 class="product-name">ChatGPT Plus 1 Tháng</h3>
+                    <div class="product-price">200,000đ</div>
+                    <div class="stock-indicator out-of-stock">
+                        <i class="fas fa-times-circle"></i> Hết hàng
+                    </div>
+                    <div class="product-meta">
+                        <div class="product-rating">
+                            <i class="fas fa-star"></i>
+                            <span>4.8</span>
+                        </div>
+                        <span class="product-sold">Đã bán 234</span>
+                    </div>
+                    <div class="product-actions-home">
+                        <button class="btn-add-to-cart-home" disabled>
+                            <i class="fas fa-shopping-cart"></i>
+                            <span>Hết hàng</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feature List -->
+        <div style="background: #f8f9fa; padding: 2rem; border-radius: 12px; margin: 2rem 0;">
+            <h3>🎯 Tính năng đã tích hợp:</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                <div>
+                    <h4>✅ Stock Real-time</h4>
+                    <ul>
+                        <li>Số lượng còn lại</li>
+                        <li>Cập nhật mỗi 30s</li>
+                        <li>Urgency badges</li>
+                        <li>Auto disable khi hết</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>⏰ Flash Sale Countdown</h4>
+                    <ul>
+                        <li>Đếm ngược real-time</li>
+                        <li>Giá gốc gạch ngang</li>
+                        <li>Animation effects</li>
+                        <li>Auto expire</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>🖼️ Product Previews</h4>
+                    <ul>
+                        <li>Ảnh demo blurred</li>
+                        <li>Click để xem modal</li>
+                        <li>Multiple thumbnails</li>
+                        <li>Unlock overlay</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>💬 Live Chat</h4>
+                    <ul>
+                        <li>Floating button</li>
+                        <li>Unread indicator</li>
+                        <li>Bounce animation</li>
+                        <li>Mobile responsive</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin: 2rem 0;">
+            <a href="index.html" class="btn-primary">← Quay lại trang chủ</a>
+        </div>
+    </div>
+
+    <script src="stock-manager.js"></script>
+    <script>
+        // Demo countdown for flash sale
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set demo end time (24 hours from now)
+            const endTime = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+            
+            if (window.stockManager) {
+                stockManager.initFlashSaleCountdown(endTime, 'countdown-demo-1');
+            }
+        });
+    </script>
+
+    <style>
+        .demo-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .demo-card h4 {
+            margin: 0 0 1rem 0;
+            color: #333;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+    </style>
+</body>
+</html>

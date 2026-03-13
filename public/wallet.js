@@ -1,4 +1,4 @@
-// Wallet.js - Quản lý ví tiền
+// Wallet.js - Quản lý nạp tiền
 
 // Load wallet info
 async function loadWalletInfo() {
@@ -274,7 +274,7 @@ function checkWalletAuth() {
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
     
     if (!authToken || !currentUser) {
-        showNotification('Vui lòng đăng nhập để xem ví tiền!', 'error');
+        showNotification('Vui lòng đăng nhập để nạp tiền!', 'error');
         setTimeout(() => {
             window.location.href = 'index.html';
         }, 1500);

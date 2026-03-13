@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Add to Cart</title>
+    <link rel="stylesheet" href="style.css?v=3.0">
+    <link rel="stylesheet" href="products-improved.css?v=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container" style="padding: 40px 0;">
+        <h1>Test Nút Thêm Giỏ Hàng</h1>
+        
+        <div class="products-grid-explore" id="testGrid" style="max-width: 800px;">
+            <!-- Products will be loaded here -->
+        </div>
+        
+        <div style="margin-top: 30px; padding: 20px; background: #f0f0f0; border-radius: 10px;">
+            <h3>Giỏ hàng hiện tại:</h3>
+            <div id="cartDisplay"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Test products
+        const testProducts = [
+            {
+                id: 'test-1',
+                name: 'Test Product 1',
+                price: 50000,
+                image: 'https://via.placeholder.com/300',
+                badge: 'HOT',
+                sold: 100,
+                rating: 5.0
+            },
+            {
+                id: 'test-2',
+                name: 'Test Product 2',
+                price: 75000,
+                oldPrice: 100000,
+                image: 'https://via.placeholder.com/300',
+                badge: 'SALE',
+                sold: 50,
+                rating: 4.8
+            }
+        ];
+        
+        // Override products array for testing
+        products = testProducts;
+        
+        // Render test products
+        function renderTestProducts() {
+            const container = document.getElementById('testGrid');
+            
+            testProducts.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'product-card-explore';
+                
+                card.innerHTML = `
+                    <div class="product-image-explore">
+                        <img src="${product.image}" alt="${product.name}">
+                        <span class="badge-explore ${product.badge.toLowerCase()}">${product.badge}</span>
+                    </div>
+                    <div class="product-info-explore">
+                        <h3 class="product-name-explore">${product.name}</h3>
+                        <div class="product-price-explore">
+                            <span class="price-current">${product.price.toLocaleString('vi-VN')}đ</span>
+                            ${product.oldPrice ? `<span class="price-old">${product.oldPrice.toLocaleString('vi-VN')}đ</span>` : ''}
+                        </div>
+                        <div class="product-meta-explore">
+                            <div class="rating-explore">
+                                <i class="fas fa-star"></i>
+                                <span>${product.rating}</span>
+                            </div>
+                            <span class="sold-explore">Đã bán ${product.sold}</span>
+                        </div>
+                        <div class="product-vendor-explore">
+                            <img src="https://ui-avatars.com/api/?name=Test&background=667eea&color=fff&size=32" alt="Vendor">
+                            <span>Test Vendor</span>
+                        </div>
+                        <div class="product-actions-explore">
+                            <button class="btn-add-to-cart-explore" onclick="testAddToCart('${product.id}')">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span>Thêm giỏ hàng</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+        
+        // Test add to cart function
+        function testAddToCart(productId) {
+            console.log('Test add to cart:', productId);
+            
+            // Check if user is logged in
+            const currentUser = localStorage.getItem('currentUser');
+            if (!currentUser) {
+                alert('Vui lòng đăng nhập để test! (Tạm thời tôi sẽ tạo user giả)');
+                // Create fake user for testing
+                localStorage.setItem('currentUser', JSON.stringify({id: 'test-user', name: 'Test User'}));
+                localStorage.setItem('authToken', 'test-token');
+            }
+            
+            // Call the real addToCart function
+            addToCart(productId);
+            
+            // Update display
+            updateCartDisplay();
+        }
+        
+        // Update cart display
+        function updateCartDisplay() {
+            const display = document.getElementById('cartDisplay');
+            const currentCart = JSON.parse(localStorage.getItem('cart')) || [];
+            
+            if (currentCart.length === 0) {
+                display.innerHTML = '<p>Giỏ hàng trống</p>';
+            } else {
+                display.innerHTML = '<ul>' + currentCart.map(item => 
+                    `<li>${item.name} - ${item.price.toLocaleString('vi-VN')}đ x ${item.quantity}</li>`
+                ).join('') + '</ul>';
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTestProducts();
+            updateCartDisplay();
+        });
+    </script>
+</body>
+</html>

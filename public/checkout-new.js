@@ -34,6 +34,11 @@ document.addEventListener('DOMContentLoaded', function() {
     loadCheckoutData();
     updateAllSummaries();
     checkLoginStatus(); // Cập nhật trạng thái đăng nhập
+    
+    // Load payment methods
+    if (typeof loadPaymentMethods === 'function') {
+        loadPaymentMethods();
+    }
 });
 
 async function loadCheckoutData() {
@@ -121,16 +126,37 @@ function updateAllSummaries() {
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     
+    // Calculate discount
+    let discount = 0;
+    if (appliedVoucherData) {
+        discount = appliedVoucherData.discountAmount || 0;
+    }
+    
+    const total = subtotal - discount;
+    
     // Update all summary sections
     for (let i = 1; i <= 2; i++) {
         const countEl = document.getElementById(`summaryCount${i}`);
         const subtotalEl = document.getElementById(`summarySubtotal${i}`);
+        const discountRowEl = document.getElementById(`discountRow${i}`);
+        const discountEl = document.getElementById(`summaryDiscount${i}`);
         const totalEl = document.getElementById(`summaryTotal${i}`);
         const productsEl = document.getElementById(`summaryProducts${i}`);
         
         if (countEl) countEl.textContent = totalItems;
         if (subtotalEl) subtotalEl.textContent = formatPrice(subtotal);
-        if (totalEl) totalEl.textContent = formatPrice(subtotal);
+        
+        // Show/hide discount row
+        if (discountRowEl && discountEl) {
+            if (discount > 0) {
+                discountRowEl.style.display = 'flex';
+                discountEl.textContent = '-' + formatPrice(discount);
+            } else {
+                discountRowEl.style.display = 'none';
+            }
+        }
+        
+        if (totalEl) totalEl.textContent = formatPrice(total);
         
         if (productsEl) {
             productsEl.innerHTML = cart.slice(0, 4).map(item => `
@@ -143,7 +169,16 @@ function updateAllSummaries() {
 }
 
 function checkBalance() {
-    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    
+    // Calculate discount
+    let discount = 0;
+    if (appliedVoucherData) {
+        discount = appliedVoucherData.discountAmount || 0;
+    }
+    
+    const total = subtotal - discount;
+    
     const balanceEl = document.getElementById('walletBalance');
     const warningEl = document.getElementById('balanceWarning');
     const needAmountEl = document.getElementById('needAmount');
@@ -169,12 +204,31 @@ async function goToStep(step) {
         return;
     }
     
+    if (step === 2) {
+        // Load payment methods when entering step 2
+        if (typeof loadPaymentMethods === 'function') {
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const discount = appliedVoucherData ? (appliedVoucherData.discountAmount || 0) : 0;
+            const total = subtotal - discount;
+            loadPaymentMethods(total, userBalance);
+        }
+    }
+    
     if (step === 3) {
-        // Check balance before proceeding
-        const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        if (userBalance < total) {
-            alert('Số dư không đủ! Vui lòng nạp thêm tiền.');
-            return;
+        // Get selected payment method
+        const selectedMethod = window.selectedPaymentMethod || 'wallet';
+        
+        // Calculate final total with discount
+        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const discount = appliedVoucherData ? (appliedVoucherData.discountAmount || 0) : 0;
+        const total = subtotal - discount;
+        
+        // Check balance only for wallet payment
+        if (selectedMethod === 'wallet') {
+            if (userBalance < total) {
+                alert('Số dư không đủ! Vui lòng nạp thêm tiền hoặc chọn phương thức thanh toán khác.');
+                return;
+            }
         }
         
         // Process payment
@@ -208,8 +262,12 @@ async function goToStep(step) {
 
 async function processPayment() {
     try {
-        const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const discount = appliedVoucherData ? (appliedVoucherData.discountAmount || 0) : 0;
+        const total = subtotal - discount;
+        
         const authToken = localStorage.getItem('authToken');
+        const selectedMethod = window.selectedPaymentMethod || 'wallet';
         
         // Prepare order items
         const items = cart.map(item => ({
@@ -219,18 +277,54 @@ async function processPayment() {
             quantity: item.quantity || 1
         }));
         
-        // Call API to create order
+        // Handle different payment methods
+        if (selectedMethod === 'vnpay' || selectedMethod === 'momo') {
+            // Create payment request
+            const response = await fetch(`/api/payment/${selectedMethod}/create`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify({
+                    amount: total,
+                    orderInfo: `Thanh toán đơn hàng HangHoaMMO`,
+                    items: items
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // Redirect to payment gateway
+                window.location.href = result.data.paymentUrl;
+            } else {
+                alert(result.message || 'Lỗi khi tạo thanh toán!');
+            }
+            return;
+        }
+        
+        // Wallet payment (default)
+        const orderData = {
+            items: items,
+            total_amount: total,
+            payment_method: 'wallet'
+        };
+        
+        // Include voucher if applied
+        if (appliedVoucherData && appliedVoucherData.voucher) {
+            orderData.voucher_id = appliedVoucherData.voucher.id;
+            orderData.voucher_code = appliedVoucherData.voucher.code;
+            orderData.discount_amount = appliedVoucherData.discountAmount;
+        }
+        
         const response = await fetch('/api/orders/create', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${authToken}`
             },
-            body: JSON.stringify({
-                items: items,
-                total_amount: total,
-                payment_method: 'wallet'
-            })
+            body: JSON.stringify(orderData)
         });
         
         const result = await response.json();
@@ -331,4 +425,85 @@ function continueShopping() {
 
 function formatPrice(price) {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+}
+
+
+// ============================================
+// VOUCHER FUNCTIONS
+// ============================================
+
+let appliedVoucherData = null;
+
+async function applyVoucher() {
+    const code = document.getElementById('voucherCodeInput').value.trim().toUpperCase();
+    const resultEl = document.getElementById('voucherResult');
+    
+    if (!code) {
+        resultEl.style.display = 'block';
+        resultEl.className = 'voucher-result error';
+        resultEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Vui lòng nhập mã giảm giá';
+        return;
+    }
+    
+    try {
+        const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const productIds = cart.map(item => item.id);
+        const authToken = localStorage.getItem('authToken');
+        
+        const response = await fetch('/api/vouchers/validate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            },
+            body: JSON.stringify({
+                code: code,
+                orderAmount: total,
+                productIds: productIds
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            appliedVoucherData = result.data;
+            
+            // Show success
+            resultEl.style.display = 'block';
+            resultEl.className = 'voucher-result success';
+            resultEl.innerHTML = `<i class="fas fa-check-circle"></i> ${result.message}`;
+            
+            // Show applied voucher
+            document.getElementById('appliedVoucherCode').textContent = code;
+            document.getElementById('appliedVoucherDiscount').textContent = formatPrice(result.data.discountAmount);
+            document.getElementById('appliedVoucher').style.display = 'block';
+            
+            // Update summary and balance check
+            updateAllSummaries();
+            checkBalance();
+            
+            // Hide input and clear
+            document.getElementById('voucherCodeInput').value = '';
+            setTimeout(() => {
+                resultEl.style.display = 'none';
+            }, 3000);
+        } else {
+            resultEl.style.display = 'block';
+            resultEl.className = 'voucher-result error';
+            resultEl.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${result.message}`;
+        }
+    } catch (error) {
+        console.error('Apply voucher error:', error);
+        resultEl.style.display = 'block';
+        resultEl.className = 'voucher-result error';
+        resultEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Lỗi kết nối!';
+    }
+}
+
+function removeVoucher() {
+    appliedVoucherData = null;
+    document.getElementById('appliedVoucher').style.display = 'none';
+    document.getElementById('voucherCodeInput').value = '';
+    updateAllSummaries();
+    checkBalance();
 }

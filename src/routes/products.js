@@ -2,11 +2,54 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/database');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
+const { supabase } = require('../config/supabase');
 
-// Lấy tất cả sản phẩm (public)
+// Lấy tất cả sản phẩm (public) - có tính giá theo tier nếu đăng nhập
 router.get('/', async (req, res) => {
     try {
         const products = await db.getAllProducts();
+        
+        // Nếu có token, tính giá theo tier
+        const authHeader = req.headers.authorization;
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            try {
+                const token = authHeader.substring(7);
+                const jwt = require('jsonwebtoken');
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                
+                // Lấy tier của user
+                const { data: userData } = await supabase
+                    .from('users')
+                    .select('user_tier')
+                    .eq('id', decoded.userId)
+                    .single();
+                
+                if (userData) {
+                    // Lấy discount percent của tier
+                    const { data: tierData } = await supabase
+                        .from('tier_config')
+                        .select('discount_percent')
+                        .eq('tier_name', userData.user_tier)
+                        .single();
+                    
+                    if (tierData && tierData.discount_percent > 0) {
+                        // Áp dụng discount cho tất cả sản phẩm
+                        products.forEach(product => {
+                            const originalPrice = product.price;
+                            const discountAmount = originalPrice * tierData.discount_percent / 100;
+                            product.original_price = originalPrice;
+                            product.price = originalPrice - discountAmount;
+                            product.discount_percent = tierData.discount_percent;
+                            product.savings = discountAmount;
+                        });
+                    }
+                }
+            } catch (tokenError) {
+                // Token không hợp lệ, bỏ qua việc tính discount
+                console.log('Invalid token for pricing:', tokenError.message);
+            }
+        }
+        
         res.json({
             success: true,
             data: products
@@ -20,7 +63,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-// Lấy chi tiết sản phẩm (public)
+// Lấy chi tiết sản phẩm (public) - có tính giá theo tier nếu đăng nhập
 router.get('/:id', async (req, res) => {
     try {
         const product = await db.getProductById(req.params.id);
@@ -30,6 +73,46 @@ router.get('/:id', async (req, res) => {
                 message: 'Không tìm thấy sản phẩm'
             });
         }
+        
+        // Nếu có token, tính giá theo tier
+        const authHeader = req.headers.authorization;
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            try {
+                const token = authHeader.substring(7);
+                const jwt = require('jsonwebtoken');
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                
+                // Lấy tier của user
+                const { data: userData } = await supabase
+                    .from('users')
+                    .select('user_tier')
+                    .eq('id', decoded.userId)
+                    .single();
+                
+                if (userData) {
+                    // Lấy discount percent của tier
+                    const { data: tierData } = await supabase
+                        .from('tier_config')
+                        .select('discount_percent')
+                        .eq('tier_name', userData.user_tier)
+                        .single();
+                    
+                    if (tierData && tierData.discount_percent > 0) {
+                        // Áp dụng discount
+                        const originalPrice = product.price;
+                        const discountAmount = originalPrice * tierData.discount_percent / 100;
+                        product.original_price = originalPrice;
+                        product.price = originalPrice - discountAmount;
+                        product.discount_percent = tierData.discount_percent;
+                        product.savings = discountAmount;
+                    }
+                }
+            } catch (tokenError) {
+                // Token không hợp lệ, bỏ qua việc tính discount
+                console.log('Invalid token for pricing:', tokenError.message);
+            }
+        }
+        
         res.json({
             success: true,
             data: product

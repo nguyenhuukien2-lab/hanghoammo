@@ -1,4 +1,7 @@
 // Initialize
+const SUPABASE_URL = 'https://wjqahsmislryiuqfmyux.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqcWFoc21pc2xyeWl1cWZteXV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzk2MzgsImV4cCI6MjA4ODU1NTYzOH0.lmWlhC_iyfkS9brC23G_dulQhaC56YCTQtQfg93YGDk';
+
 document.addEventListener('DOMContentLoaded', async function() {
     // Check if already logged in
     const authToken = localStorage.getItem('authToken');
@@ -35,6 +38,7 @@ function setupAdminLogin() {
         errorMsg.style.display = 'none';
         
         try {
+            console.log('Sending login request...');
             const response = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: {
@@ -43,7 +47,9 @@ function setupAdminLogin() {
                 body: JSON.stringify({ email, password })
             });
             
+            console.log('Response status:', response.status);
             const result = await response.json();
+            console.log('Response data:', result);
             
             if (!result.success) {
                 throw new Error(result.message);
@@ -67,6 +73,7 @@ function setupAdminLogin() {
             loadSettings();
             
         } catch (error) {
+            console.error('Login error:', error);
             errorMsg.textContent = error.message;
             errorMsg.style.display = 'block';
         } finally {
@@ -179,8 +186,11 @@ function showSection(sectionId) {
         'accounts': 'Quản lý tài khoản',
         'orders': 'Quản lý đơn hàng',
         'customers': 'Quản lý khách hàng',
+        'vouchers': 'Quản lý Vouchers',
+        'analytics': 'Analytics & Thống kê',
         'deposits': 'Quản lý nạp tiền',
         'chat': 'Quản lý Chat',
+        'ai-chatbot': 'AI Chatbot Analytics',
         'notifications': 'Quản lý thông báo',
         'settings': 'Cài đặt hệ thống'
     };
@@ -195,6 +205,10 @@ function showSection(sectionId) {
     } else if (sectionId === 'chat') {
         loadConversations();
         startAdminChatRefresh();
+    } else if (sectionId === 'vouchers') {
+        loadVouchers();
+    } else if (sectionId === 'analytics') {
+        loadAnalytics();
     } else {
         stopAdminChatRefresh();
     }
@@ -384,17 +398,34 @@ function closeProductModal() {
     document.getElementById('productModal').classList.remove('active');
 }
 
-function saveProduct() {
+async function saveProduct() {
     const productId = document.getElementById('editProductId').value;
     const name = document.getElementById('productName').value;
     const category = document.getElementById('productCategory').value;
     const price = parseInt(document.getElementById('productPrice').value);
     const sold = parseInt(document.getElementById('productSold').value);
     const badge = document.getElementById('productBadge').value;
-    const image = document.getElementById('productImage').value;
+    let image = document.getElementById('productImage').value;
+    const imageFile = document.getElementById('productImageFile').files[0];
     
-    if (!name || !price || !image) {
+    if (!name || !price) {
         alert('Vui lòng điền đầy đủ thông tin!');
+        return;
+    }
+    
+    // Upload image if file is selected
+    if (imageFile) {
+        try {
+            const uploadedUrl = await uploadImageToSupabase(imageFile);
+            image = uploadedUrl;
+        } catch (error) {
+            alert('Lỗi upload ảnh: ' + error.message);
+            return;
+        }
+    }
+    
+    if (!image) {
+        alert('Vui lòng chọn ảnh hoặc nhập URL ảnh!');
         return;
     }
     
@@ -445,6 +476,56 @@ function deleteProduct(productId) {
     loadDashboard();
     alert('Xóa sản phẩm thành công!');
 }
+
+// Upload image to Supabase Storage
+async function uploadImageToSupabase(file) {
+    const fileName = `product-${Date.now()}-${file.name}`;
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('fileName', fileName);
+    
+    try {
+        const response = await fetch('/api/upload-image', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            },
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (!result.success) {
+            throw new Error(result.message || 'Upload failed');
+        }
+        
+        return result.url;
+    } catch (error) {
+        console.error('Upload error:', error);
+        throw error;
+    }
+}
+
+// Preview image when selected
+document.addEventListener('DOMContentLoaded', function() {
+    const imageInput = document.getElementById('productImageFile');
+    if (imageInput) {
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById('imageFileName').textContent = file.name;
+                
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('previewImg').src = e.target.result;
+                    document.getElementById('imagePreview').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+});
 
 // Orders Management
 async function loadOrders() {
@@ -1854,3 +1935,201 @@ showSection = function(sectionId) {
         setTimeout(addRefreshButton, 100);
     }
 };
+
+
+// ============================================
+// VOUCHERS MANAGEMENT
+// ============================================
+
+async function loadVouchers() {
+    try {
+        const response = await apiRequest('/vouchers/admin/all');
+        const vouchers = response.data || [];
+        
+        const tbody = document.getElementById('vouchersTable');
+        if (vouchers.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" class="text-center">Chưa có voucher</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = vouchers.map(v => `
+            <tr>
+                <td><strong>${v.code}</strong></td>
+                <td>${v.type === 'percentage' ? 'Phần trăm' : 'Số tiền'}</td>
+                <td><strong>${v.type === 'percentage' ? v.value + '%' : formatPrice(v.value)}</strong></td>
+                <td>${v.usage_limit || 'Không giới hạn'}</td>
+                <td>${v.used_count || 0}</td>
+                <td>${formatDate(v.end_date)}</td>
+                <td><span class="status-badge status-${v.status === 'active' ? 'completed' : 'cancelled'}">${v.status === 'active' ? 'Hoạt động' : 'Vô hiệu'}</span></td>
+                <td>
+                    <button class="btn-primary btn-sm" onclick="editVoucher('${v.id}')" title="Sửa">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-danger btn-sm" onclick="deleteVoucher('${v.id}')" title="Xóa">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    } catch (error) {
+        console.error('Load vouchers error:', error);
+        const tbody = document.getElementById('vouchersTable');
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center" style="color: red;">Lỗi tải vouchers</td></tr>';
+    }
+}
+
+function openVoucherModal(voucherId = null) {
+    const modalHTML = `
+        <div class="modal active" id="voucherModal">
+            <div class="modal-content" style="max-width: 600px;">
+                <span class="modal-close" onclick="closeVoucherModal()">&times;</span>
+                <h2>${voucherId ? 'Sửa Voucher' : 'Tạo Voucher Mới'}</h2>
+                <form id="voucherForm" onsubmit="saveVoucher(event, ${voucherId})">
+                    <div class="form-group">
+                        <label>Mã Voucher</label>
+                        <input type="text" id="voucherCode" required placeholder="VD: SUMMER2025">
+                    </div>
+                    <div class="form-group">
+                        <label>Loại giảm giá</label>
+                        <select id="voucherType" required>
+                            <option value="percentage">Phần trăm (%)</option>
+                            <option value="fixed">Số tiền cố định (đ)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Giá trị giảm</label>
+                        <input type="number" id="voucherValue" required placeholder="VD: 10 hoặc 50000">
+                    </div>
+                    <div class="form-group">
+                        <label>Số lượng tối đa (để trống = không giới hạn)</label>
+                        <input type="number" id="voucherMaxUses" placeholder="VD: 100">
+                    </div>
+                    <div class="form-group">
+                        <label>Ngày hết hạn</label>
+                        <input type="datetime-local" id="voucherExpires" required>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="voucherActive" checked>
+                            Kích hoạt ngay
+                        </label>
+                    </div>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i> Lưu Voucher
+                    </button>
+                </form>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+function closeVoucherModal() {
+    const modal = document.getElementById('voucherModal');
+    if (modal) modal.remove();
+}
+
+async function saveVoucher(event, voucherId = null) {
+    event.preventDefault();
+    
+    const code = document.getElementById('voucherCode').value;
+    const discountType = document.getElementById('voucherType').value;
+    const discountValue = parseFloat(document.getElementById('voucherValue').value);
+    const maxUses = document.getElementById('voucherMaxUses').value;
+    const expiresAt = document.getElementById('voucherExpires').value;
+    const isActive = document.getElementById('voucherActive').checked;
+    
+    try {
+        const endpoint = voucherId ? `/vouchers/admin/${voucherId}` : '/vouchers/admin/create';
+        const method = voucherId ? 'PUT' : 'POST';
+        
+        const response = await apiRequest(endpoint, {
+            method,
+            body: JSON.stringify({
+                code,
+                discount_type: discountType,
+                discount_value: discountValue,
+                max_uses: maxUses ? parseInt(maxUses) : null,
+                expires_at: expiresAt,
+                is_active: isActive
+            })
+        });
+        
+        showNotification(voucherId ? 'Cập nhật voucher thành công!' : 'Tạo voucher thành công!');
+        closeVoucherModal();
+        loadVouchers();
+    } catch (error) {
+        alert('Lỗi: ' + error.message);
+    }
+}
+
+async function deleteVoucher(voucherId) {
+    if (!confirm('Bạn có chắc muốn xóa voucher này?')) return;
+    
+    try {
+        await apiRequest(`/vouchers/admin/${voucherId}`, { method: 'DELETE' });
+        showNotification('Xóa voucher thành công!');
+        loadVouchers();
+    } catch (error) {
+        alert('Lỗi: ' + error.message);
+    }
+}
+
+// ============================================
+// ANALYTICS MANAGEMENT
+// ============================================
+
+async function loadAnalytics() {
+    try {
+        const response = await apiRequest('/analytics/stats');
+        const stats = response.data || {};
+        
+        document.getElementById('analyticsPageViews').textContent = stats.totalPageViews || 0;
+        document.getElementById('analyticsUniqueVisitors').textContent = stats.uniqueVisitors || 0;
+        document.getElementById('analyticsEvents').textContent = stats.totalEvents || 0;
+        document.getElementById('analyticsAvgTime').textContent = stats.avgTimeOnSite || 0;
+        
+        // Top pages
+        if (stats.topPages && stats.topPages.length > 0) {
+            const topPagesHTML = stats.topPages.map((page, index) => `
+                <div style="display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee;">
+                    <div>
+                        <strong>${index + 1}. ${page.page_url}</strong>
+                        <div style="color: #999; font-size: 12px;">${page.page_title || 'N/A'}</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <strong>${page.views}</strong> lượt xem
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('analyticsTopPages').innerHTML = topPagesHTML;
+        } else {
+            document.getElementById('analyticsTopPages').innerHTML = '<p style="text-align: center; color: #999;">Chưa có dữ liệu</p>';
+        }
+        
+        // Recent events
+        const eventsResponse = await apiRequest('/analytics/events?limit=10');
+        const events = eventsResponse.data || [];
+        
+        if (events.length > 0) {
+            const eventsHTML = events.map(event => `
+                <div style="display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee;">
+                    <div>
+                        <strong>${event.event_type}</strong>
+                        <div style="color: #999; font-size: 12px;">${event.page_url}</div>
+                    </div>
+                    <div style="text-align: right; color: #999; font-size: 12px;">
+                        ${formatDate(event.created_at)}
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('analyticsRecentEvents').innerHTML = eventsHTML;
+        } else {
+            document.getElementById('analyticsRecentEvents').innerHTML = '<p style="text-align: center; color: #999;">Chưa có sự kiện</p>';
+        }
+    } catch (error) {
+        console.error('Load analytics error:', error);
+        showNotification('Không thể tải analytics: ' + error.message, 'error');
+    }
+}

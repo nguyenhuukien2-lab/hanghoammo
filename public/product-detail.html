@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chi tiết sản phẩm - HangHoaMMO</title>
-    <link rel="stylesheet" href="style.css?v=2.0">
+    <link rel="stylesheet" href="style.css?v=5.5">
+    <link rel="stylesheet" href="reviews-wishlist.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -42,13 +43,32 @@
                     </div>
 
                     <div class="header-right">
-                        <a href="blog.html" class="btn-icon-text">
+                        <button class="btn-icon-text">
                             <i class="fas fa-blog"></i>
                             <span>Blogs</span>
-                        </a>
-                        <button class="btn-icon" onclick="toggleDarkMode()" title="Chế độ tối">
-                            <i class="fas fa-moon"></i>
                         </button>
+                        <div class="theme-toggle-wrapper">
+                            <button class="btn-icon btn-theme-toggle" onclick="toggleThemeMenu()" title="Chế độ hiển thị">
+                                <i class="fas fa-desktop"></i>
+                            </button>
+                            <div class="theme-menu" id="themeMenu">
+                                <div class="theme-option active" data-theme="system" onclick="setTheme('system')">
+                                    <i class="fas fa-desktop"></i>
+                                    <span>Hệ thống</span>
+                                    <i class="fas fa-check theme-check"></i>
+                                </div>
+                                <div class="theme-option" data-theme="light" onclick="setTheme('light')">
+                                    <i class="fas fa-sun"></i>
+                                    <span>Sáng</span>
+                                    <i class="fas fa-check theme-check"></i>
+                                </div>
+                                <div class="theme-option" data-theme="dark" onclick="setTheme('dark')">
+                                    <i class="fas fa-moon"></i>
+                                    <span>Tối</span>
+                                    <i class="fas fa-check theme-check"></i>
+                                </div>
+                            </div>
+                        </div>
                         <!-- Show when not logged in -->
                         <div id="authButtons">
                             <button class="btn-auth login" onclick="openAuthModal('login')">
@@ -147,6 +167,9 @@
                             <button class="btn-buy-now" onclick="buyNow()">
                                 Mua ngay
                             </button>
+                            <button class="btn-wishlist" id="wishlistBtn" onclick="toggleWishlistFromDetail()">
+                                <i class="far fa-heart"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -159,6 +182,21 @@
                             <p>Đang tải thông tin sản phẩm...</p>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Reviews Section -->
+            <div class="reviews-section">
+                <div class="reviews-header">
+                    <h2><i class="fas fa-star"></i> Đánh giá sản phẩm</h2>
+                    <button class="btn-write-review" onclick="openReviewModal()">
+                        <i class="fas fa-edit"></i> Viết đánh giá
+                    </button>
+                </div>
+                
+                <div class="reviews-content">
+                    <div id="reviewStats" class="review-stats"></div>
+                    <div id="reviewsList" class="reviews-list"></div>
                 </div>
             </div>
 
@@ -196,7 +234,39 @@
         </div>
     </div>
 
+    <!-- Review Modal -->
+    <div class="modal" id="reviewModal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeReviewModal()">&times;</span>
+            <h2>Viết đánh giá</h2>
+            <form id="reviewForm" onsubmit="submitReview(event)">
+                <div class="form-group">
+                    <label>Đánh giá của bạn *</label>
+                    <div class="rating-input">
+                        <input type="radio" name="rating" value="5" id="star5">
+                        <label for="star5"><i class="fas fa-star"></i></label>
+                        <input type="radio" name="rating" value="4" id="star4">
+                        <label for="star4"><i class="fas fa-star"></i></label>
+                        <input type="radio" name="rating" value="3" id="star3">
+                        <label for="star3"><i class="fas fa-star"></i></label>
+                        <input type="radio" name="rating" value="2" id="star2">
+                        <label for="star2"><i class="fas fa-star"></i></label>
+                        <input type="radio" name="rating" value="1" id="star1">
+                        <label for="star1"><i class="fas fa-star"></i></label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="reviewComment">Nhận xét</label>
+                    <textarea id="reviewComment" rows="5" placeholder="Chia sẻ trải nghiệm của bạn..."></textarea>
+                </div>
+                <button type="submit" class="btn-submit">Gửi đánh giá</button>
+            </form>
+        </div>
+    </div>
+
     <script src="script.js"></script>
+    <script src="reviews.js"></script>
+    <script src="wishlist.js"></script>
     <script>
         // Load product detail on page load
         document.addEventListener('DOMContentLoaded', async function() {
@@ -209,9 +279,33 @@
             
             await loadProducts();
             updateCartCount();
-            checkLoginStatus(); // Cập nhật trạng thái đăng nhập
+            checkLoginStatus();
             loadProductDetail();
+            
+            // Load reviews
+            const productId = new URLSearchParams(window.location.search).get('id');
+            if (productId) {
+                loadReviews(productId);
+                checkWishlistStatusForProduct(productId);
+            }
         });
+        
+        // Toggle wishlist from detail page
+        async function toggleWishlistFromDetail() {
+            const productId = new URLSearchParams(window.location.search).get('id');
+            const button = document.getElementById('wishlistBtn');
+            await toggleWishlist(productId, button);
+        }
+        
+        // Check wishlist status for current product
+        async function checkWishlistStatusForProduct(productId) {
+            const isInWishlist = await checkWishlistStatus(productId);
+            const button = document.getElementById('wishlistBtn');
+            if (button && isInWishlist) {
+                button.classList.add('active');
+                button.innerHTML = '<i class="fas fa-heart"></i>';
+            }
+        }
     </script>
 </body>
 </html>

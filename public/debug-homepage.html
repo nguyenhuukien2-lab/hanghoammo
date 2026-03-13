@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Homepage Products</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .debug-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        .product-card { border: 1px solid #ccc; padding: 10px; margin: 10px 0; }
+        .error { color: red; }
+        .success { color: green; }
+        .info { color: blue; }
+    </style>
+</head>
+<body>
+    <h1>Debug Homepage Products</h1>
+    
+    <div class="debug-section">
+        <h2>API Tests</h2>
+        <div id="apiResults"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>Sample Products Test</h2>
+        <div id="sampleResults"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>Products Display</h2>
+        <div id="productsDisplay"></div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        async function debugAPIs() {
+            const results = document.getElementById('apiResults');
+            results.innerHTML = '<p>Testing APIs...</p>';
+            
+            let html = '';
+            
+            // Test stock API
+            try {
+                const stockResponse = await fetch('/api/stock/products');
+                const stockResult = await stockResponse.json();
+                
+                if (stockResult.success) {
+                    html += `<p class="success">✅ Stock API: ${stockResult.data.length} products</p>`;
+                } else {
+                    html += `<p class="error">❌ Stock API failed: ${stockResult.message}</p>`;
+                }
+            } catch (error) {
+                html += `<p class="error">❌ Stock API error: ${error.message}</p>`;
+            }
+            
+            // Test regular products API
+            try {
+                const productsResponse = await fetch('/api/products');
+                const productsResult = await productsResponse.json();
+                
+                if (productsResult.success) {
+                    html += `<p class="success">✅ Products API: ${productsResult.data.length} products</p>`;
+                } else {
+                    html += `<p class="error">❌ Products API failed: ${productsResult.message}</p>`;
+                }
+            } catch (error) {
+                html += `<p class="error">❌ Products API error: ${error.message}</p>`;
+            }
+            
+            results.innerHTML = html;
+        }
+        
+        function debugSampleProducts() {
+            const results = document.getElementById('sampleResults');
+            
+            if (typeof getSampleProducts === 'function') {
+                const samples = getSampleProducts();
+                results.innerHTML = `<p class="success">✅ getSampleProducts found: ${samples.length} products</p>`;
+                
+                samples.forEach((product, index) => {
+                    results.innerHTML += `<div class="product-card">
+                        <strong>${product.name}</strong><br>
+                        Price: ${product.price.toLocaleString('vi-VN')}đ<br>
+                        Stock: ${product.stock} (${product.stock_display})<br>
+                        Category: ${product.category}
+                    </div>`;
+                });
+            } else {
+                results.innerHTML = '<p class="error">❌ getSampleProducts not found</p>';
+            }
+        }
+        
+        async function debugProductsLoad() {
+            const display = document.getElementById('productsDisplay');
+            display.innerHTML = '<p>Loading products...</p>';
+            
+            try {
+                // Simulate the loadProducts function
+                const token = localStorage.getItem('token');
+                const headers = {};
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+                
+                let products = [];
+                
+                // Try stock API first
+                try {
+                    const response = await fetch('/api/stock/products', { headers });
+                    const result = await response.json();
+                    
+                    if (result.success && result.data && result.data.length > 0) {
+                        products = result.data;
+                        display.innerHTML = `<p class="success">✅ Loaded ${products.length} products from stock API</p>`;
+                    } else {
+                        throw new Error('Stock API returned no products');
+                    }
+                } catch (stockError) {
+                    display.innerHTML += `<p class="info">⚠️ Stock API failed: ${stockError.message}</p>`;
+                    
+                    // Try regular API
+                    try {
+                        const response = await fetch('/api/products', { headers });
+                        const result = await response.json();
+                        
+                        if (result.success && result.data && result.data.length > 0) {
+                            products = result.data;
+                            display.innerHTML += `<p class="success">✅ Loaded ${products.length} products from regular API</p>`;
+                        } else {
+                            throw new Error('Regular API returned no products');
+                        }
+                    } catch (regularError) {
+                        display.innerHTML += `<p class="info">⚠️ Regular API failed: ${regularError.message}</p>`;
+                        
+                        // Use sample products
+                        if (typeof getSampleProducts === 'function') {
+                            products = getSampleProducts();
+                            display.innerHTML += `<p class="success">✅ Loaded ${products.length} sample products</p>`;
+                        } else {
+                            display.innerHTML += `<p class="error">❌ No fallback available</p>`;
+                        }
+                    }
+                }
+                
+                // Display first few products
+                if (products.length > 0) {
+                    display.innerHTML += '<h3>First 3 products:</h3>';
+                    products.slice(0, 3).forEach(product => {
+                        display.innerHTML += `<div class="product-card">
+                            <strong>${product.name}</strong><br>
+                            Price: ${product.price.toLocaleString('vi-VN')}đ<br>
+                            Stock: ${product.stock || 'N/A'}<br>
+                            Category: ${product.category}
+                        </div>`;
+                    });
+                }
+                
+            } catch (error) {
+                display.innerHTML += `<p class="error">❌ Debug failed: ${error.message}</p>`;
+            }
+        }
+        
+        // Run tests when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            debugAPIs();
+            debugSampleProducts();
+            debugProductsLoad();
+        });
+    </script>
+</body>
+</html>

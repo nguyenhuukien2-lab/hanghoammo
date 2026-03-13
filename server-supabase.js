@@ -14,40 +14,55 @@ app.use(helmet({
     crossOriginEmbedderPolicy: false
 }));
 
-// Rate limiting
+// Rate limiting - TẠM THỜI TẮT KHI TEST
 const generalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // Limit each IP to 100 requests per windowMs
+    max: process.env.NODE_ENV === 'development' ? 10000 : 100, // Rất cao khi development
     message: {
         success: false,
         message: 'Quá nhiều request từ IP này. Vui lòng thử lại sau 15 phút.'
     },
     standardHeaders: true,
     legacyHeaders: false,
+    skip: () => process.env.NODE_ENV === 'development', // Bỏ qua hoàn toàn khi development
 });
 
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: process.env.NODE_ENV === 'development' ? 50 : 5, // More lenient in development
+    max: process.env.NODE_ENV === 'development' ? 10000 : 5, // Rất cao khi development
     message: {
         success: false,
         message: 'Quá nhiều lần đăng nhập/đăng ký. Vui lòng thử lại sau 15 phút.'
     },
-    skipSuccessfulRequests: true, // Don't count successful requests
+    skipSuccessfulRequests: true,
+    skip: () => process.env.NODE_ENV === 'development', // Bỏ qua hoàn toàn khi development
 });
 
 const otpLimiter = rateLimit({
     windowMs: 5 * 60 * 1000, // 5 minutes
-    max: process.env.NODE_ENV === 'development' ? 20 : 3, // More lenient in development
+    max: process.env.NODE_ENV === 'development' ? 10000 : 3, // Rất cao khi development
     message: {
         success: false,
         message: 'Quá nhiều lần yêu cầu OTP. Vui lòng thử lại sau 5 phút.'
     },
+    skip: () => process.env.NODE_ENV === 'development', // Bỏ qua hoàn toàn khi development
 });
 
 // Middleware
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Handle OPTIONS requests for CORS
+app.options('*', cors());
+
+// File upload middleware
+const fileUpload = require('express-fileupload');
+app.use(fileUpload({
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
+    abortOnLimit: true,
+    responseOnLimit: 'File quá lớn. Tối đa 5MB.'
+}));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.static('public'));
 
@@ -63,12 +78,20 @@ const setupRoutes = require('./src/routes/setup');
 const ordersRoutes = require('./src/routes/orders');
 const chatRoutes = require('./src/routes/chat');
 const aiChatRoutes = require('./src/routes/ai-chat');
+const uploadRoutes = require('./src/routes/upload');
 
-// API Routes with specific rate limiters
-app.use('/api/auth/login', authLimiter);
-app.use('/api/auth/register', authLimiter);
-app.use('/api/auth/request-password-otp', otpLimiter);
-app.use('/api/auth/request-forgot-password-otp', otpLimiter);
+// New feature routes
+const paymentRoutes = require('./src/routes/payment');
+const reviewsRoutes = require('./src/routes/reviews');
+const wishlistRoutes = require('./src/routes/wishlist');
+const vouchersRoutes = require('./src/routes/vouchers');
+const affiliateRoutes = require('./src/routes/affiliate');
+const blogRoutes = require('./src/routes/blog');
+const analyticsRoutes = require('./src/routes/analytics');
+const resellerRoutes = require('./src/routes/reseller');
+const stockRoutes = require('./src/routes/stock');
+
+// API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productsRoutes);
 app.use('/api/wallet', walletRoutes);
@@ -77,6 +100,18 @@ app.use('/api/setup', setupRoutes);
 app.use('/api/orders', ordersRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/ai-chat', aiChatRoutes);
+app.use('/api', uploadRoutes);
+
+// New feature routes
+app.use('/api/payment', paymentRoutes);
+app.use('/api/reviews', reviewsRoutes);
+app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/vouchers', vouchersRoutes);
+app.use('/api/affiliate', affiliateRoutes);
+app.use('/api/blog', blogRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/reseller', resellerRoutes);
+app.use('/api/stock', stockRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

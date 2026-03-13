@@ -1,5 +1,5 @@
 // Database helper functions
-const supabase = require('./supabase');
+const { supabase } = require('./supabase');
 
 const db = {
     // Users

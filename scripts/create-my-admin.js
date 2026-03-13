@@ -1,7 +1,12 @@
 // Script to create custom admin account
 require('dotenv').config();
 const bcrypt = require('bcryptjs');
-const supabase = require('./config/supabase');
+const { createClient } = require('@supabase/supabase-js');
+
+const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY
+);
 
 async function createMyAdmin() {
     try {

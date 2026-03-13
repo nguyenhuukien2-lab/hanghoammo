@@ -14,4 +14,4 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 console.log('✅ Kết nối Supabase thành công!');
 
-module.exports = supabase;
+module.exports = { supabase };

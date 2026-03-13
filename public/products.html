@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sản phẩm - HangHoaMMO</title>
-    <link rel="stylesheet" href="style.css?v=2.0">
+    <link rel="stylesheet" href="style.css?v=3.0">
+    <link rel="stylesheet" href="products-improved.css?v=1.0">
     <link rel="stylesheet" href="ai-chatbot.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -55,7 +56,7 @@
                         </a>
                         
                         <button class="btn-icon" onclick="toggleDarkMode()" title="Chế độ tối">
-                            <i class="fas fa-moon"></i>
+                            <i class="fas fa-moon" id="theme-icon"></i>
                         </button>
                         <!-- Show when not logged in -->
                         <div id="authButtons">
@@ -102,71 +103,51 @@
         </div>
     </div>
 
-    <!-- Breadcrumb -->
-    <section class="breadcrumb-section">
+    <!-- Products Page Container -->
+    <section class="products-page-container">
         <div class="container">
-            <div class="breadcrumb">
+            <!-- Breadcrumb -->
+            <div class="breadcrumb-simple">
                 <a href="index.html">Trang chủ</a>
-                <i class="fas fa-chevron-right"></i>
+                <span>/</span>
                 <span>Khám phá</span>
             </div>
-        </div>
-    </section>
 
-    <!-- Tabs Section -->
-    <section class="tabs-section">
-        <div class="container">
-            <div class="tabs-wrapper">
-                <button class="tab-btn active" onclick="filterByCategory('all')">
-                    <span>Tất cả</span>
-                </button>
-                <button class="tab-btn" onclick="filterByCategory('ai')">
-                    <span>AI & Công Nghệ</span>
-                </button>
-                <button class="tab-btn" onclick="filterByCategory('design')">
-                    <span>Dịch Vụ MMO</span>
-                </button>
-                <button class="tab-btn" onclick="filterByCategory('email')">
-                    <span>Email</span>
-                </button>
-                <button class="tab-btn" onclick="filterByCategory('entertainment')">
-                    <span>Giải Trí</span>
-                </button>
-                <button class="tab-btn" onclick="filterByCategory('software')">
-                    <span>Phần Mềm & Thiết Kế</span>
-                </button>
-                <button class="tab-btn" onclick="filterByCategory('other')">
-                    <span>Tiện Ích & Khác</span>
-                </button>
+            <!-- Category Tabs -->
+            <div class="category-tabs-row">
+                <button class="category-tab-pill active" onclick="filterByCategory('all')">Tất cả</button>
+                <button class="category-tab-pill" onclick="filterByCategory('ai')">AI & Công Nghệ</button>
+                <button class="category-tab-pill" onclick="filterByCategory('design')">Dịch Vụ MMO</button>
+                <button class="category-tab-pill" onclick="filterByCategory('email')">Email</button>
+                <button class="category-tab-pill" onclick="filterByCategory('entertainment')">Giải Trí</button>
+                <button class="category-tab-pill" onclick="filterByCategory('software')">Phần Mềm & Thiết Kế</button>
+                <button class="category-tab-pill" onclick="filterByCategory('other')">Tiện Ích & Khác</button>
             </div>
-        </div>
-    </section>
 
-    <!-- Search & Filter Section -->
-    <section class="search-filter-section">
-        <div class="container">
             <!-- Search Bar -->
-            <div class="search-bar-large">
+            <div class="search-bar-simple">
                 <i class="fas fa-search"></i>
                 <input type="text" id="searchInput" placeholder="Tìm kiếm sản phẩm..." onkeyup="searchProducts()">
             </div>
 
-            <!-- Filter Tags -->
-            <div class="filter-tags">
-                <button class="filter-tag active" onclick="sortProducts('newest')">Mới nhất</button>
-                <button class="filter-tag" onclick="sortProducts('price-asc')">Giá thấp → cao</button>
-                <button class="filter-tag" onclick="sortProducts('price-desc')">Giá cao → thấp</button>
-                <button class="filter-tag" onclick="sortProducts('popular')">Bán chạy</button>
-                <button class="filter-tag" onclick="sortProducts('discount')">Giảm giá cao</button>
-                <button class="filter-tag" onclick="filterPrice('0-50000')">Dưới 50K</button>
-                <button class="filter-tag" onclick="filterPrice('50000-100000')">50K - 100K</button>
-                <button class="filter-tag" onclick="filterPrice('100000-500000')">100K - 500K</button>
-                <button class="filter-tag" onclick="filterPrice('500000-999999999')">Trên 500K</button>
+            <!-- Filter Pills Row -->
+            <div class="filter-pills-row">
+                <button class="filter-pill active" onclick="sortProducts('newest')">Mới nhất</button>
+                <button class="filter-pill" onclick="sortProducts('popular')">Nổi bật</button>
+                <button class="filter-pill" onclick="sortProducts('price-asc')">Giá thấp — cao</button>
+                <button class="filter-pill" onclick="sortProducts('price-desc')">Giá cao — thấp</button>
+                <button class="filter-pill" onclick="sortProducts('discount')">Bán chạy</button>
+                <button class="filter-pill" onclick="sortProducts('discount')">Đánh giá cao</button>
+                <button class="filter-pill" onclick="filterPrice('0-50000')">Dưới 50K</button>
+                <button class="filter-pill" onclick="filterPrice('50000-100000')">50K - 100K</button>
+                <button class="filter-pill" onclick="filterPrice('100000-500000')">100K - 500K</button>
+                <button class="filter-pill" onclick="filterPrice('500000-999999999')">500K - 1M</button>
+                <button class="filter-pill" onclick="filterPrice('1000000-999999999')">Trên 1M</button>
             </div>
 
             <!-- Products Count -->
-            <div class="products-count-text">
-                <span id="productsCount">0</span> sản phẩm
+            <div class="products-count-simple">
+                <span id="productsCount">201</span> sản phẩm
             </div>
         </div>
     </section>
@@ -256,76 +237,6 @@
                 <button class="btn-checkout" onclick="checkout()">
                     <i class="fas fa-credit-card"></i>
                     <span>Thanh toán ngay</span>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Checkout Modal -->
-    <div class="checkout-modal" id="checkoutModal">
-        <div class="checkout-overlay" onclick="closeCheckoutModal()"></div>
-        <div class="checkout-panel">
-            <div class="checkout-header">
-                <button class="back-btn" onclick="closeCheckoutModal()">
-                    <i class="fas fa-arrow-left"></i>
-                </button>
-                <h3>Thanh toán</h3>
-                <button class="close-btn" onclick="closeCheckoutModal()">×</button>
-            </div>
-            
-            <div class="checkout-body">
-                <div class="checkout-section">
-                    <h4><i class="fas fa-shopping-bag"></i> Đơn hàng của bạn</h4>
-                    <div id="checkoutItems"></div>
-                </div>
-
-                <div class="checkout-section">
-                    <h4><i class="fas fa-credit-card"></i> Phương thức thanh toán</h4>
-                    <div class="payment-methods">
-                        <label class="payment-method">
-                            <input type="radio" name="payment" value="momo" checked>
-                            <div class="method-content">
-                                <i class="fas fa-wallet"></i>
-                                <span>Ví MoMo</span>
-                            </div>
-                        </label>
-                        <label class="payment-method">
-                            <input type="radio" name="payment" value="bank">
-                            <div class="method-content">
-                                <i class="fas fa-university"></i>
-                                <span>Chuyển khoản</span>
-                            </div>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="checkout-section">
-                    <h4><i class="fas fa-user"></i> Thông tin nhận hàng</h4>
-                    <form id="checkoutForm">
-                        <div class="form-group">
-                            <input type="text" placeholder="Họ và tên *" required>
-                        </div>
-                        <div class="form-group">
-                            <input type="tel" placeholder="Số điện thoại *" required>
-                        </div>
-                        <div class="form-group">
-                            <input type="email" placeholder="Email *" required>
-                        </div>
-                        <div class="form-group">
-                            <textarea placeholder="Ghi chú (tùy chọn)" rows="3"></textarea>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <div class="checkout-footer">
-                <div class="checkout-total">
-                    <span>Tổng thanh toán:</span>
-                    <span class="amount" id="checkoutTotal">0đ</span>
-                </div>
-                <button class="btn-confirm-payment" onclick="confirmPayment()">
-                    <i class="fas fa-check-circle"></i>
-                    <span>Xác nhận thanh toán</span>
                 </button>
             </div>
         </div>
@@ -519,34 +430,91 @@
                 productCard.className = 'product-card-explore';
                 const productId = product._id || product.id;
                 
+                // Calculate discount percentage if oldPrice exists
+                let discountBadge = '';
+                if (product.oldPrice && product.oldPrice > product.price) {
+                    const discount = Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100);
+                    discountBadge = `<span class="price-discount">-${discount}%</span>`;
+                }
+                
                 productCard.innerHTML = `
                     <div class="product-image-explore">
-                        <img src="${product.image}" alt="${product.name}">
+                        <img src="${product.image}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/300x300?text=No+Image'">
                         ${product.badge ? `<span class="badge-explore ${product.badge.toLowerCase()}">${product.badge}</span>` : ''}
+                        <button class="btn-wishlist" onclick="toggleWishlist(event, '${productId}')">
+                            <i class="far fa-heart"></i>
+                        </button>
                     </div>
                     <div class="product-info-explore">
                         <h3 class="product-name-explore">${product.name}</h3>
                         <div class="product-price-explore">
                             <span class="price-current">${product.price.toLocaleString('vi-VN')}đ</span>
                             ${product.oldPrice ? `<span class="price-old">${product.oldPrice.toLocaleString('vi-VN')}đ</span>` : ''}
+                            ${discountBadge}
                         </div>
                         <div class="product-meta-explore">
                             <div class="rating-explore">
                                 <i class="fas fa-star"></i>
-                                <span>5.0</span>
+                                <span>${product.rating || '5.0'}</span>
                             </div>
                             <span class="sold-explore">Đã bán ${product.sold || 0}</span>
                         </div>
                         <div class="product-vendor-explore">
-                            <img src="https://ui-avatars.com/api/?name=Manh98&background=667eea&color=fff&size=32" alt="Vendor">
-                            <span>Mạnh98</span>
+                            <img src="https://ui-avatars.com/api/?name=TH+Agency&background=667eea&color=fff&size=32" alt="Vendor">
+                            <span>TH Agency</span>
+                        </div>
+                        <div class="product-actions-explore">
+                            <button class="btn-add-to-cart-explore" onclick="quickAddToCart(event, '${productId}')">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span>Thêm giỏ hàng</span>
+                            </button>
+                            <button class="btn-quick-view-explore" onclick="viewProduct(event, '${productId}')" title="Xem chi tiết">
+                                <i class="fas fa-eye"></i>
+                            </button>
                         </div>
                     </div>
                 `;
                 
-                productCard.onclick = () => addToCart(productId);
+                // Click on card to view details (except buttons)
+                productCard.addEventListener('click', (e) => {
+                    if (!e.target.closest('button')) {
+                        window.location.href = `product-detail.html?id=${productId}`;
+                    }
+                });
+                
                 container.appendChild(productCard);
             });
+        }
+        
+        // Wishlist toggle function
+        function toggleWishlist(event, productId) {
+            event.stopPropagation();
+            const btn = event.currentTarget;
+            const icon = btn.querySelector('i');
+            
+            if (icon.classList.contains('far')) {
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+                btn.classList.add('active');
+                showNotification('Đã thêm vào yêu thích!');
+            } else {
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+                btn.classList.remove('active');
+                showNotification('Đã xóa khỏi yêu thích!');
+            }
+        }
+        
+        // View product function
+        function viewProduct(event, productId) {
+            event.stopPropagation();
+            window.location.href = `product-detail.html?id=${productId}`;
+        }
+        
+        // Quick add to cart function
+        function quickAddToCart(event, productId) {
+            event.stopPropagation();
+            addToCart(productId);
         }
 
         function searchProducts() {
@@ -576,8 +544,9 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        // No fallback needed - use products from script.js
+
         document.addEventListener('DOMContentLoaded', async function() {
-            // Đảm bảo modal đóng khi load trang
             const authModal = document.getElementById('authModal');
             if (authModal) {
                 authModal.classList.remove('active');
@@ -586,10 +555,12 @@
             
             updateCartCount();
             updateUserUI();
-            checkLoginStatus(); // Cập nhật trạng thái đăng nhập
+            checkLoginStatus();
             
+            // Load products from script.js (single source of truth)
             await loadProducts();
             
+            // Always render products from the global products array
             renderProductsExplore(products);
             const productsCount = document.getElementById('productsCount');
             if (productsCount) {
@@ -598,38 +569,6 @@
         });
     </script>
 
-    <!-- Dark Mode Toggle Button -->
-    <button class="theme-toggle" onclick="toggleDarkMode()" title="Chuyển đổi chế độ tối">
-        <i class="fas fa-moon" id="theme-icon"></i>
-    </button>
-
-    <script>
-        // Dark mode functionality
-        function toggleDarkMode() {
-            const body = document.body;
-            const icon = document.getElementById('theme-icon');
-            
-            body.classList.toggle('dark-mode');
-            
-            if (body.classList.contains('dark-mode')) {
-                icon.className = 'fas fa-sun';
-                localStorage.setItem('darkMode', 'enabled');
-            } else {
-                icon.className = 'fas fa-moon';
-                localStorage.setItem('darkMode', 'disabled');
-            }
-        }
-
-        // Load dark mode preference
-        document.addEventListener('DOMContentLoaded', function() {
-            const darkMode = localStorage.getItem('darkMode');
-            const icon = document.getElementById('theme-icon');
-            
-            if (darkMode === 'enabled') {
-                document.body.classList.add('dark-mode');
-                icon.className = 'fas fa-sun';
-            }
-        });
-    </script>
+    <!-- Notification -->
 </body>
 </html>

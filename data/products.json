@@ -1,0 +1,176 @@
+{
+  "products": [
+    {
+      "name": "ChatGPT Pro giá rẻ hơn gốc",
+      "category": "ai",
+      "price": 40000,
+      "image": "https://bachhoammo.store/uploads/products/product-1773367437321-865965704.svg.png",
+      "description": "Tài khoản ChatGPT Pro chính hãng",
+      "badge": "HOT",
+      "sold": 234,
+      "status": "active"
+    },
+    {
+      "name": "Netflix Premium 4K - 1 tháng",
+      "category": "entertainment",
+      "price": 45000,
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Netflix_2015_logo.svg/512px-Netflix_2015_logo.svg.png",
+      "description": "Tài khoản Netflix Premium 4K chất lượng cao",
+      "badge": "HOT",
+      "sold": 189,
+      "status": "active"
+    },
+    {
+      "name": "Spotify Premium",
+      "category": "entertainment",
+      "price": 35000,
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Spotify_logo_without_text.svg/512px-Spotify_logo_without_text.svg.png",
+      "description": "Spotify Premium nghe nhạc không quảng cáo",
+      "badge": "SALE",
+      "sold": 156,
+      "status": "active"
+    },
+    {
+      "name": "YouTube Premium 1 năm",
+      "category": "entertainment",
+      "price": 89000,
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/YouTube_full-color_icon_%282017%29.svg/512px-YouTube_full-color_icon_%282017%29.svg.png",
+      "description": "YouTube Premium không quảng cáo, tải video offline",
+      "badge": "NEW",
+      "sold": 45,
+      "status": "active"
+    },
+    {
+      "name": "Disney+ Premium",
+      "category": "entertainment",
+      "price": 65000,
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Disney%2B_logo.svg/512px-Disney%2B_logo.svg.png",
+      "description": "Xem phim Disney, Marvel, Star Wars không giới hạn",
+      "badge": "SALE",
+      "sold": 23,
+      "status": "active"
+    },
+    {
+      "name": "Canva Education 1 năm BHF",
+      "category": "design",
+      "price": 8000,
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Canva_icon_2021.svg/512px-Canva_icon_2021.svg.png",
+      "description": "Canva Education với tính năng Pro miễn phí",
+      "badge": "HOT",
+      "sold": 298,
+      "status": "active"
+    },
+    {
+      "name": "Figma Professional",
+      "category": "design",
+      "price": 120000,
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Figma-logo.svg/512px-Figma-logo.svg.png",
+      "description": "Thiết kế UI/UX chuyên nghiệp với Figma Pro",
+      "badge": "HOT",
+      "sold": 67,
+      "status": "active"
+    },
+    {
+      "name": "Adobe Photoshop",
+      "category": "design",
+      "price": 200000,
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Adobe_Creative_Cloud_rainbow_icon.svg/512px-Adobe_Creative_Cloud_rainbow_icon.svg.png",
+      "description": "Phần mềm chỉnh sửa ảnh chuyên nghiệp",
+      "badge": "HOT",
+      "sold": 156,
+      "status": "active"
+    },
+    {
+      "name": "Microsoft Office 365",
+      "category": "design",
+      "price": 150000,
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Microsoft_Office_logo_%282019%E2%80%93present%29.svg/512px-Microsoft_Office_logo_%282019%E2%80%93present%29.svg.png",
+      "description": "Bộ Office 365 đầy đủ tính năng",
+      "badge": "HOT",
+      "sold": 78,
+      "status": "active"
+    },
+    {
+      "name": "CapCut Pro giá rẻ tuyệt đối",
+      "category": "design",
+      "price": 7000,
+      "image": "https://seeklogo.com/images/C/capcut-logo-D5FD35E8C0-seeklogo.com.png",
+      "description": "CapCut Pro - Chỉnh sửa video chuyên nghiệp",
+      "badge": "HOT",
+      "sold": 125,
+      "status": "active"
+    },
+    {
+      "name": "Grammarly Premium",
+      "category": "other",
+      "price": 95000,
+      "image": "https://seeklogo.com/images/G/grammarly-logo-6D9EE5A774-seeklogo.com.png",
+      "description": "Kiểm tra ngữ pháp tiếng Anh chuyên nghiệp",
+      "badge": "NEW",
+      "sold": 34,
+      "status": "active"
+    },
+    {
+      "name": "Zoom Pro 1 năm",
+      "category": "other",
+      "price": 180000,
+      "image": "https://seeklogo.com/images/Z/zoom-logo-8A0E1389B5-seeklogo.com.png",
+      "description": "Zoom Pro cho họp online không giới hạn thời gian",
+      "badge": "NEW",
+      "sold": 12,
+      "status": "active"
+    },
+    {
+      "name": "Notion Pro 1 năm",
+      "category": "other",
+      "price": 75000,
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Notion_app_logo.png/512px-Notion_app_logo.png",
+      "description": "Workspace thông minh cho team và cá nhân",
+      "badge": "NEW",
+      "sold": 15,
+      "status": "active"
+    },
+    {
+      "name": "Discord Nitro",
+      "category": "other",
+      "price": 45000,
+      "image": "https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a6a49cf127bf92de1e2_icon_clyde_blurple_RGB.png",
+      "description": "Discord Nitro với tính năng premium",
+      "badge": "HOT",
+      "sold": 89,
+      "status": "active"
+    }
+  ],
+  "categories": [
+    {
+      "id": "ai",
+      "name": "AI & Công Nghệ",
+      "icon": "fas fa-robot"
+    },
+    {
+      "id": "entertainment",
+      "name": "Giải Trí",
+      "icon": "fas fa-play-circle"
+    },
+    {
+      "id": "design",
+      "name": "Phần Mềm & Thiết Kế",
+      "icon": "fas fa-palette"
+    },
+    {
+      "id": "other",
+      "name": "Tiện ích & khác",
+      "icon": "fas fa-star"
+    },
+    {
+      "id": "email",
+      "name": "Email",
+      "icon": "fas fa-envelope"
+    },
+    {
+      "id": "service",
+      "name": "Dịch Vụ MXH",
+      "icon": "fas fa-briefcase"
+    }
+  ]
+}

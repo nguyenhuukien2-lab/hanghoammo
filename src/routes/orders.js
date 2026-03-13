@@ -8,7 +8,7 @@ const telegramService = require('../services/telegramService');
 // Create order and deduct from wallet
 router.post('/create', authenticateToken, async (req, res) => {
     try {
-        const { items, total_amount, payment_method } = req.body;
+        const { items, total_amount, payment_method, voucher_id, voucher_code, discount_amount } = req.body;
         
         // Debug log
         console.log('=== CREATE ORDER REQUEST ===');
@@ -16,6 +16,7 @@ router.post('/create', authenticateToken, async (req, res) => {
         console.log('Items:', JSON.stringify(items, null, 2));
         console.log('Total:', total_amount);
         console.log('Payment method:', payment_method);
+        console.log('Voucher:', voucher_code, 'Discount:', discount_amount);
         
         if (!items || items.length === 0) {
             return res.status(400).json({
@@ -54,13 +55,21 @@ router.post('/create', authenticateToken, async (req, res) => {
             }
             
             // Create order
-            const order = await db.createOrder({
+            const orderData = {
                 user_id: req.user.id,
                 total: total_amount,
                 payment_method: 'wallet',
-                status: 'completed', // Auto complete for wallet payment
+                status: 'completed',
                 order_code: 'DH' + Date.now().toString().slice(-8)
-            });
+            };
+            
+            // Add voucher info if applied
+            if (voucher_id && discount_amount) {
+                orderData.voucher_id = voucher_id;
+                orderData.discount_amount = discount_amount;
+            }
+            
+            const order = await db.createOrder(orderData);
             
             // Create order items and assign accounts
             const deliveredAccounts = [];
@@ -139,6 +148,27 @@ router.post('/create', authenticateToken, async (req, res) => {
                 description: `Mua hàng - Đơn #${order.order_code}`,
                 order_id: order.id
             });
+            
+            // Apply voucher if provided
+            if (voucher_id && discount_amount) {
+                try {
+                    await fetch('http://localhost:3002/api/vouchers/apply', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': req.headers.authorization
+                        },
+                        body: JSON.stringify({
+                            voucher_id,
+                            order_id: order.id,
+                            discount_amount
+                        })
+                    });
+                } catch (voucherErr) {
+                    console.error('Failed to record voucher usage:', voucherErr);
+                    // Don't fail the order if voucher recording fails
+                }
+            }
 
             // Gửi email xác nhận đơn hàng (không chờ)
             emailService.sendOrderEmail(

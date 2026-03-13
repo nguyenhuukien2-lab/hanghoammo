@@ -1,317 +1,872 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HangHoaMMO - Chợ khóa số #1 VN</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<style>
-*{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Be Vietnam Pro',sans-serif;background:#f0f2f5;color:#1a1a1a;font-size:13px;}
-/* ===== HEADER ===== */
-.header{background:#fff;border-bottom:1px solid #e8e8e8;position:sticky;top:0;z-index:999;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
-.header-inner{max-width:1200px;margin:0 auto;padding:0 16px;height:54px;display:flex;align-items:center;gap:10px;}
-.logo{display:flex;align-items:center;gap:8px;text-decoration:none;flex-shrink:0;}
-.logo-icon{width:36px;height:36px;background:linear-gradient(135deg,#ee4d2d,#ff6b35);border-radius:8px;display:flex;align-items:center;justify-content:center;}
-.logo-icon i{color:#fff;font-size:17px;}
-.logo-texts{display:flex;flex-direction:column;line-height:1.1;}
-.logo-name{font-size:15px;font-weight:800;color:#ee4d2d;letter-spacing:-0.2px;}
-.logo-sub{font-size:9.5px;color:#aaa;}
-.header-nav{display:flex;align-items:center;gap:16px;margin-left:auto;}
-.header-nav a{color:#555;text-decoration:none;font-size:12.5px;font-weight:500;display:flex;align-items:center;gap:4px;white-space:nowrap;}
-.header-nav a:hover{color:#ee4d2d;}
-.btn-nap{background:#ee4d2d;color:#fff!important;padding:7px 15px;border-radius:7px;font-weight:700;font-size:12.5px;}
-.icon-rel{position:relative;}
-.hbadge{position:absolute;top:-5px;right:-7px;background:#ee4d2d;color:#fff;font-size:8px;border-radius:50%;width:15px;height:15px;display:flex;align-items:center;justify-content:center;font-weight:800;}
-.hbadge.green{background:#26de81;}
-.userav{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;flex-shrink:0;}
-/* ===== HERO ===== */
-.hero{background:linear-gradient(135deg,#f0f4ff 0%,#eef0fe 100%);padding:28px 0 0;}
-.hero-inner{max-width:1200px;margin:0 auto;padding:0 16px;display:grid;grid-template-columns:1fr 350px;gap:32px;align-items:start;}
-/* Hero Left */
-.hero-tag{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid #dde4ff;border-radius:20px;padding:4px 13px;font-size:11px;color:#667eea;font-weight:600;margin-bottom:14px;}
-.hero-tag i{color:#ee4d2d;font-size:10px;}
-.hero-title{font-size:27px;font-weight:800;line-height:1.25;color:#1a1a2e;margin-bottom:10px;}
-.hero-title .red{color:#ee4d2d;}
-.hero-desc{font-size:12.5px;color:#666;line-height:1.65;margin-bottom:18px;max-width:430px;}
-.search-wrap{display:flex;align-items:center;background:#fff;border:1.5px solid #d0d8ff;border-radius:10px;overflow:hidden;margin-bottom:13px;box-shadow:0 2px 10px rgba(102,126,234,.08);}
-.search-wrap input{flex:1;padding:12px 14px;border:none;outline:none;font-size:12.5px;font-family:inherit;color:#333;}
-.search-wrap input::placeholder{color:#bbb;}
-.search-wrap button{background:#ee4d2d;border:none;padding:0 18px;color:#fff;cursor:pointer;height:44px;font-size:14px;}
-.feat-row{display:flex;gap:18px;font-size:11.5px;color:#777;margin-bottom:18px;}
-.feat-row span{display:flex;align-items:center;gap:5px;}
-.feat-row i{color:#667eea;font-size:11px;}
-.hero-btns{display:flex;gap:10px;margin-bottom:32px;}
-.btn-primary{background:#667eea;color:#fff;padding:10px 22px;border-radius:8px;border:none;font-weight:700;cursor:pointer;font-size:13px;font-family:inherit;transition:background .2s;}
-.btn-primary:hover{background:#5a6fd6;}
-.btn-sec{background:transparent;color:#667eea;padding:10px 22px;border-radius:8px;border:1.5px solid #667eea;font-weight:700;cursor:pointer;font-size:13px;font-family:inherit;transition:all .2s;}
-.btn-sec:hover{background:#667eea;color:#fff;}
-/* Hero Right */
-.hero-right{}
-.cat-topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
-.cat-topbar span{font-size:11.5px;font-weight:700;color:#1a1a2e;text-transform:uppercase;letter-spacing:0.4px;}
-.cat-topbar a{font-size:11px;color:#667eea;text-decoration:none;font-weight:600;}
-.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.cat-item{background:#fff;border:1px solid #eaedff;border-radius:10px;padding:11px 13px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .18s;}
-.cat-item:hover{border-color:#667eea;box-shadow:0 2px 10px rgba(102,126,234,.14);transform:translateY(-1px);}
-.cat-item.full{grid-column:1/-1;}
-.cat-ico{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
-.ico-blue{background:#eef2ff;color:#667eea;}
-.ico-green{background:#e8fff3;color:#26de81;}
-.ico-orange{background:#fff3e8;color:#ff9800;}
-.ico-purple{background:#f5e8ff;color:#9c27b0;}
-.ico-pink{background:#ffe8f5;color:#e91e8c;}
-.ico-cyan{background:#e8f8ff;color:#00bcd4;}
-.ico-teal{background:#e0f7fa;color:#009688;}
-.cat-txt h4{font-size:12px;font-weight:700;color:#1a1a2e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;}
-.cat-txt p{font-size:10px;color:#aaa;margin-top:1px;}
-.hero-promo{font-size:11px;color:#999;text-align:center;padding:12px 0 18px;margin-top:10px;border-top:1px solid #eaedff;line-height:1.6;}
-/* ===== SECTIONS ===== */
-.wrap{max-width:1200px;margin:0 auto;padding:0 16px;}
-.sec{padding:26px 0 0;}
-.sec-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;}
-.sec-left{}
-.sec-title{display:flex;align-items:center;gap:7px;margin-bottom:3px;}
-.sec-title i{color:#ee4d2d;font-size:15px;}
-.sec-title h2{font-size:15.5px;font-weight:700;color:#1a1a2e;}
-.sec-sub{font-size:11px;color:#aaa;}
-.see-all{font-size:12px;color:#667eea;text-decoration:none;font-weight:600;white-space:nowrap;margin-top:4px;}
-/* ===== PRODUCT GRID ===== */
-.pgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}
-.pgrid+.pgrid{margin-top:12px;}
-/* ===== PRODUCT CARD ===== */
-.pcard{background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.07);cursor:pointer;transition:all .2s;border:1px solid #f0f0f0;}
-.pcard:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,0.13);}
-.pcard-img{width:100%;aspect-ratio:1/1;position:relative;overflow:hidden;}
-.pcard-img .cover{width:100%;height:100%;display:flex;align-items:center;justify-content:center;}
-.pcard-img .cover img{width:100%;height:100%;object-fit:cover;}
-.pcard-img .cover i{font-size:54px;color:rgba(255,255,255,0.88);}
-.pbadge{position:absolute;top:7px;left:7px;color:#fff;padding:2px 9px;border-radius:12px;font-size:10px;font-weight:800;z-index:2;}
-.pbadge.sale{background:#ee4d2d;}
-.pbadge.new{background:#26de81;}
-.pbadge.hot{background:#ff9800;}
-.pcard-body{padding:10px 10px 9px;}
-.pname{font-size:12px;font-weight:600;color:#222;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:33px;line-height:1.38;}
-.pprice{font-size:14px;font-weight:700;color:#ee4d2d;margin-bottom:5px;}
-.pprice .old{font-size:11px;color:#ccc;text-decoration:line-through;font-weight:400;margin-left:5px;}
-.pmeta{display:flex;justify-content:space-between;align-items:center;font-size:10.5px;color:#aaa;margin-bottom:7px;}
-.stars{color:#ffa502;display:flex;align-items:center;gap:2px;}
-.stars i{font-size:9px;}
-.pseller{display:flex;align-items:center;gap:6px;padding-top:7px;border-top:1px solid #f5f5f5;}
-.sav{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;flex-shrink:0;}
-.snm{font-size:11px;color:#888;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-/* ===== FOOTER SPACE ===== */
-.foot-space{height:40px;}
-/* ===== RESPONSIVE ===== */
-@media(max-width:900px){
-.hero-inner{grid-template-columns:1fr;}
-.hero-right{display:none;}
-.pgrid{grid-template-columns:repeat(3,1fr);}
-}
-@media(max-width:600px){
-.pgrid{grid-template-columns:repeat(2,1fr);}
-.hero-title{font-size:20px;}
-.header-nav .hide-mobile{display:none;}
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HangHoaMMO - Chợ MMO uy tín #1</title>
+    <link rel="stylesheet" href="style.css?v=6.0">
+    <link rel="stylesheet" href="products-improved.css?v=1.0">
+    <link rel="stylesheet" href="ai-chatbot.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-<!-- ===== HEADER ===== -->
-<header class="header">
-<div class="header-inner">
-<a href="index.html" class="logo">
-<div class="logo-icon"><i class="fas fa-store"></i></div>
-<div class="logo-texts">
-<span class="logo-name">HangHoaMMO</span>
-<span class="logo-sub">Chợ khóa số #1 VN</span>
-</div>
-</a>
-<nav class="header-nav">
-<a href="#" class="hide-mobile"><i class="fas fa-adjust"></i></a>
-<a href="blog.html" class="hide-mobile"><i class="fas fa-rss"></i> Blogs</a>
-<a href="wallet.html" class="btn-nap"><i class="fas fa-plus"></i> Nạp tiền</a>
-<a href="#" class="icon-rel hide-mobile"><i class="fas fa-bell" style="font-size:16px;color:#555;"></i><span class="hbadge">2</span></a>
-<a href="#" class="icon-rel hide-mobile"><i class="fas fa-comment-dots" style="font-size:16px;color:#555;"></i><span class="hbadge green">4</span></a>
-<a href="#" class="hide-mobile"><i class="fas fa-shopping-cart" style="font-size:15px;"></i>&nbsp;Giỏ hàng&nbsp;<b style="color:#ee4d2d;" id="cartCount">0</b></a>
-<div class="userav" id="userAvatar">K</div>
-<a href="profile.html" style="color:#333;font-weight:700;font-size:12px;" class="hide-mobile" id="userName">kien29 <i class="fas fa-chevron-down" style="font-size:9px;"></i></a>
-</nav>
-</div>
-</header>
-
-<!-- ===== HERO ===== -->
-<section class="hero">
-<div class="hero-inner">
-<!-- Left -->
-<div class="hero-left">
-<div class="hero-tag">
-<i class="fas fa-bolt"></i> Tìm kiếm nhanh&nbsp;·&nbsp;<i class="fas fa-clock"></i> Giao tự động 24/7
-</div>
-<h1 class="hero-title">Mua tài khoản số, phần mềm &amp; dịch<br>vụ <span class="red">MMO an toàn.</span></h1>
-<p class="hero-desc">Tìm sản phẩm theo từ khóa hoặc chọn danh mục phức. Hệ thống escrow bảo vệ người mua, hỗ trợ nhanh.</p>
-<div class="search-wrap">
-<input type="text" id="searchInput" placeholder="Tìm Netflix, Canva, ChatGPT, dịch vụ...">
-<button onclick="doSearch()"><i class="fas fa-search"></i></button>
-</div>
-<div class="feat-row">
-<span><i class="fas fa-shield-alt"></i> Escrow bảo vệ</span>
-<span><i class="fas fa-clock"></i> Giao tự động</span>
-<span><i class="fas fa-headset"></i> Hỗ trợ 24/7</span>
-</div>
-<div class="hero-btns">
-<button class="btn-primary" onclick="window.location.href='products.html'">Khám phá ngay</button>
-<button class="btn-sec" onclick="window.location.href='wallet.html'">Nạp tiền</button>
-</div>
-</div>
-
-<!-- Right -->
-<div class="hero-right">
-<div class="cat-topbar">
-<span>Danh mục nổi bật</span>
-<a href="products.html">Xem tất cả</a>
-</div>
-<div class="cat-grid">
-<div class="cat-item" onclick="window.location.href='products.html?category=ai'">
-<div class="cat-ico ico-blue"><i class="fas fa-robot"></i></div>
-<div class="cat-txt"><h4>AI &amp; Công Nghệ</h4><p>Xem sản phẩm</p></div>
-</div>
-<div class="cat-item" onclick="window.location.href='products.html?category=service'">
-<div class="cat-ico ico-green"><i class="fas fa-briefcase"></i></div>
-<div class="cat-txt"><h4>Dịch Vụ MMO</h4><p>Xem sản phẩm</p></div>
-</div>
-<div class="cat-item" onclick="window.location.href='products.html?category=email'">
-<div class="cat-ico ico-orange"><i class="fas fa-envelope"></i></div>
-<div class="cat-txt"><h4>Email</h4><p>Xem sản phẩm</p></div>
-</div>
-<div class="cat-item" onclick="window.location.href='products.html?category=entertainment'">
-<div class="cat-ico ico-purple"><i class="fas fa-play-circle"></i></div>
-<div class="cat-txt"><h4>Giải Trí</h4><p>Xem sản phẩm</p></div>
-</div>
-<div class="cat-item" onclick="window.location.href='products.html?category=social'">
-<div class="cat-ico ico-pink"><i class="fas fa-share-alt"></i></div>
-<div class="cat-txt"><h4>Mạng Xã Hội</h4><p>Xem sản phẩm</p></div>
-</div>
-<div class="cat-item" onclick="window.location.href='products.html?category=software'">
-<div class="cat-ico ico-cyan"><i class="fas fa-laptop-code"></i></div>
-<div class="cat-txt"><h4>Phần Mềm &amp; Thiết...</h4><p>Xem sản phẩm</p></div>
-</div>
-<div class="cat-item full" onclick="window.location.href='products.html'">
-<div class="cat-ico ico-teal"><i class="fas fa-tools"></i></div>
-<div class="cat-txt"><h4>Tiện ích &amp; Khác</h4><p>Xem sản phẩm</p></div>
-</div>
-</div>
-<div class="hero-promo">Mua bán tài khoản tại khóa như "Netflix", "Canva", "ChatGPT"...</div>
-</div>
-</div>
-</section>
-
-<!-- ===== TÌM KIẾM HÀNG ĐẦU ===== -->
-<div class="wrap sec">
-<div class="sec-head">
-<div class="sec-left">
-<div class="sec-title"><i class="fas fa-fire"></i><h2>Tìm kiếm hàng đầu</h2></div>
-<div class="sec-sub">Sản phẩm được mua nhiều nhất</div>
-</div>
-<a href="products.html" class="see-all">Xem thêm ›</a>
-</div>
-<div class="pgrid" id="topRow1"></div>
-<div class="pgrid" id="topRow2"></div>
-</div>
-
-<!-- ===== SẢN PHẨM GỢI Ý ===== -->
-<div class="wrap sec">
-<div class="sec-head">
-<div class="sec-left">
-<div class="sec-title"><i class="fas fa-star" style="color:#667eea;"></i><h2>Sản phẩm gợi ý</h2></div>
-<div class="sec-sub">Có thể bạn sẽ thích</div>
-</div>
-<a href="products.html" class="see-all">Xem thêm ›</a>
-</div>
-<div class="pgrid" id="sugRow1"></div>
-<div class="pgrid" id="sugRow2"></div>
-</div>
-
-<div class="foot-space"></div>
-
-<script src="script.js"></script>
-<script src="ai-chatbot.js"></script>
-<script>
-// Load products from API
-document.addEventListener('DOMContentLoaded', async function() {
-    await loadProducts();
-    renderHomeProducts();
-    updateCartCount();
-    checkLoginStatus();
-});
-
-function si(name){ return (name||'K').charAt(0).toUpperCase(); }
-
-function card(p){
-    const badgeHtml = p.badge ? `<span class="pbadge ${p.badge.toLowerCase()}">${p.badge}</span>` : '';
-    const oldHtml = p.oldPrice ? `<span class="old">${p.oldPrice.toLocaleString('vi-VN')}đ</span>` : '';
-    const starsColor = parseFloat(p.rating || 5) > 0 ? '#ffa502' : '#ddd';
-    const productId = p._id || p.id;
-    
-    return `<div class="pcard" onclick="viewProduct('${productId}')">
-        <div class="pcard-img">
-            <div class="cover" style="background:${p.bg || 'linear-gradient(135deg,#667eea,#764ba2)'};">
-                ${p.image ? `<img src="${p.image}" alt="${p.name}">` : `<i class="${p.icon || 'fas fa-box'}" style="font-size:54px;color:${p.iconColor||'#fff'};"></i>`}
-            </div>
-            ${badgeHtml}
+    <!-- Announcement Bar -->
+    <div class="announcement-bar" style="display: none;">
+        <div class="announcement-content">
+            <marquee behavior="scroll" direction="left" scrollamount="5">
+                <span>🎉 Chào mừng đến với HangHoaMMO! 🧧 Giảm giá đến 50% tất cả sản phẩm 🎊 Telegram: @hanghoammo 📞 Hotline: 0879.06.2222 💝 Miễn phí ship - Giao hàng tức thì 24/7</span>
+            </marquee>
         </div>
-        <div class="pcard-body">
-            <div class="pname">${p.name}</div>
-            <div class="pprice">${p.price.toLocaleString('vi-VN')}đ${oldHtml}</div>
-            <div class="pmeta">
-                <div class="stars" style="color:${starsColor};">
-                    <i class="fas fa-star"></i>
-                    <span style="color:#aaa;margin-left:2px;">${p.rating || '5.0'}</span>
+    </div>
+
+    <!-- Header -->
+    <header class="header-new">
+        <div class="main-header-new">
+            <div class="container">
+                <div class="header-wrapper">
+                    <div class="logo-new">
+                        <a href="index.html">
+                            <div class="logo-box">
+                                <i class="fas fa-store"></i>
+                            </div>
+                            <div class="logo-info">
+                                <h1>HangHoa<span>MMO</span></h1>
+                                <p>Chợ MMO uy tín #1</p>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="header-right">
+                        <a href="blog-list.html" class="btn-icon-text">
+                            <i class="fas fa-blog"></i>
+                            <span>Blogs</span>
+                        </a>
+                        
+                        <!-- Affiliate link -->
+                        <a href="affiliate.html" class="btn-icon-text" id="affiliateLink" style="display: none;">
+                            <i class="fas fa-handshake"></i>
+                            <span>Affiliate</span>
+                        </a>
+                        
+                        <!-- Reseller link -->
+                        <a href="reseller.html" class="btn-icon-text" id="resellerLink" style="display: none;">
+                            <i class="fas fa-crown"></i>
+                            <span>Reseller</span>
+                        </a>
+                        
+                        <!-- Wallet link - Show when logged in -->
+                        <a href="wallet.html" class="btn-icon-text" id="walletLink" style="display: none;">
+                            <i class="fas fa-wallet"></i>
+                            <span>Nạp tiền</span>
+                        </a>
+                        
+                        <div class="theme-toggle-wrapper">
+                            <button class="btn-icon btn-theme-toggle" onclick="toggleThemeMenu()" title="Chế độ hiển thị">
+                                <i class="fas fa-desktop"></i>
+                            </button>
+                            <div class="theme-menu" id="themeMenu">
+                                <div class="theme-option active" data-theme="system" onclick="setTheme('system')">
+                                    <i class="fas fa-desktop"></i>
+                                    <span>Hệ thống</span>
+                                    <i class="fas fa-check theme-check"></i>
+                                </div>
+                                <div class="theme-option" data-theme="light" onclick="setTheme('light')">
+                                    <i class="fas fa-sun"></i>
+                                    <span>Sáng</span>
+                                    <i class="fas fa-check theme-check"></i>
+                                </div>
+                                <div class="theme-option" data-theme="dark" onclick="setTheme('dark')">
+                                    <i class="fas fa-moon"></i>
+                                    <span>Tối</span>
+                                    <i class="fas fa-check theme-check"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Show when not logged in -->
+                        <div id="authButtons">
+                            <button class="btn-auth login" onclick="window.location.href='login-new.html'">
+                                <i class="fas fa-sign-in-alt"></i>
+                                <span>Đăng nhập</span>
+                            </button>
+                            <button class="btn-auth register" onclick="window.location.href='register-new.html'">
+                                <i class="fas fa-user-plus"></i>
+                                <span>Đăng ký</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Wallet link - Show when logged in -->
+                        <a href="wallet.html" class="btn-icon-text" id="walletLink" style="display: none;">
+                            <i class="fas fa-wallet"></i>
+                            <span>Nạp tiền</span>
+                        </a>
+                        
+                        <!-- Show when logged in -->
+<a href="profile.html" class="user-profile-btn" id="userProfileBtn" style="display: none;">
+    <div class="user-avatar-small">
+        <span id="userAvatarInitial">U</span>
+        <div class="tier-indicator" id="tierIndicator"></div>
+    </div>
+    <span id="userNameDisplay">User</span>
+    <i class="fas fa-chevron-down"></i>
+    
+    <!-- User dropdown menu -->
+    <div class="user-dropdown" id="userDropdown">
+        <div class="user-dropdown-header">
+            <div class="user-avatar-large">
+                <span id="userAvatarLarge">U</span>
+            </div>
+            <div class="user-info-dropdown">
+                <h4 id="userNameDropdown">User</h4>
+                <div class="user-tier-info">
+                    <span class="tier-badge-dropdown" id="userTierDropdown">Member</span>
+                    <span class="tier-benefits-dropdown" id="tierBenefitsDropdown">Giảm 0% • Hoa hồng 0%</span>
                 </div>
-                <span>Đã bán ${p.sold || 0}</span>
-            </div>
-            <div class="pseller">
-                <div class="sav">${si(p.seller || 'kien29')}</div>
-                <span class="snm">${p.seller || 'kien29'}</span>
             </div>
         </div>
-    </div>`;
-}
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-menu-items">
+            <a href="profile.html" class="dropdown-item">
+                <i class="fas fa-user"></i>
+                <span>Thông tin cá nhân</span>
+            </a>
+            <a href="orders.html" class="dropdown-item">
+                <i class="fas fa-shopping-bag"></i>
+                <span>Đơn hàng của tôi</span>
+            </a>
+            <a href="wallet.html" class="dropdown-item">
+                <i class="fas fa-wallet"></i>
+                <span>Ví tiền</span>
+            </a>
+            <a href="reseller.html" class="dropdown-item">
+                <i class="fas fa-crown"></i>
+                <span>Reseller Dashboard</span>
+            </a>
+            <div class="dropdown-divider"></div>
+            <button class="dropdown-item logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Đăng xuất</span>
+            </button>
+        </div>
+    </div>
+</a>
 
-function renderHomeProducts() {
-    if (!products || products.length === 0) return;
-    
-    const topProducts = products.slice(0, 10);
-    const sugProducts = products.slice(10, 20);
-    
-    document.getElementById('topRow1').innerHTML = topProducts.slice(0,5).map(card).join('');
-    document.getElementById('topRow2').innerHTML = topProducts.slice(5,10).map(card).join('');
-    document.getElementById('sugRow1').innerHTML = sugProducts.slice(0,5).map(card).join('');
-    document.getElementById('sugRow2').innerHTML = sugProducts.slice(5,10).map(card).join('');
-}
+                        <div class="cart-btn" onclick="window.location.href='checkout.html'">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="cart-badge" id="cartCount">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
 
-function viewProduct(productId) {
-    window.location.href = `product-detail.html?id=${productId}`;
-}
+    <!-- Tier Upgrade Banner (Show when logged in) -->
+    <div class="tier-upgrade-banner" id="tierUpgradeBanner" style="display: none;">
+        <div class="container">
+            <div class="banner-content">
+                <div class="banner-left">
+                    <div class="current-tier-info">
+                        <span class="tier-badge" id="bannerCurrentTier">Member</span>
+                        <div class="tier-benefits">
+                            <span id="bannerDiscount">Giảm 0%</span>
+                            <span id="bannerCommission">Hoa hồng 0%</span>
+                        </div>
+                    </div>
+                    <div class="upgrade-progress">
+                        <p id="upgradeMessage">Chi tiêu thêm <strong id="upgradeAmount">5,000,000đ</strong> để lên <strong id="upgradeNextTier">VIP</strong></p>
+                        <div class="progress-bar-mini">
+                            <div class="progress-fill-mini" id="upgradeProgressFill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="banner-right">
+                    <a href="reseller.html" class="btn-upgrade">
+                        <i class="fas fa-crown"></i>
+                        Xem chi tiết
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-// Search
-document.getElementById('searchInput').addEventListener('keypress', function(e){
-    if(e.key === 'Enter') doSearch();
-});
+    <!-- Hero Section -->
+    <section class="hero-home-new">
+        <div class="container">
+            <div class="hero-wrapper">
+                <div class="hero-left">
+                    <div class="hero-badge">
+                        <i class="fas fa-bolt"></i>
+                        <span>Tìm kiếm nhanh</span>
+                        <span class="badge-dot">•</span>
+                        <span>Giao tự động 24/7</span>
+                    </div>
+                    
+                    <h1 class="hero-title">
+                        Mua tài khoản số, phần mềm & dịch vụ MMO 
+                        <span class="highlight-text">an toàn.</span>
+                    </h1>
+                    
+                    <p class="hero-description">
+                        Tìm sản phẩm theo từ khóa hoặc chọn danh mục. Hệ thống escrow bảo vệ người mua, hỗ trợ nhanh.
+                    </p>
+                    
+                    <!-- Hero Search -->
+                    <div class="hero-search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="heroSearchInput" placeholder="Tìm Netflix, Canva, ChatGPT, dịch vụ..." onkeypress="handleSearchKeypress(event)">
+                        <button onclick="performSearch()">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Hero Features -->
+                    <div class="hero-features-inline">
+                        <div class="feature-inline">
+                            <i class="fas fa-shield-check"></i>
+                            <span>Escrow bảo vệ</span>
+                        </div>
+                        <div class="feature-inline">
+                            <i class="fas fa-robot"></i>
+                            <span>Giao tự động</span>
+                        </div>
+                        <div class="feature-inline">
+                            <i class="fas fa-headset"></i>
+                            <span>Hỗ trợ 24/7</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Hero Actions -->
+                    <div class="hero-actions-new">
+                        <button class="btn-hero-primary" onclick="window.location.href='products.html'">
+                            Khám phá ngay
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                        <button class="btn-hero-secondary" onclick="window.location.href='wallet.html'">
+                            Nạp tiền
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="hero-right">
+                    <div class="hero-categories-box">
+                        <h3>DANH MỤC NỔI BẬT</h3>
+                        <p class="categories-subtitle">Chọn nhanh theo nhu cầu</p>
+                        
+                        <div class="hero-categories-list">
+                            <a href="products.html?category=ai" class="hero-category-item">
+                                <i class="fas fa-robot"></i>
+                                <div>
+                                    <strong>AI & Công Nghệ</strong>
+                                    <span>Xem sản phẩm</span>
+                                </div>
+                            </a>
+                            <a href="products.html?category=email" class="hero-category-item">
+                                <i class="fas fa-envelope"></i>
+                                <div>
+                                    <strong>Email</strong>
+                                    <span>Xem sản phẩm</span>
+                                </div>
+                            </a>
+                            <a href="products.html?category=entertainment" class="hero-category-item">
+                                <i class="fas fa-play-circle"></i>
+                                <div>
+                                    <strong>Giải Trí</strong>
+                                    <span>Xem sản phẩm</span>
+                                </div>
+                            </a>
+                            <a href="products.html?category=design" class="hero-category-item">
+                                <i class="fas fa-palette"></i>
+                                <div>
+                                    <strong>Phần Mềm & Thiết Kế</strong>
+                                    <span>Xem sản phẩm</span>
+                                </div>
+                            </a>
+                            <a href="products.html?category=other" class="hero-category-item">
+                                <i class="fas fa-star"></i>
+                                <div>
+                                    <strong>Tiện ích & khác</strong>
+                                    <span>Xem sản phẩm</span>
+                                </div>
+                            </a>
+                            <a href="products.html?category=service" class="hero-category-item">
+                                <i class="fas fa-briefcase"></i>
+                                <div>
+                                    <strong>Dịch Vụ MXH</strong>
+                                    <span>Xem sản phẩm</span>
+                                </div>
+                            </a>
+                        </div>
+                        
+                        <a href="products.html" class="view-all-categories">
+                            Xem tất cả
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                    
+                    <div class="hero-note">
+                        Mẹo: bạn có thể tìm bằng từ khóa như "Netflix", "Canva", "ChatGPT"...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-function doSearch(){
-    const q = document.getElementById('searchInput').value.trim();
-    if(q) window.location.href = `products.html?search=${encodeURIComponent(q)}`;
-}
 
-function checkLoginStatus() {
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    if (currentUser) {
-        const initial = currentUser.email.charAt(0).toUpperCase();
-        document.getElementById('userAvatar').textContent = initial;
-        document.getElementById('userName').innerHTML = `${currentUser.email.split('@')[0]} <i class="fas fa-chevron-down" style="font-size:9px;"></i>`;
-    }
-}
-</script>
+
+    <!-- Flash Sales Section -->
+    <section class="products-section" id="flashSalesSection" style="display: none;">
+        <div class="container">
+            <div class="section-header">
+                <h2><i class="fas fa-bolt"></i> ⚡ Flash Sale đang diễn ra</h2>
+                <p style="color: #999; font-size: 14px; margin-top: 5px;">Giảm giá sốc - Số lượng có hạn</p>
+            </div>
+            <div class="products-grid" id="flashSalesProducts">
+                <!-- Flash sale products will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Best Sellers This Week -->
+    <section class="products-section">
+        <div class="container">
+            <div class="section-header">
+                <h2><i class="fas fa-fire"></i> Bán chạy nhất tuần</h2>
+                <p style="color: #999; font-size: 14px; margin-top: 5px;">Top sản phẩm hot trong 7 ngày qua</p>
+                <a href="products.html" class="see-all">Xem thêm <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="products-grid" id="bestSellers">
+                <!-- Products will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- New Products -->
+    <section class="products-section">
+        <div class="container">
+            <div class="section-header">
+                <h2><i class="fas fa-clock"></i> Sản phẩm mới nhất</h2>
+                <p style="color: #999; font-size: 14px; margin-top: 5px;">Vừa được đăng bán</p>
+                <a href="products.html" class="see-all">Xem thêm <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="products-grid" id="newProducts">
+                <!-- Products will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Hot Products -->
+    <section class="products-section">
+        <div class="container">
+            <div class="section-header">
+                <h2><i class="fas fa-fire"></i> Tìm kiếm hàng đầu</h2>
+                <a href="products.html" class="see-all">Xem thêm <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="products-grid" id="hotProducts">
+                <!-- Products will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Suggested Products -->
+    <section class="products-section">
+        <div class="container">
+            <div class="section-header">
+                <h2><i class="fas fa-star"></i> Sản phẩm gợi ý</h2>
+                <a href="products.html" class="see-all">Xem thêm <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="products-grid" id="suggestedProducts">
+                <!-- Products will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>HangHoaMMO</h3>
+                    <p>Chợ MMO uy tín #1 Việt Nam</p>
+                    <div class="social-links">
+                        <a href="https://t.me/hanghoammo" target="_blank"><i class="fab fa-telegram"></i></a>
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Liên kết</h4>
+                    <ul>
+                        <li><a href="products.html">Sản phẩm</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="wallet.html">Nạp tiền</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Hỗ trợ</h4>
+                    <ul>
+                        <li><a href="#">Hướng dẫn mua hàng</a></li>
+                        <li><a href="#">Chính sách bảo mật</a></li>
+                        <li><a href="#">Điều khoản sử dụng</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Liên hệ</h4>
+                    <ul>
+                        <li><i class="fas fa-phone"></i> 0879.06.2222</li>
+                        <li><i class="fas fa-envelope"></i> support@hanghoammo.com</li>
+                        <li><i class="fab fa-telegram"></i> @hanghoammo</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2025 HangHoaMMO. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="i18n.js"></script>
+    <script src="ai-chatbot.js"></script>
+    <script src="stock-manager.js"></script>
+    <script>
+        // Language switcher functions
+        function toggleLanguageMenu() {
+            const menu = document.getElementById('languageMenu');
+            if (menu) menu.classList.toggle('active');
+        }
+        
+        function changeLanguage(lang) {
+            if (typeof i18n !== 'undefined') {
+                i18n.setLanguage(lang);
+                
+                document.querySelectorAll('.language-option').forEach(opt => {
+                    opt.classList.remove('active');
+                });
+                document.querySelector(`[data-lang="${lang}"]`)?.classList.add('active');
+                
+                toggleLanguageMenu();
+                showNotification('Đã đổi ngôn ngữ!');
+            }
+        }
+        
+        // Close menus when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.language-switcher')) {
+                const menu = document.getElementById('languageMenu');
+                if (menu) menu.classList.remove('active');
+            }
+        });
+        
+        // Load products from API or script.js fallback
+        async function loadProducts() {
+            try {
+                const token = localStorage.getItem('token');
+                const headers = {};
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+                
+                // Try new stock API first
+                let response = await fetch('/api/stock/products', { headers });
+                let result = await response.json();
+                
+                if (result.success && result.data && result.data.length > 0) {
+                    products = result.data;
+                    console.log('✅ Loaded products from stock API:', products.length);
+                } else {
+                    console.log('⚠️ Stock API failed, trying fallback...');
+                    // Fallback to old API
+                    response = await fetch('/api/products', { headers });
+                    result = await response.json();
+                    
+                    if (result.success && result.data && result.data.length > 0) {
+                        products = result.data;
+                        console.log('✅ Loaded products from fallback API:', products.length);
+                    } else {
+                        // Use getSampleProducts from script.js
+                        products = typeof getSampleProducts === 'function' ? getSampleProducts() : [];
+                        console.log('✅ Loaded sample products:', products.length);
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to load products:', error);
+                try {
+                    // Try fallback API
+                    const response = await fetch('/api/products');
+                    const result = await response.json();
+                    
+                    if (result.success && result.data && result.data.length > 0) {
+                        products = result.data;
+                        console.log('✅ Loaded products from fallback after error:', products.length);
+                    } else {
+                        // Use getSampleProducts from script.js
+                        products = typeof getSampleProducts === 'function' ? getSampleProducts() : [];
+                        console.log('✅ Loaded sample products after error:', products.length);
+                    }
+                } catch (fallbackError) {
+                    console.error('Fallback also failed:', fallbackError);
+                    // Use getSampleProducts from script.js
+                    products = typeof getSampleProducts === 'function' ? getSampleProducts() : [];
+                    console.log('✅ Loaded sample products as last resort:', products.length);
+                }
+            }
+            
+            renderHomeProducts();
+            
+            // Initialize flash sale countdowns
+            setTimeout(() => {
+                products.forEach(product => {
+                    if (product.has_active_flash_sale && product.flash_sale_end) {
+                        if (stockManager) {
+                            stockManager.initFlashSaleCountdown(product.flash_sale_end, `countdown-${product.id}`);
+                        }
+                    }
+                });
+            }, 100);
+        }
+
+        // Render products on home page
+        function renderHomeProducts() {
+            console.log('Total products:', products.length);
+            
+            // Sort products by sold (best sellers)
+            const bestSellers = [...products]
+                .sort((a, b) => (b.sold || 0) - (a.sold || 0))
+                .slice(0, 6);
+            
+            // Sort products by created date (newest first)
+            const newProducts = [...products]
+                .sort((a, b) => {
+                    const dateA = new Date(a.created_at || a.createdAt || 0);
+                    const dateB = new Date(b.created_at || b.createdAt || 0);
+                    return dateB - dateA;
+                })
+                .slice(0, 6);
+            
+            // Hot products - first 6
+            const hotProducts = products.slice(0, 6);
+            
+            // Suggested products - if we have more than 6, take 6-12, otherwise repeat from start
+            let suggestedProducts = [];
+            if (products.length > 6) {
+                suggestedProducts = products.slice(6, 12);
+            } else {
+                // If not enough products, just show all products
+                suggestedProducts = products.slice(0, 6);
+            }
+            
+            // If still not enough, fill with random products
+            if (suggestedProducts.length < 6 && products.length > 0) {
+                const remaining = 6 - suggestedProducts.length;
+                const shuffled = [...products].sort(() => 0.5 - Math.random());
+                suggestedProducts = [...suggestedProducts, ...shuffled.slice(0, remaining)];
+            }
+
+            console.log('Best sellers:', bestSellers.length);
+            console.log('New products:', newProducts.length);
+            console.log('Hot products:', hotProducts.length);
+            console.log('Suggested products:', suggestedProducts.length);
+
+            const bestSellersEl = document.getElementById('bestSellers');
+            const newProductsEl = document.getElementById('newProducts');
+            const hotProductsEl = document.getElementById('hotProducts');
+            const suggestedProductsEl = document.getElementById('suggestedProducts');
+            
+            if (bestSellersEl) {
+                bestSellersEl.innerHTML = bestSellers.map(createProductCard).join('');
+            }
+            
+            if (newProductsEl) {
+                newProductsEl.innerHTML = newProducts.map(createProductCard).join('');
+            }
+            
+            if (hotProductsEl) {
+                hotProductsEl.innerHTML = hotProducts.map(createProductCard).join('');
+            }
+            
+            if (suggestedProductsEl) {
+                suggestedProductsEl.innerHTML = suggestedProducts.map(createProductCard).join('');
+            }
+        }
+
+        // Create product card
+        function createProductCard(product) {
+            const badge = product.badge ? `<span class="product-badge badge-${product.badge.toLowerCase()}">${product.badge}</span>` : '';
+            const productId = product.id || product._id;
+            
+            // Determine price to display (flash sale > tier > original)
+            let displayPrice = product.price;
+            let priceHTML = '';
+            
+            if (product.has_active_flash_sale) {
+                // Flash sale price
+                displayPrice = product.tier_price || product.flash_sale_price;
+                priceHTML = `
+                    <div class="flash-sale-price">
+                        <span class="flash-sale-current">${displayPrice.toLocaleString('vi-VN')}đ</span>
+                        <span class="flash-sale-original">${product.price.toLocaleString('vi-VN')}đ</span>
+                        <span class="flash-sale-badge">-${product.flash_sale_discount}%</span>
+                    </div>
+                `;
+            } else if (product.tier_price && product.tier_price < product.price) {
+                // Tier discount price
+                displayPrice = product.tier_price;
+                priceHTML = `
+                    <div class="product-price-group">
+                        <div class="product-price">${displayPrice.toLocaleString('vi-VN')}đ</div>
+                        <div class="product-price-old">${product.price.toLocaleString('vi-VN')}đ</div>
+                        <div class="product-discount tier-discount">-${product.tier_discount_percent}% Tier</div>
+                    </div>
+                `;
+            } else {
+                // Regular price
+                priceHTML = `<div class="product-price">${displayPrice.toLocaleString('vi-VN')}đ</div>`;
+            }
+            
+            // Stock indicator
+            const stockHTML = product.stock !== undefined ? `
+                <div class="stock-indicator ${product.stock_class || 'in-stock'}">
+                    ${stockManager ? stockManager.getStockIcon(product.stock_class || 'in-stock') : '<i class="fas fa-box"></i> '}
+                    ${product.stock_display || product.stock + ' có sẵn'}
+                </div>
+            ` : '';
+            
+            // Preview thumbnails
+            const previewsHTML = product.previews && product.previews.length > 0 ? `
+                <div class="product-previews">
+                    ${product.previews.slice(0, 3).map(preview => `
+                        <img src="${preview.url}" 
+                             alt="${preview.title}" 
+                             class="preview-thumbnail ${preview.is_blurred ? 'blurred' : ''}"
+                             data-preview='${JSON.stringify(preview)}'
+                             onclick="event.stopPropagation();">
+                    `).join('')}
+                    ${product.previews.length > 3 ? `<div class="preview-count-badge">+${product.previews.length - 3}</div>` : ''}
+                </div>
+            ` : '';
+            
+            // Flash sale countdown
+            const flashSaleHTML = product.has_active_flash_sale ? `
+                <div class="flash-sale-banner" style="margin-top: 0.75rem;">
+                    <div class="flash-sale-header">
+                        <h4 class="flash-sale-title">${product.flash_sale_title}</h4>
+                        <div class="flash-sale-discount">-${product.flash_sale_discount}%</div>
+                    </div>
+                    <div class="flash-sale-countdown" id="countdown-${productId}"></div>
+                </div>
+            ` : '';
+            
+            // Check if product is out of stock
+            const isOutOfStock = product.stock !== undefined && product.stock <= 0;
+            
+            return `
+                <div class="product-card" data-product-id="${productId}">
+                    <div class="product-image" onclick="window.location.href='product-detail.html?id=${productId}'">
+                        ${product.image ? `<img src="${product.image}" alt="${product.name}" onerror="this.parentElement.innerHTML='<div class=\\'product-placeholder\\'><i class=\\'fas fa-box\\'></i></div>'">` : `<div class="product-placeholder"><i class="fas fa-box"></i></div>`}
+                        ${badge}
+                        ${product.tier_discount_percent ? `<div class="tier-discount-badge">-${product.tier_discount_percent}%</div>` : ''}
+                        <button class="btn-wishlist-home" onclick="event.stopPropagation(); toggleWishlistHome('${productId}')">
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name" onclick="window.location.href='product-detail.html?id=${productId}'">${product.name}</h3>
+                        ${priceHTML}
+                        ${stockHTML}
+                        <div class="product-meta">
+                            <div class="product-rating">
+                                <i class="fas fa-star"></i>
+                                <span>${product.rating || '5.0'}</span>
+                            </div>
+                            <span class="product-sold">Đã bán ${product.sold || 0}</span>
+                        </div>
+                        <div class="product-vendor-home">
+                            <img src="https://ui-avatars.com/api/?name=TH+Agency&background=667eea&color=fff&size=24" alt="Vendor">
+                            <span>TH Agency</span>
+                        </div>
+                        ${previewsHTML}
+                        <div class="product-actions-home">
+                            <button class="btn-add-to-cart-home" onclick="addToCartHome('${productId}')" ${product.stock <= 0 ? 'disabled' : ''}>
+                                <i class="fas fa-shopping-cart"></i>
+                                <span>${product.stock <= 0 ? 'Hết hàng' : 'Thêm giỏ hàng'}</span>
+                            </button>
+                        </div>
+                        ${flashSaleHTML}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Add to cart on home page
+        function addToCartHome(productId) {
+            addToCart(productId);
+        }
+        
+        // Toggle wishlist on home page
+        function toggleWishlistHome(productId) {
+            showNotification('Tính năng yêu thích đang được phát triển!');
+        }
+
+        // Search function
+        function performSearch() {
+            // Try to get from hero search input first, then fallback to other search inputs
+            let query = document.getElementById('heroSearchInput')?.value.trim() ||
+                       document.getElementById('searchInput')?.value.trim() ||
+                       document.getElementById('searchInputProducts')?.value.trim() ||
+                       document.getElementById('searchInputWallet')?.value.trim() ||
+                       document.getElementById('searchInputDetail')?.value.trim() ||
+                       document.getElementById('searchInputCheckout')?.value.trim() ||
+                       document.getElementById('searchInputBlog')?.value.trim();
+            
+            if (query) {
+                window.location.href = `products.html?search=${encodeURIComponent(query)}`;
+            }
+        }
+
+        function handleSearchKeypress(event) {
+            if (event.key === 'Enter') {
+                performSearch();
+            }
+        }
+
+        // Dark mode toggle
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
+            
+            const icon = document.getElementById('darkModeIcon');
+            if (icon) {
+                icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProducts();
+            loadFlashSales(); // Load flash sales
+            updateCartCount();
+            checkLoginStatus();
+            loadUserTierInfo(); // Load tier info for logged in users
+            
+            // Load dark mode preference
+            if (localStorage.getItem('darkMode') === 'enabled') {
+                document.body.classList.add('dark-mode');
+                const icon = document.getElementById('darkModeIcon');
+                if (icon) icon.className = 'fas fa-sun';
+            }
+        });
+
+        // Load flash sales
+        async function loadFlashSales() {
+            try {
+                const response = await fetch('/api/stock/flash-sales');
+                const result = await response.json();
+                
+                if (result.success && result.data && result.data.length > 0) {
+                    const flashSalesSection = document.getElementById('flashSalesSection');
+                    const flashSalesProducts = document.getElementById('flashSalesProducts');
+                    
+                    if (flashSalesSection && flashSalesProducts) {
+                        // Show flash sales section
+                        flashSalesSection.style.display = 'block';
+                        
+                        // Render flash sale products
+                        flashSalesProducts.innerHTML = result.data.map(flashSale => {
+                            const product = {
+                                ...flashSale.product,
+                                has_active_flash_sale: true,
+                                flash_sale_id: flashSale.id,
+                                flash_sale_title: flashSale.title,
+                                flash_sale_price: flashSale.sale_price,
+                                flash_sale_discount: flashSale.discount_percent,
+                                flash_sale_end: flashSale.end_time,
+                                flash_sale_max: flashSale.max_quantity,
+                                flash_sale_sold: flashSale.sold_quantity,
+                                price: flashSale.original_price
+                            };
+                            return createProductCard(product);
+                        }).join('');
+                        
+                        // Initialize countdowns for flash sales
+                        setTimeout(() => {
+                            result.data.forEach(flashSale => {
+                                if (stockManager) {
+                                    stockManager.initFlashSaleCountdown(flashSale.end_time, `countdown-${flashSale.product.id}`);
+                                }
+                            });
+                        }, 100);
+                        
+                        console.log('✅ Loaded flash sales:', result.data.length);
+                    }
+                } else {
+                    console.log('ℹ️ No active flash sales found');
+                }
+            } catch (error) {
+                console.error('Error loading flash sales:', error);
+                console.log('ℹ️ Flash sales feature not available, continuing without it');
+            }
+        }
+
+        // Load user tier information
+        async function loadUserTierInfo() {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+
+            try {
+                const response = await fetch('/api/reseller/my-tier', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    updateTierDisplay(result.data);
+                    showTierUpgradeBanner(result.data);
+                }
+            } catch (error) {
+                console.error('Error loading tier info:', error);
+            }
+        }
+
+        // Update tier display in header
+        function updateTierDisplay(tierData) {
+            const userTierDisplay = document.getElementById('userTierDisplay');
+            if (userTierDisplay && tierData.current_tier) {
+                userTierDisplay.textContent = tierData.current_tier.display_name;
+                userTierDisplay.className = `user-tier tier-${tierData.current_tier.tier_name}`;
+            }
+        }
+
+        // Show tier upgrade banner
+        function showTierUpgradeBanner(tierData) {
+            const banner = document.getElementById('tierUpgradeBanner');
+            if (!banner) return;
+
+            const { current_tier, next_tier, progress } = tierData;
+            
+            // Update banner content
+            document.getElementById('bannerCurrentTier').textContent = current_tier.display_name;
+            document.getElementById('bannerDiscount').textContent = `Giảm ${current_tier.discount_percent}%`;
+            document.getElementById('bannerCommission').textContent = `Hoa hồng ${current_tier.commission_percent}%`;
+
+            if (next_tier && progress) {
+                document.getElementById('upgradeAmount').textContent = progress.remaining.toLocaleString('vi-VN') + 'đ';
+                document.getElementById('upgradeNextTier').textContent = next_tier.display_name;
+                document.getElementById('upgradeProgressFill').style.width = `${progress.percent}%`;
+                
+                // Show banner
+                banner.style.display = 'block';
+            } else {
+                // Max tier reached
+                document.getElementById('upgradeMessage').innerHTML = 'Bạn đã đạt cấp cao nhất! <strong>Tận hưởng ưu đãi tối đa</strong>';
+                document.getElementById('upgradeProgressFill').style.width = '100%';
+                banner.style.display = 'block';
+            }
+        }
+    </script>
 </body>
 </html>

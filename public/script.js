@@ -6,6 +6,99 @@ let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
 // Products Data
 let products = [];
 
+// Sample Products for fallback
+function getSampleProducts() {
+    return [
+        {
+            id: 'sample-1',
+            name: 'ChatGPT Pro giá rẻ hơn gốc',
+            category: 'ai',
+            price: 40000,
+            image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/ChatGPT_logo.svg/1024px-ChatGPT_logo.svg.png',
+            description: 'Tài khoản ChatGPT Pro chất lượng cao, giá rẻ hơn gốc 50%',
+            sold: 150,
+            rating: 4.8,
+            stock: 25,
+            stock_status: 'in-stock',
+            stock_class: 'in-stock',
+            stock_display: '25 có sẵn',
+            badge: 'HOT'
+        },
+        {
+            id: 'sample-2',
+            name: 'Netflix Premium 1 tháng',
+            category: 'entertainment',
+            price: 35000,
+            image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Netflix_2015_logo.svg/1024px-Netflix_2015_logo.svg.png',
+            description: 'Tài khoản Netflix Premium chất lượng cao, xem 4K',
+            sold: 89,
+            rating: 4.9,
+            stock: 8,
+            stock_status: 'low-stock',
+            stock_class: 'low-stock',
+            stock_display: 'Chỉ còn 8',
+            badge: 'SALE'
+        },
+        {
+            id: 'sample-3',
+            name: 'Canva Pro 1 năm',
+            category: 'design',
+            price: 120000,
+            image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Canva_icon_2021.svg/1024px-Canva_icon_2021.svg.png',
+            description: 'Tài khoản Canva Pro full tính năng, thiết kế chuyên nghiệp',
+            sold: 67,
+            rating: 4.7,
+            stock: 45,
+            stock_status: 'in-stock',
+            stock_class: 'in-stock',
+            stock_display: '45 có sẵn'
+        },
+        {
+            id: 'sample-4',
+            name: 'Spotify Premium 3 tháng',
+            category: 'entertainment',
+            price: 55000,
+            image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Spotify_logo_without_text.svg/1024px-Spotify_logo_without_text.svg.png',
+            description: 'Tài khoản Spotify Premium, nghe nhạc không quảng cáo',
+            sold: 123,
+            rating: 4.6,
+            stock: 0,
+            stock_status: 'out-of-stock',
+            stock_class: 'out-of-stock',
+            stock_display: 'Hết hàng',
+            badge: 'NEW'
+        },
+        {
+            id: 'sample-5',
+            name: 'Adobe Creative Cloud',
+            category: 'design',
+            price: 180000,
+            image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Adobe_Creative_Cloud_rainbow_icon.svg/1024px-Adobe_Creative_Cloud_rainbow_icon.svg.png',
+            description: 'Bộ phần mềm Adobe Creative Cloud đầy đủ',
+            sold: 34,
+            rating: 4.9,
+            stock: 12,
+            stock_status: 'in-stock',
+            stock_class: 'in-stock',
+            stock_display: '12 có sẵn'
+        },
+        {
+            id: 'sample-6',
+            name: 'Gmail Business 1 năm',
+            category: 'email',
+            price: 95000,
+            image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Gmail_icon_%282020%29.svg/1024px-Gmail_icon_%282020%29.svg.png',
+            description: 'Tài khoản Gmail Business với tên miền riêng',
+            sold: 78,
+            rating: 4.5,
+            stock: 30,
+            stock_status: 'in-stock',
+            stock_class: 'in-stock',
+            stock_display: '30 có sẵn'
+        }
+    ];
+}
+
 // Cart Management
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
@@ -39,16 +132,31 @@ async function apiRequest(endpoint, options = {}) {
     }
 }
 
-// Load products from API or localStorage
+// Clear products cache (for debugging)
+function clearProductsCache() {
+    localStorage.removeItem('adminProducts');
+    console.log('✅ Products cache cleared');
+    showNotification('Đã xóa cache sản phẩm. Trang sẽ tải lại.', 'success');
+    setTimeout(() => {
+        window.location.reload();
+    }, 1000);
+}
+
+// Load products from API only (no fallback)
 async function loadProducts() {
     try {
         // Try to load from API first
         const response = await fetch(`${API_URL}/products`);
         const result = await response.json();
         
-        if (result.success && result.data) {
+        if (result.success && result.data && result.data.length > 0) {
             products = result.data;
-            localStorage.setItem('adminProducts', JSON.stringify(products));
+            // Cache with timestamp
+            const cacheData = {
+                products: products,
+                timestamp: Date.now()
+            };
+            localStorage.setItem('adminProducts', JSON.stringify(cacheData));
             console.log('✅ Loaded ' + products.length + ' products from API');
             
             // Clear cart if it contains old numeric IDs
@@ -61,269 +169,44 @@ async function loadProducts() {
             }
             
             return products;
+        } else {
+            console.warn('⚠️ API returned empty data');
         }
     } catch (error) {
-        console.error('Failed to load products from API:', error);
+        console.error('❌ Failed to load products from API:', error);
     }
     
-    // Fallback to localStorage or sample products
+    // Fallback to localStorage cache only (no sample products)
     const cached = localStorage.getItem('adminProducts');
     if (cached) {
-        products = JSON.parse(cached);
-        console.log('✅ Loaded ' + products.length + ' products from cache');
-    } else {
-        products = getSampleProducts();
-        console.log('⚠️ Using sample products');
+        try {
+            const cacheData = JSON.parse(cached);
+            // Check if cache is an object with timestamp (new format)
+            if (cacheData && cacheData.products && Array.isArray(cacheData.products)) {
+                products = cacheData.products;
+                const cacheAge = Date.now() - (cacheData.timestamp || 0);
+                console.log('✅ Loaded ' + products.length + ' products from cache (age: ' + Math.round(cacheAge/1000) + 's)');
+                return products;
+            } else if (Array.isArray(cacheData)) {
+                // Old format (array directly)
+                products = cacheData;
+                console.log('✅ Loaded ' + products.length + ' products from old cache format');
+                return products;
+            }
+        } catch (e) {
+            console.error('Failed to parse cache:', e);
+        }
     }
+    
+    // No fallback - return empty array
+    products = [];
+    console.error('❌ No products available. Please check API connection or add products in admin panel.');
     
     return products;
 }
 
-// Sample products fallback
-function getSampleProducts() {
-    return [
-        {
-            _id: '1',
-            id: 1,
-            name: "CapCut Pro giá rẻ tuyệt đối",
-            category: "design",
-            price: 7000,
-            image: "https://play-lh.googleusercontent.com/3aWGqSf3T_p3F6wc8FFvcZcnjWlxpZdNaqHVNAqBFXvfRCyXYBiCwC-KXNR5p6LCnA=w240-h480-rw",
-            badge: "HOT",
-            sold: 125
-        },
-        {
-            _id: '2',
-            id: 2,
-            name: "ChatGPT Pro giá rẻ hơn gốc chưởi",
-            category: "ai",
-            price: 40000,
-            image: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/ChatGPT_logo.svg/1024px-ChatGPT_logo.svg.png",
-            badge: "HOT",
-            sold: 234
-        },
-        {
-            _id: '3',
-            id: 3,
-            name: "Canva Education 1 năm BHF",
-            category: "design",
-            price: 8000,
-            image: "https://static-00.iconduck.com/assets.00/canva-icon-2048x2048-g0kwfohy.png",
-            badge: "NEW",
-            sold: 89
-        },
-        {
-            _id: '4',
-            id: 4,
-            name: "Nâng Cấp Gemini AI Pro 1 năm giá chỉnh rơi",
-            category: "ai",
-            price: 25000,
-            image: "https://www.gstatic.com/lamda/images/gemini_sparkle_v002_d4735304ff6292a690345.svg",
-            badge: "NEW",
-            sold: 156
-        },
-        {
-            _id: '5',
-            id: 5,
-            name: "CAPCUT PRO 3 THIẾT BỊ - DÙNG RIÊNG",
-            category: "design",
-            price: 9000,
-            image: "https://play-lh.googleusercontent.com/3aWGqSf3T_p3F6wc8FFvcZcnjWlxpZdNaqHVNAqBFXvfRCyXYBiCwC-KXNR5p6LCnA=w240-h480-rw",
-            badge: "VIP",
-            sold: 198
-        },
-        {
-            _id: '6',
-            id: 6,
-            name: "Netflix Premium 4K - 1 tháng",
-            category: "entertainment",
-            price: 45000,
-            image: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Netflix_2015_logo.svg/1920px-Netflix_2015_logo.svg.png",
-            badge: "SALE",
-            sold: 312
-        },
-        {
-            _id: '7',
-            id: 7,
-            name: "Spotify Premium - Nghe nhạc không giới hạn",
-            category: "entertainment",
-            price: 35000,
-            image: "https://storage.googleapis.com/pr-newsroom-wp/1/2018/11/Spotify_Logo_RGB_Green.png",
-            badge: "HOT",
-            sold: 267
-        },
-        {
-            _id: '8',
-            id: 8,
-            name: "Microsoft Office 365 - 1 năm",
-            category: "software",
-            price: 180000,
-            image: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Microsoft_Office_logo_%282019%E2%80%93present%29.svg/1200px-Microsoft_Office_logo_%282019%E2%80%93present%29.svg.png",
-            badge: "HOT",
-            sold: 189
-        },
-        {
-            _id: '9',
-            id: 9,
-            name: "Dịch Vụ Đánh Giá Google Map 5 Sao Uy Tín - Giá Rẻ",
-            category: "service",
-            price: 25000,
-            image: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Google_Maps_Logo_2020.svg/1200px-Google_Maps_Logo_2020.svg.png",
-            badge: "HOT",
-            sold: 445
-        },
-        {
-            _id: '10',
-            id: 10,
-            name: "PROXY IPV4 VIỆT NAM - 30 NGÀY",
-            category: "vpn",
-            price: 1000,
-            image: "https://cdn-icons-png.flaticon.com/512/2976/2976286.png",
-            badge: "SALE",
-            sold: 678
-        },
-        {
-            _id: '11',
-            id: 11,
-            name: "Tài Khoản ChatGPT Plus - ChatGPT Go - ChatGPT Business",
-            category: "ai",
-            price: 45000,
-            image: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/ChatGPT_logo.svg/1024px-ChatGPT_logo.svg.png",
-            badge: "VIP",
-            sold: 523
-        },
-        {
-            _id: '12',
-            id: 12,
-            name: "Nâng Youtube Premium Chính Chủ Có Bảo Hành",
-            category: "entertainment",
-            price: 20000,
-            image: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/YouTube_social_white_square_%282017%29.svg/2048px-YouTube_social_white_square_%282017%29.svg.png",
-            badge: "HOT",
-            sold: 892
-        },
-        {
-            _id: '13',
-            id: 13,
-            name: "Tài Khoản Gemini Pro - Google One 2TB Năng Chính Chủ Mai...",
-            category: "ai",
-            price: 50000,
-            image: "https://www.gstatic.com/lamda/images/gemini_sparkle_v002_d4735304ff6292a690345.svg",
-            badge: "VIP",
-            sold: 334
-        },
-        {
-            _id: '14',
-            id: 14,
-            name: "Canva Pro 1 Năm - Thiết Kế Chuyên Nghiệp",
-            category: "design",
-            price: 15000,
-            image: "https://static-00.iconduck.com/assets.00/canva-icon-2048x2048-g0kwfohy.png",
-            badge: "NEW",
-            sold: 567
-        },
-        {
-            _id: '15',
-            id: 15,
-            name: "Adobe Creative Cloud All Apps - 1 Tháng",
-            category: "design",
-            price: 120000,
-            image: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Adobe_Creative_Cloud_rainbow_icon.svg/2101px-Adobe_Creative_Cloud_rainbow_icon.svg.png",
-            badge: "VIP",
-            sold: 145
-        },
-        {
-            _id: '16',
-            id: 16,
-            name: "Grammarly Premium - Viết Tiếng Anh Chuẩn",
-            category: "software",
-            price: 30000,
-            image: "https://static.grammarly.com/assets/files/efe8d7f0d7c44c7c1e9b9fa34f4e3d99/grammarly_app_icon.svg",
-            badge: "NEW",
-            sold: 234
-        },
-        {
-            _id: '17',
-            id: 17,
-            name: "VPN Premium - Truy Cập Mọi Trang Web",
-            category: "vpn",
-            price: 25000,
-            image: "https://cdn-icons-png.flaticon.com/512/2313/2313888.png",
-            badge: "HOT",
-            sold: 789
-        },
-        {
-            _id: '18',
-            id: 18,
-            name: "Midjourney Pro - AI Tạo Ảnh Đỉnh Cao",
-            category: "ai",
-            price: 55000,
-            image: "https://styles.redditmedia.com/t5_5smhl7/styles/communityIcon_yyg95v0z5jq91.png",
-            badge: "VIP",
-            sold: 412
-        },
-        {
-            _id: '19',
-            id: 19,
-            name: "Notion Premium - Quản Lý Công Việc Hiệu Quả",
-            category: "software",
-            price: 20000,
-            image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Notion-logo.svg/2048px-Notion-logo.svg.png",
-            badge: "NEW",
-            sold: 356
-        },
-        {
-            _id: '20',
-            id: 20,
-            name: "Disney+ Premium - Xem Phim Không Giới Hạn",
-            category: "entertainment",
-            price: 40000,
-            image: "https://static-assets.bamgrid.com/product/disneyplus/favicons/favicon.85cf084a56c5a3d90f38.ico",
-            badge: "HOT",
-            sold: 278
-        },
-        {
-            _id: '21',
-            id: 21,
-            name: "GitHub Copilot - AI Code Assistant",
-            category: "software",
-            price: 35000,
-            image: "https://github.githubassets.com/images/modules/site/copilot/copilot.png",
-            badge: "VIP",
-            sold: 189
-        },
-        {
-            _id: '22',
-            id: 22,
-            name: "Figma Professional - Thiết Kế UI/UX",
-            category: "design",
-            price: 28000,
-            image: "https://cdn.sanity.io/images/599r6htc/localized/46a76c802176eb17b04e12108de7e7e0f3736dc6-1024x1024.png",
-            badge: "NEW",
-            sold: 423
-        },
-        {
-            _id: '23',
-            id: 23,
-            name: "Telegram Premium - Tính Năng Cao Cấp",
-            category: "software",
-            price: 15000,
-            image: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Telegram_logo.svg/2048px-Telegram_logo.svg.png",
-            badge: "HOT",
-            sold: 612
-        },
-        {
-            _id: '24',
-            id: 24,
-            name: "Apple Music - 3 Tháng",
-            category: "entertainment",
-            price: 38000,
-            image: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Apple_Music_icon.svg/2048px-Apple_Music_icon.svg.png",
-            badge: "SALE",
-            sold: 345
-        }
-    ];
-}
+// Sample products removed - only use API/Database
+// If you need sample products, add them via admin panel or database
 
 function updateCartCount() {
     const cartCount = document.getElementById('cartCount');
@@ -549,12 +432,12 @@ function showNotification(message, type = 'success') {
 }
 
 // Auth Modal Functions
+// Auth Modal Functions - Redirect to new pages
 function openAuthModal(tab = 'login') {
-    const modal = document.getElementById('authModal');
-    if (modal) {
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-        switchAuthTab(tab);
+    if (tab === 'login') {
+        window.location.href = 'login-new.html';
+    } else if (tab === 'register') {
+        window.location.href = 'register-new.html';
     }
 }
 
@@ -1389,33 +1272,80 @@ function renderProductsExplore(productsToRender, container) {
 
 
 // Dark Mode Toggle
-function toggleDarkMode() {
-    document.body.classList.toggle('dark-mode');
-    const isDark = document.body.classList.contains('dark-mode');
-    localStorage.setItem('darkMode', isDark);
-    
-    // Update icon
-    const icon = event.target.closest('button').querySelector('i');
-    if (isDark) {
-        icon.classList.remove('fa-moon');
-        icon.classList.add('fa-sun');
+// Theme System (Light, Dark, System)
+let currentTheme = localStorage.getItem('theme') || 'system';
+
+function initTheme() {
+    applyTheme(currentTheme);
+    updateThemeIcon();
+}
+
+function applyTheme(theme) {
+    if (theme === 'system') {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.body.classList.toggle('dark-mode', prefersDark);
+    } else if (theme === 'dark') {
+        document.body.classList.add('dark-mode');
     } else {
-        icon.classList.remove('fa-sun');
-        icon.classList.add('fa-moon');
+        document.body.classList.remove('dark-mode');
     }
 }
 
-// Load dark mode preference on page load
-document.addEventListener('DOMContentLoaded', function() {
-    const isDark = localStorage.getItem('darkMode') === 'true';
-    if (isDark) {
-        document.body.classList.add('dark-mode');
-        const darkModeBtn = document.querySelector('.btn-icon i.fa-moon');
-        if (darkModeBtn) {
-            darkModeBtn.classList.remove('fa-moon');
-            darkModeBtn.classList.add('fa-sun');
+function updateThemeIcon() {
+    const icon = document.querySelector('.btn-theme-toggle i');
+    if (icon) {
+        if (currentTheme === 'dark') {
+            icon.className = 'fas fa-moon';
+        } else if (currentTheme === 'light') {
+            icon.className = 'fas fa-sun';
+        } else {
+            icon.className = 'fas fa-desktop';
         }
     }
+}
+
+function toggleThemeMenu() {
+    const menu = document.getElementById('themeMenu');
+    if (menu) {
+        menu.classList.toggle('active');
+    }
+}
+
+function setTheme(theme) {
+    currentTheme = theme;
+    localStorage.setItem('theme', theme);
+    applyTheme(theme);
+    updateThemeIcon();
+    
+    // Update active state in menu
+    document.querySelectorAll('.theme-option').forEach(opt => {
+        opt.classList.remove('active');
+    });
+    document.querySelector(`[data-theme="${theme}"]`)?.classList.add('active');
+    
+    // Close menu
+    document.getElementById('themeMenu')?.classList.remove('active');
+}
+
+// Close theme menu when clicking outside
+document.addEventListener('click', function(e) {
+    const themeBtn = document.querySelector('.btn-theme-toggle');
+    const themeMenu = document.getElementById('themeMenu');
+    if (themeMenu && !themeBtn?.contains(e.target) && !themeMenu.contains(e.target)) {
+        themeMenu.classList.remove('active');
+    }
+});
+
+// Listen to system theme changes
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+    if (currentTheme === 'system') {
+        applyTheme('system');
+    }
+});
+
+// Load theme preference on page load
+document.addEventListener('DOMContentLoaded', function() {
+    initTheme();
 });
 
 
@@ -2116,20 +2046,66 @@ function checkLoginStatus() {
     const userAvatarInitial = document.getElementById('userAvatarInitial');
     const walletLink = document.getElementById('walletLink');
     
+    console.log('🔍 checkLoginStatus:', {
+        hasUser: !!currentUser,
+        userName: currentUser?.name || currentUser?.email,
+        elementsFound: {
+            authButtons: !!authButtons,
+            userProfileBtn: !!userProfileBtn,
+            userNameDisplay: !!userNameDisplay,
+            userAvatarInitial: !!userAvatarInitial
+        }
+    });
+    
     if (currentUser) {
         // User is logged in
         if (authButtons) authButtons.style.display = 'none';
-        if (userProfileBtn) userProfileBtn.style.display = 'flex';
+        if (userProfileBtn) {
+            userProfileBtn.style.display = 'flex';
+            console.log('✅ Showing user profile button');
+        }
         if (walletLink) walletLink.style.display = 'flex';
         
+        // Show affiliate link
+        const affiliateLink = document.getElementById('affiliateLink');
+        if (affiliateLink) affiliateLink.style.display = 'flex';
+        
+        // Show reseller link
+        const resellerLink = document.getElementById('resellerLink');
+        if (resellerLink) resellerLink.style.display = 'flex';
+        
+        // Load tier info for logged in user
+        loadUserTierInfo();
+        
         const displayName = currentUser.name || currentUser.email.split('@')[0];
-        if (userNameDisplay) userNameDisplay.textContent = displayName;
-        if (userAvatarInitial) userAvatarInitial.textContent = displayName.charAt(0).toUpperCase();
+        if (userNameDisplay) {
+            userNameDisplay.textContent = displayName;
+            console.log('✅ Set display name:', displayName);
+        }
+        if (userAvatarInitial) {
+            userAvatarInitial.textContent = displayName.charAt(0).toUpperCase();
+            console.log('✅ Set avatar initial:', displayName.charAt(0).toUpperCase());
+        }
+        
+        // Update dropdown info
+        const userNameDropdown = document.getElementById('userNameDropdown');
+        const userAvatarLarge = document.getElementById('userAvatarLarge');
+        if (userNameDropdown) userNameDropdown.textContent = displayName;
+        if (userAvatarLarge) userAvatarLarge.textContent = displayName.charAt(0).toUpperCase();
     } else {
         // User is not logged in
+        console.log('❌ No user logged in');
         if (authButtons) authButtons.style.display = 'flex';
         if (userProfileBtn) userProfileBtn.style.display = 'none';
         if (walletLink) walletLink.style.display = 'none';
+        
+        // Hide affiliate link
+        const affiliateLink = document.getElementById('affiliateLink');
+        if (affiliateLink) affiliateLink.style.display = 'none';
+        
+        // Hide reseller link
+        const resellerLink = document.getElementById('resellerLink');
+        if (resellerLink) resellerLink.style.display = 'none';
     }
 }
 
@@ -2371,5 +2347,163 @@ document.addEventListener('DOMContentLoaded', function() {
         if (resetButton) {
             resetButton.style.display = 'block';
         }
+    }
+});
+
+// =====================================================
+// TIER SYSTEM FUNCTIONS
+// =====================================================
+
+// Load user tier information
+async function loadUserTierInfo() {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+        const response = await fetch('/api/reseller/my-tier', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            updateTierDisplay(result.data);
+            showTierUpgradeBanner(result.data);
+        }
+    } catch (error) {
+        console.error('Error loading tier info:', error);
+    }
+}
+
+// Update tier display in header
+function updateTierDisplay(tierData) {
+    const tierIndicator = document.getElementById('tierIndicator');
+    const userTierDropdown = document.getElementById('userTierDropdown');
+    const tierBenefitsDropdown = document.getElementById('tierBenefitsDropdown');
+    
+    if (tierData.current_tier) {
+        const tier = tierData.current_tier;
+        
+        // Update tier indicator dot
+        if (tierIndicator) {
+            tierIndicator.className = `tier-indicator tier-${tier.tier_name}`;
+        }
+        
+        // Update dropdown info
+        if (userTierDropdown) {
+            userTierDropdown.textContent = tier.display_name;
+            userTierDropdown.className = `tier-badge-dropdown tier-${tier.tier_name}`;
+        }
+        
+        if (tierBenefitsDropdown) {
+            tierBenefitsDropdown.textContent = `Giảm ${tier.discount_percent}% • Hoa hồng ${tier.commission_percent}%`;
+        }
+    }
+}
+
+// Show tier upgrade banner
+function showTierUpgradeBanner(tierData) {
+    const banner = document.getElementById('tierUpgradeBanner');
+    if (!banner) return;
+
+    const { current_tier, next_tier, progress } = tierData;
+    
+    // Update banner content
+    const bannerCurrentTier = document.getElementById('bannerCurrentTier');
+    const bannerDiscount = document.getElementById('bannerDiscount');
+    const bannerCommission = document.getElementById('bannerCommission');
+    
+    if (bannerCurrentTier) bannerCurrentTier.textContent = current_tier.display_name;
+    if (bannerDiscount) bannerDiscount.textContent = `Giảm ${current_tier.discount_percent}%`;
+    if (bannerCommission) bannerCommission.textContent = `Hoa hồng ${current_tier.commission_percent}%`;
+
+    const upgradeMessage = document.getElementById('upgradeMessage');
+    const upgradeAmount = document.getElementById('upgradeAmount');
+    const upgradeNextTier = document.getElementById('upgradeNextTier');
+    const upgradeProgressFill = document.getElementById('upgradeProgressFill');
+
+    if (next_tier && progress) {
+        if (upgradeAmount) upgradeAmount.textContent = progress.remaining.toLocaleString('vi-VN') + 'đ';
+        if (upgradeNextTier) upgradeNextTier.textContent = next_tier.display_name;
+        if (upgradeProgressFill) upgradeProgressFill.style.width = `${progress.percent}%`;
+        
+        // Show banner
+        banner.style.display = 'block';
+    } else {
+        // Max tier reached
+        if (upgradeMessage) {
+            upgradeMessage.innerHTML = 'Bạn đã đạt cấp cao nhất! <strong>Tận hưởng ưu đãi tối đa</strong>';
+        }
+        if (upgradeProgressFill) upgradeProgressFill.style.width = '100%';
+        banner.style.display = 'block';
+    }
+}
+
+// Load products with tier pricing
+async function loadProductsWithTierPricing() {
+    try {
+        const token = localStorage.getItem('token');
+        const headers = {};
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+        
+        const response = await fetch('/api/products', { headers });
+        const result = await response.json();
+        
+        if (result.success && result.data && result.data.length > 0) {
+            return result.data;
+        } else {
+            // Use getSampleProducts from script.js
+            return typeof getSampleProducts === 'function' ? getSampleProducts() : [];
+        }
+    } catch (error) {
+        console.error('Failed to load products:', error);
+        // Use getSampleProducts from script.js
+        return typeof getSampleProducts === 'function' ? getSampleProducts() : [];
+    }
+}
+// =====================================================
+// USER DROPDOWN FUNCTIONS
+// =====================================================
+
+// Logout function
+function logout() {
+    // Clear localStorage
+    localStorage.removeItem('token');
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('currentUser');
+    
+    // Show notification
+    showNotification('Đã đăng xuất thành công!');
+    
+    // Redirect to home page
+    setTimeout(() => {
+        window.location.href = 'index.html';
+    }, 1000);
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(e) {
+    const userProfileBtn = document.getElementById('userProfileBtn');
+    const userDropdown = document.getElementById('userDropdown');
+    
+    if (userProfileBtn && userDropdown) {
+        if (!userProfileBtn.contains(e.target)) {
+            userDropdown.style.opacity = '0';
+            userDropdown.style.visibility = 'hidden';
+            userDropdown.style.transform = 'translateY(-10px)';
+        }
+    }
+});
+
+// Prevent dropdown from closing when clicking inside
+document.addEventListener('DOMContentLoaded', function() {
+    const userDropdown = document.getElementById('userDropdown');
+    if (userDropdown) {
+        userDropdown.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
     }
 });

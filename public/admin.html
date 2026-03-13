@@ -135,6 +135,14 @@
                     <i class="fas fa-users"></i>
                     <span>Khách hàng</span>
                 </a>
+                <a href="#vouchers" class="nav-item" onclick="showSection('vouchers')">
+                    <i class="fas fa-ticket-alt"></i>
+                    <span>Vouchers</span>
+                </a>
+                <a href="#analytics" class="nav-item" onclick="showSection('analytics')">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Analytics</span>
+                </a>
                 <a href="#deposits" class="nav-item" onclick="showSection('deposits')">
                     <i class="fas fa-wallet"></i>
                     <span>Nạp tiền</span>
@@ -578,6 +586,103 @@
                 </div>
             </section>
 
+            <!-- Vouchers Section -->
+            <section id="vouchers" class="admin-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-ticket-alt"></i> Quản lý Vouchers</h2>
+                    <button class="btn-primary" onclick="openVoucherModal()">
+                        <i class="fas fa-plus"></i>
+                        Tạo Voucher
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Mã Voucher</th>
+                                <th>Loại</th>
+                                <th>Giá trị</th>
+                                <th>Số lượng</th>
+                                <th>Đã dùng</th>
+                                <th>Hết hạn</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vouchersTable">
+                            <tr>
+                                <td colspan="8" class="text-center">Đang tải...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Analytics Section -->
+            <section id="analytics" class="admin-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-chart-bar"></i> Analytics & Thống kê</h2>
+                    <button class="btn-secondary" onclick="loadAnalytics()">
+                        <i class="fas fa-sync"></i>
+                        Làm mới
+                    </button>
+                </div>
+
+                <div class="stats-grid" style="margin-bottom: 30px;">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="analyticsPageViews">-</h3>
+                            <p>Lượt xem trang</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="analyticsUniqueVisitors">-</h3>
+                            <p>Khách truy cập</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);">
+                            <i class="fas fa-mouse-pointer"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="analyticsEvents">-</h3>
+                            <p>Sự kiện</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%);">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="analyticsAvgTime">-</h3>
+                            <p>Thời gian TB (giây)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: white; border-radius: 12px; padding: 25px; margin-bottom: 20px;">
+                    <h3 style="margin: 0 0 20px 0;"><i class="fas fa-chart-line"></i> Trang phổ biến</h3>
+                    <div id="analyticsTopPages">
+                        <p style="text-align: center; color: #666; padding: 20px;">Đang tải...</p>
+                    </div>
+                </div>
+
+                <div style="background: white; border-radius: 12px; padding: 25px;">
+                    <h3 style="margin: 0 0 20px 0;"><i class="fas fa-mouse-pointer"></i> Sự kiện gần đây</h3>
+                    <div id="analyticsRecentEvents">
+                        <p style="text-align: center; color: #666; padding: 20px;">Đang tải...</p>
+                    </div>
+                </div>
+            </section>
+
             <!-- Notifications Section -->
             <section id="notifications" class="admin-section">
                 <div class="section-header">
@@ -732,8 +837,19 @@
                         </select>
                     </div>
                     <div class="form-group full-width">
-                        <label>URL ảnh *</label>
-                        <input type="url" id="productImage" required>
+                        <label>Ảnh sản phẩm *</label>
+                        <div class="image-upload-container">
+                            <input type="file" id="productImageFile" accept="image/*" style="display: none;">
+                            <button type="button" class="btn-upload-image" onclick="document.getElementById('productImageFile').click()">
+                                <i class="fas fa-cloud-upload-alt"></i> Chọn ảnh
+                            </button>
+                            <span id="imageFileName" style="margin-left: 10px; color: #666;"></span>
+                            <div id="imagePreview" style="margin-top: 10px; display: none;">
+                                <img id="previewImg" style="max-width: 200px; max-height: 200px; border-radius: 10px; border: 2px solid #e0e0e0;">
+                            </div>
+                        </div>
+                        <small style="color: #999;">Hoặc nhập URL ảnh:</small>
+                        <input type="url" id="productImage" placeholder="https://example.com/image.jpg">
                     </div>
                 </div>
             </div>

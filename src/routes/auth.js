@@ -10,10 +10,14 @@ const supabase = require('../config/supabase');
 // Đăng ký
 router.post('/register', async (req, res) => {
     try {
+        console.log('=== REGISTER REQUEST ===');
+        console.log('Body:', req.body);
+        
         const { name, email, phone, password } = req.body;
 
         // Validate
         if (!name || !email || !password) {
+            console.log('❌ Missing required fields');
             return res.status(400).json({
                 success: false,
                 message: 'Vui lòng điền đầy đủ thông tin'
@@ -21,8 +25,10 @@ router.post('/register', async (req, res) => {
         }
 
         // Kiểm tra email đã tồn tại
+        console.log('Checking if email exists:', email);
         const existingUser = await db.getUserByEmail(email);
         if (existingUser) {
+            console.log('❌ Email already exists');
             return res.status(400).json({
                 success: false,
                 message: 'Email đã được đăng ký'
@@ -30,9 +36,11 @@ router.post('/register', async (req, res) => {
         }
 
         // Mã hóa mật khẩu
+        console.log('Hashing password...');
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Tạo user mới
+        console.log('Creating new user...');
         const newUser = await db.createUser({
             name,
             email,
@@ -40,6 +48,17 @@ router.post('/register', async (req, res) => {
             password: hashedPassword,
             role: 'user'
         });
+        console.log('✅ User created:', newUser.id);
+
+        // Tạo ví cho user mới với số dư ban đầu 0đ
+        console.log('Creating wallet...');
+        await supabase
+            .from('wallet')
+            .insert([{
+                user_id: newUser.id,
+                balance: 0
+            }]);
+        console.log('✅ Wallet created');
 
         // Tạo JWT token
         const token = jwt.sign(
@@ -60,6 +79,7 @@ router.post('/register', async (req, res) => {
             });
         }
 
+        console.log('✅ Registration complete');
         res.status(201).json({
             success: true,
             message: 'Đăng ký thành công',
@@ -68,7 +88,8 @@ router.post('/register', async (req, res) => {
                 id: newUser.id,
                 name: newUser.name,
                 email: newUser.email,
-                phone: newUser.phone
+                phone: newUser.phone,
+                balance: 0
             }
         });
     } catch (error) {
@@ -83,10 +104,16 @@ router.post('/register', async (req, res) => {
 // Đăng nhập
 router.post('/login', async (req, res) => {
     try {
+        console.log('=== LOGIN REQUEST ===');
+        console.log('Body:', req.body);
+        console.log('Email:', req.body.email);
+        console.log('Password length:', req.body.password?.length);
+        
         const { email, password } = req.body;
 
         // Validate
         if (!email || !password) {
+            console.log('❌ Missing email or password');
             return res.status(400).json({
                 success: false,
                 message: 'Vui lòng điền email và mật khẩu'
@@ -94,8 +121,12 @@ router.post('/login', async (req, res) => {
         }
 
         // Tìm user
+        console.log('Searching for user:', email);
         const user = await db.getUserByEmail(email);
+        console.log('User found:', user ? 'YES' : 'NO');
+        
         if (!user) {
+            console.log('❌ User not found');
             return res.status(401).json({
                 success: false,
                 message: 'Email hoặc mật khẩu không đúng'
@@ -103,14 +134,20 @@ router.post('/login', async (req, res) => {
         }
 
         // Kiểm tra mật khẩu
+        console.log('Checking password...');
         const isPasswordValid = await bcrypt.compare(password, user.password);
+        console.log('Password valid:', isPasswordValid);
+        
         if (!isPasswordValid) {
+            console.log('❌ Invalid password');
             return res.status(401).json({
                 success: false,
                 message: 'Email hoặc mật khẩu không đúng'
             });
         }
 
+        console.log('✅ Login successful');
+        
         // Tạo JWT token
         const token = jwt.sign(
             { userId: user.id, email: user.email },

@@ -1,0 +1,146 @@
+<!-- Language Switcher Component -->
+<div class="language-switcher">
+    <button class="language-btn" onclick="toggleLanguageMenu()">
+        <i class="fas fa-globe"></i>
+        <span id="currentLanguage">VI</span>
+        <i class="fas fa-chevron-down"></i>
+    </button>
+    
+    <div class="language-menu" id="languageMenu">
+        <div class="language-option" onclick="changeLanguage('vi')">
+            <span class="flag">🇻🇳</span>
+            <span>Tiếng Việt</span>
+            <i class="fas fa-check language-check" id="check-vi"></i>
+        </div>
+        <div class="language-option" onclick="changeLanguage('en')">
+            <span class="flag">🇬🇧</span>
+            <span>English</span>
+            <i class="fas fa-check language-check" id="check-en"></i>
+        </div>
+    </div>
+</div>
+
+<style>
+.language-switcher {
+    position: relative;
+    display: inline-block;
+}
+
+.language-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.language-btn:hover {
+    border-color: #667eea;
+    background: #f8f9ff;
+}
+
+.language-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    min-width: 200px;
+    display: none;
+    z-index: 1000;
+}
+
+.language-menu.active {
+    display: block;
+}
+
+.language-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.language-option:hover {
+    background: #f8f9ff;
+}
+
+.language-option .flag {
+    font-size: 20px;
+}
+
+.language-option span:not(.flag) {
+    flex: 1;
+    font-size: 14px;
+}
+
+.language-check {
+    color: #667eea;
+    display: none;
+}
+
+.language-check.active {
+    display: block;
+}
+</style>
+
+<script>
+function toggleLanguageMenu() {
+    const menu = document.getElementById('languageMenu');
+    menu.classList.toggle('active');
+}
+
+function changeLanguage(lang) {
+    i18n.setLanguage(lang);
+    
+    // Update UI
+    const langText = {
+        'vi': 'VI',
+        'en': 'EN'
+    };
+    
+    document.getElementById('currentLanguage').textContent = langText[lang];
+    
+    // Update checks
+    document.querySelectorAll('.language-check').forEach(check => {
+        check.classList.remove('active');
+    });
+    document.getElementById(`check-${lang}`).classList.add('active');
+    
+    // Close menu
+    document.getElementById('languageMenu').classList.remove('active');
+    
+    // Show notification
+    showNotification(i18n.t('common.success'));
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    const currentLang = i18n.getLanguage();
+    const langText = {
+        'vi': 'VI',
+        'en': 'EN'
+    };
+    
+    document.getElementById('currentLanguage').textContent = langText[currentLang];
+    document.getElementById(`check-${currentLang}`).classList.add('active');
+});
+
+// Close menu when clicking outside
+document.addEventListener('click', (e) => {
+    const switcher = document.querySelector('.language-switcher');
+    if (switcher && !switcher.contains(e.target)) {
+        document.getElementById('languageMenu').classList.remove('active');
+    }
+});
+</script>

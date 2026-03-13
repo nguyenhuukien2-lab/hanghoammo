@@ -1,7 +1,6 @@
 // Telegram Bot Handler - Xử lý tin nhắn từ khách hàng
 require('dotenv').config();
 const https = require('https');
-const db = require('./config/database');
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '8602357719:AAEuMFXaUyBICsbDFttf3KpdaCRvx1ybkKU';
 let lastUpdateId = 0;
