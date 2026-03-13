@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const db = require('../config/database');
 const emailService = require('../services/emailService');
 const telegramService = require('../services/telegramService');
-const supabase = require('../config/supabase');
+const { supabase } = require('../config/supabase');
 
 // Đăng ký
 router.post('/register', async (req, res) => {
