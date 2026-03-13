@@ -11,7 +11,7 @@ class StockManager {
 
     init() {
         this.startStockUpdates();
-        this.initLiveChat();
+        // this.initLiveChat(); // Disabled - chat feature removed
         this.initPreviewModals();
     }
 
@@ -278,26 +278,7 @@ class StockManager {
         this.checkUnreadMessages();
     }
 
-    createLiveChatButton() {
-        const button = document.createElement('button');
-        button.className = 'live-chat-button';
-        button.innerHTML = '<i class="fas fa-comments"></i>';
-        button.title = 'Chat với admin';
-        button.onclick = () => this.openLiveChat();
-        document.body.appendChild(button);
-    }
-
-    openLiveChat() {
-        // Check if user is logged in
-        const token = localStorage.getItem('token');
-        if (!token) {
-            showNotification('Vui lòng đăng nhập để chat với admin');
-            return;
-        }
-
-        // Open chat window (you can integrate with existing chat system)
-        window.open('chat.html', 'livechat', 'width=400,height=600,scrollbars=yes,resizable=yes');
-    }
+    // Live chat button removed - feature disabled
 
     checkUnreadMessages() {
         // Check for unread messages every minute

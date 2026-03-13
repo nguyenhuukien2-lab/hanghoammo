@@ -2685,7 +2685,7 @@ a {
 /* Floating Telegram Button */
 .floating-telegram {
     position: fixed;
-    bottom: 25px;
+    bottom: 100px;
     right: 25px;
     width: 60px;
     height: 60px;
@@ -2699,7 +2699,32 @@ a {
     cursor: pointer;
     box-shadow: 0 4px 20px rgba(0,136,204,0.3);
     transition: all 0.3s ease;
-    z-index: 1000;
+    z-index: 999;
+}
+
+.floating-telegram:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 30px rgba(0,136,204,0.4);
+}
+
+/* Telegram button styling */
+.floating-telegram {
+    position: fixed;
+    bottom: 100px;
+    right: 25px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #0088cc, #229ed9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0,136,204,0.3);
+    transition: all 0.3s ease;
+    z-index: 999;
 }
 
 .floating-telegram:hover {
@@ -4149,11 +4174,12 @@ body.dark-mode .hero-wrapper:hover::before {
     display: flex;
     align-items: center;
     background: #f8fafc;
-    border-radius: 12px;
-    padding: 5px;
+    border-radius: 8px;
+    padding: 0;
     margin-bottom: 24px;
     border: 1.5px solid #e2e8f0;
     transition: all 0.3s;
+    gap: 0;
 }
 
 .hero-search-box:focus-within {
@@ -4186,27 +4212,36 @@ body.dark-mode .hero-wrapper:hover::before {
 .hero-search-box button {
     background: #0066FF;
     border: none;
-    padding: 15px 35px;
-    border-radius: 10px;
+    padding: 15px 24px;
+    border-radius: 0 8px 8px 0;
     color: white;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.3s;
-    font-size: 15px;
+    font-size: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 0;
+    height: auto;
+    min-width: auto;
+    margin-right: 0;
+    flex-shrink: 0;
 }
 
 .hero-search-box button i {
-    font-size: 14px;
+    font-size: 18px;
+    color: white !important;
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: auto !important;
+    height: auto !important;
 }
 
 .hero-search-box button:hover {
     background: #0052CC;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
+    box-shadow: none;
 }
 
 .hero-features-inline {
@@ -6348,3 +6383,260 @@ body.dark-mode .product-detail-reviews {
         gap: 20px;
     }
 }
+
+
+/* ===================================
+   NEW FOOTER STYLES (BachHoaMMO Style)
+   =================================== */
+
+.footer-new {
+    background: #1a1f2e;
+    color: #e5e7eb;
+    padding: 60px 0 20px;
+    margin-top: 80px;
+}
+
+.footer-top {
+    display: grid;
+    grid-template-columns: 1.5fr 2fr;
+    gap: 60px;
+    margin-bottom: 40px;
+}
+
+.footer-brand h2 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #fff;
+}
+
+.footer-brand h2 span {
+    color: #667eea;
+}
+
+.footer-brand p {
+    color: #9ca3af;
+    line-height: 1.8;
+    margin-bottom: 25px;
+    font-size: 14px;
+}
+
+.footer-social {
+    display: flex;
+    gap: 12px;
+}
+
+.footer-social a {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: #2d3748;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #e5e7eb;
+    font-size: 18px;
+    transition: all 0.3s ease;
+}
+
+.footer-social a:hover {
+    background: #667eea;
+    color: #fff;
+    transform: translateY(-3px);
+}
+
+.footer-links {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+}
+
+.footer-col h4 {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #fff;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+}
+
+.footer-col ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-col ul li {
+    margin-bottom: 12px;
+}
+
+.footer-col ul li a {
+    color: #9ca3af;
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.footer-col ul li a:hover {
+    color: #667eea;
+    padding-left: 5px;
+}
+
+.footer-contact li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #9ca3af;
+    font-size: 14px;
+}
+
+.footer-contact li i {
+    color: #667eea;
+    width: 18px;
+}
+
+.footer-contact li a {
+    color: #9ca3af;
+}
+
+.footer-divider {
+    height: 1px;
+    background: #2d3748;
+    margin: 40px 0;
+}
+
+.footer-keywords {
+    margin-bottom: 40px;
+}
+
+.footer-keywords h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 20px;
+}
+
+.keywords-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    max-height: 120px;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.keywords-list.expanded {
+    max-height: none;
+}
+
+.keywords-list a {
+    padding: 8px 16px;
+    background: #2d3748;
+    color: #9ca3af;
+    border-radius: 6px;
+    font-size: 13px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.keywords-list a:hover {
+    background: #667eea;
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+.keywords-toggle {
+    margin-top: 15px;
+    padding: 8px 20px;
+    background: transparent;
+    border: 1px solid #2d3748;
+    color: #9ca3af;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.3s ease;
+}
+
+.keywords-toggle:hover {
+    border-color: #667eea;
+    color: #667eea;
+}
+
+.footer-bottom {
+    text-align: center;
+    padding-top: 30px;
+    border-top: 1px solid #2d3748;
+}
+
+.footer-bottom p {
+    color: #6b7280;
+    font-size: 13px;
+    margin: 5px 0;
+}
+
+.footer-team {
+    margin-top: 8px;
+}
+
+.footer-team a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.footer-team a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive Footer */
+@media (max-width: 992px) {
+    .footer-top {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+    
+    .footer-links {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .footer-new {
+        padding: 40px 0 20px;
+    }
+    
+    .footer-links {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+    
+    .keywords-list {
+        max-height: 80px;
+    }
+}
+
+/* Dark Mode Support */
+body.dark-mode .footer-new {
+    background: #0f1419;
+}
+
+body.dark-mode .footer-social a {
+    background: #1a1f2e;
+}
+
+body.dark-mode .footer-divider {
+    background: #1a1f2e;
+}
+
+body.dark-mode .keywords-list a {
+    background: #1a1f2e;
+}
+
+body.dark-mode .keywords-toggle {
+    border-color: #1a1f2e;
+}
+
+
+/* Telegram button styling */
