@@ -123,10 +123,6 @@
                     <i class="fas fa-box"></i>
                     <span>Sản phẩm</span>
                 </a>
-                <a href="#accounts" class="nav-item" onclick="showSection('accounts')">
-                    <i class="fas fa-key"></i>
-                    <span>Tài khoản</span>
-                </a>
                 <a href="#orders" class="nav-item" onclick="showSection('orders')">
                     <i class="fas fa-shopping-cart"></i>
                     <span>Đơn hàng</span>
@@ -135,10 +131,6 @@
                     <i class="fas fa-users"></i>
                     <span>Khách hàng</span>
                 </a>
-                <a href="#vouchers" class="nav-item" onclick="showSection('vouchers')">
-                    <i class="fas fa-ticket-alt"></i>
-                    <span>Vouchers</span>
-                </a>
                 <a href="#analytics" class="nav-item" onclick="showSection('analytics')">
                     <i class="fas fa-chart-bar"></i>
                     <span>Analytics</span>
@@ -146,18 +138,6 @@
                 <a href="#deposits" class="nav-item" onclick="showSection('deposits')">
                     <i class="fas fa-wallet"></i>
                     <span>Nạp tiền</span>
-                </a>
-                <a href="#chat" class="nav-item" onclick="showSection('chat')">
-                    <i class="fas fa-comments"></i>
-                    <span>Chat</span>
-                </a>
-                <a href="#ai-chatbot" class="nav-item" onclick="showSection('ai-chatbot')">
-                    <i class="fas fa-robot"></i>
-                    <span>AI Chatbot</span>
-                </a>
-                <a href="#notifications" class="nav-item" onclick="showSection('notifications')">
-                    <i class="fas fa-bell"></i>
-                    <span>Thông báo</span>
                 </a>
                 <a href="#settings" class="nav-item" onclick="showSection('settings')">
                     <i class="fas fa-cog"></i>
@@ -442,54 +422,6 @@
                     <div style="text-align: center; padding: 60px 20px; color: #999;">
                         <i class="fas fa-spinner fa-spin" style="font-size: 48px; margin-bottom: 20px;"></i>
                         <p>Đang tải danh sách nạp tiền...</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Chat Section -->
-            <section id="chat" class="admin-section">
-                <div class="section-header">
-                    <h2>Quản lý Chat</h2>
-                    <button class="btn-secondary" onclick="loadConversations()">
-                        <i class="fas fa-sync"></i>
-                        Làm mới
-                    </button>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 350px 1fr; gap: 20px; height: calc(100vh - 200px);">
-                    <!-- Conversations List -->
-                    <div style="background: white; border-radius: 12px; padding: 20px; overflow-y: auto;">
-                        <h3 style="margin: 0 0 20px 0; font-size: 18px;">Hội thoại</h3>
-                        <div id="conversationsList">
-                            <div style="text-align: center; padding: 40px 20px; color: #999;">
-                                <i class="fas fa-spinner fa-spin" style="font-size: 32px; margin-bottom: 15px;"></i>
-                                <p>Đang tải...</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Chat Messages -->
-                    <div style="background: white; border-radius: 12px; display: flex; flex-direction: column;">
-                        <div id="chatHeader" style="padding: 20px; border-bottom: 2px solid #f0f0f0; display: none;">
-                            <h3 style="margin: 0; font-size: 18px;" id="chatUserName">Chọn hội thoại</h3>
-                            <p style="margin: 5px 0 0 0; color: #999; font-size: 14px;" id="chatUserEmail"></p>
-                        </div>
-                        
-                        <div id="adminChatMessages" style="flex: 1; padding: 20px; overflow-y: auto; background: #f8f9fa;">
-                            <div style="text-align: center; padding: 60px 20px; color: #999;">
-                                <i class="fas fa-comments" style="font-size: 64px; margin-bottom: 20px; opacity: 0.3;"></i>
-                                <p style="font-size: 16px;">Chọn một hội thoại để bắt đầu</p>
-                            </div>
-                        </div>
-                        
-                        <form id="adminChatForm" onsubmit="sendAdminMessage(event)" style="padding: 20px; border-top: 2px solid #f0f0f0; display: none;">
-                            <div style="display: flex; gap: 10px;">
-                                <input type="text" id="adminChatInput" placeholder="Nhập tin nhắn..." style="flex: 1; padding: 12px 20px; border: 2px solid #e0e0e0; border-radius: 25px; font-size: 14px;" required>
-                                <button type="submit" style="padding: 12px 30px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 25px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
-                                    <i class="fas fa-paper-plane"></i> Gửi
-                                </button>
-                            </div>
-                        </form>
                     </div>
                 </div>
             </section>

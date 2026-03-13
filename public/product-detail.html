@@ -8,6 +8,7 @@
     <link rel="shortcut icon" type="image/png" href="logo-mmo.png">
     <link rel="stylesheet" href="style.css?v=5.5">
     <link rel="stylesheet" href="reviews-wishlist.css">
+    <link rel="stylesheet" href="product-detail.css?v=2.1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -166,16 +167,25 @@
                         </div>
                     </div>
 
-                    <!-- Price -->
-                    <div class="product-detail-price">
-                        <span class="price-label">Giá:</span>
-                        <span class="price-value" id="productPrice">0đ</span>
+                    <!-- Price Box -->
+                    <div class="product-price-box">
+                        <div class="price-label">Phân loại:</div>
+                        <div class="product-variants" id="productVariants">
+                            <!-- Variants will be loaded here -->
+                        </div>
                     </div>
 
-                    <!-- Description -->
-                    <div class="product-detail-description">
-                        <h3>Mô tả</h3>
-                        <p id="productDescription">Đang tải thông tin sản phẩm...</p>
+                    <!-- Quantity Box -->
+                    <div class="product-quantity-box">
+                        <div class="quantity-label">Số lượng</div>
+                        <div class="quantity-controls">
+                            <button class="qty-btn" onclick="decreaseQuantity()">-</button>
+                            <input type="number" id="quantityInput" value="1" min="1" readonly>
+                            <button class="qty-btn" onclick="increaseQuantity()">+</button>
+                        </div>
+                        <div class="stock-info" id="stockInfo">
+                            Còn hàng
+                        </div>
                     </div>
 
                     <!-- Action Buttons -->
@@ -185,7 +195,6 @@
                             Thêm vào giỏ
                         </button>
                         <button class="btn-detail-success" onclick="buyNow()">
-                            <i class="fas fa-check"></i>
                             Mua ngay
                         </button>
                     </div>
@@ -198,9 +207,17 @@
                 </div>
             </div>
 
+            <!-- Product Description Section -->
+            <div class="product-description-section">
+                <h2 class="section-title">Mô tả sản phẩm</h2>
+                <div class="description-content" id="productDescription">
+                    Đang tải thông tin sản phẩm...
+                </div>
+            </div>
+
             <!-- Reviews Section -->
             <div class="product-detail-reviews">
-                <h2><i class="fas fa-comments"></i> Bình luận & Đánh giá</h2>
+                <h2 class="section-title">Đánh giá sản phẩm</h2>
                 
                 <div class="reviews-container">
                     <div id="reviewStats" class="review-stats-detail"></div>
@@ -214,7 +231,7 @@
 
             <!-- Related Products -->
             <div class="related-products-section">
-                <h2>Sản phẩm liên quan</h2>
+                <h2 class="section-title">Sản phẩm liên quan</h2>
                 <div class="products-grid" id="relatedProducts"></div>
             </div>
         </div>
@@ -280,6 +297,33 @@
     <script src="reviews.js"></script>
     <script src="wishlist.js"></script>
     <script>
+        let selectedVariant = null;
+        let currentQuantity = 1;
+        
+        // Quantity functions
+        function increaseQuantity() {
+            currentQuantity++;
+            document.getElementById('quantityInput').value = currentQuantity;
+        }
+        
+        function decreaseQuantity() {
+            if (currentQuantity > 1) {
+                currentQuantity--;
+                document.getElementById('quantityInput').value = currentQuantity;
+            }
+        }
+        
+        // Select variant
+        function selectVariant(variantData) {
+            selectedVariant = variantData;
+            
+            // Update active state
+            document.querySelectorAll('.variant-option').forEach(el => {
+                el.classList.remove('active');
+            });
+            event.target.closest('.variant-option').classList.add('active');
+        }
+        
         // Load product detail on page load
         document.addEventListener('DOMContentLoaded', async function() {
             // Đảm bảo modal đóng khi load trang
@@ -315,7 +359,7 @@
             const button = document.getElementById('wishlistBtn');
             if (button && isInWishlist) {
                 button.classList.add('active');
-                button.innerHTML = '<i class="fas fa-heart"></i>';
+                button.innerHTML = '<i class="fas fa-heart"></i><span>Đã thêm vào yêu thích</span>';
             }
         }
     </script>

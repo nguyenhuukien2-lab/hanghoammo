@@ -1462,7 +1462,6 @@ function loadProductDetail() {
     document.getElementById('productImage').src = product.image;
     document.getElementById('productImage').alt = product.name;
     document.getElementById('productTitle').textContent = product.name;
-    document.getElementById('productPrice').textContent = formatPrice(product.price);
     document.getElementById('productSold').textContent = product.sold || 0;
     document.getElementById('productBadge').textContent = product.badge || 'NEW';
     
@@ -1479,6 +1478,9 @@ function loadProductDetail() {
         badge.style.color = '#333';
     }
     
+    // Load variants
+    loadProductVariants(product);
+    
     // Set description
     const description = getProductDescription(product);
     document.getElementById('productDescription').innerHTML = description;
@@ -1491,6 +1493,30 @@ function loadProductDetail() {
     
     // Store current product for cart
     window.currentProduct = product;
+}
+
+function loadProductVariants(product) {
+    const variantsContainer = document.getElementById('productVariants');
+    
+    // Create variants based on product
+    const variants = [
+        { name: '1 Tháng', price: product.price, duration: '1 tháng' },
+        { name: '3 Tháng', price: product.price * 2.7, duration: '3 tháng', discount: '10%' },
+        { name: '6 Tháng', price: product.price * 5, duration: '6 tháng', discount: '17%' },
+        { name: '12 Tháng', price: product.price * 9, duration: '12 tháng', discount: '25%' }
+    ];
+    
+    variantsContainer.innerHTML = variants.map((variant, index) => `
+        <div class="variant-option ${index === 0 ? 'active' : ''}" onclick="selectVariant(${JSON.stringify(variant).replace(/"/g, '&quot;')})">
+            <span class="variant-name">${variant.name}</span>
+            <span class="variant-price">${formatPrice(variant.price)}</span>
+        </div>
+    `).join('');
+    
+    // Set default selected variant
+    if (window.selectVariant) {
+        window.selectedVariant = variants[0];
+    }
 }
 
 function getProductDescription(product) {

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
-const supabase = require('../config/supabase');
+const { supabase } = require('../config/supabase');
 
 // Get messages for current user
 router.get('/my-messages', authenticateToken, async (req, res) => {

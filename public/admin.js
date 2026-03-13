@@ -803,26 +803,34 @@ function viewCustomerDetails(userId) {
 }
 
 // Notifications Management
-function loadNotifications() {
-    const container = document.getElementById('notificationsList');
-    if (notifications.length === 0) {
-        container.innerHTML = '<p class="text-center">Chưa có thông báo</p>';
-        return;
+async function loadNotifications() {
+    try {
+        const response = await apiRequest('/admin/notifications');
+        const notificationsList = response.data || [];
+        
+        const container = document.getElementById('notificationsList');
+        if (notificationsList.length === 0) {
+            container.innerHTML = '<p class="text-center">Chưa có thông báo</p>';
+            return;
+        }
+        
+        container.innerHTML = notificationsList.map(notif => `
+            <div class="notification-card ${notif.type}">
+                <div class="notification-content">
+                    <h4>${getNotificationTypeText(notif.type)}</h4>
+                    <p>${notif.content}</p>
+                </div>
+                <div class="notification-actions">
+                    <button class="btn-danger btn-sm" onclick="deleteNotification('${notif.id}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error('Load notifications error:', error);
+        document.getElementById('notificationsList').innerHTML = '<p class="text-center">Chưa có thông báo</p>';
     }
-    
-    container.innerHTML = notifications.map(notif => `
-        <div class="notification-card ${notif.type}">
-            <div class="notification-content">
-                <h4>${getNotificationTypeText(notif.type)}</h4>
-                <p>${notif.content}</p>
-            </div>
-            <div class="notification-actions">
-                <button class="btn-danger btn-sm" onclick="deleteNotification('${notif.id}')">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </div>
-        </div>
-    `).join('');
 }
 
 function openNotificationModal() {
@@ -833,7 +841,7 @@ function closeNotificationModal() {
     document.getElementById('notificationModal').classList.remove('active');
 }
 
-function saveNotification() {
+async function saveNotification() {
     const type = document.getElementById('notificationType').value;
     const content = document.getElementById('notificationContent').value;
     const active = document.getElementById('notificationActive').checked;
@@ -843,49 +851,75 @@ function saveNotification() {
         return;
     }
     
-    const newNotification = {
-        id: Date.now().toString(),
-        type,
-        content,
-        active,
-        createdAt: new Date().toISOString()
-    };
-    
-    notifications.push(newNotification);
-    localStorage.setItem('notifications', JSON.stringify(notifications));
-    loadNotifications();
-    closeNotificationModal();
-    alert('Thêm thông báo thành công!');
+    try {
+        await apiRequest('/admin/notifications', {
+            method: 'POST',
+            body: JSON.stringify({ type, content, active })
+        });
+        
+        await loadNotifications();
+        closeNotificationModal();
+        showNotification('Thêm thông báo thành công!', 'success');
+    } catch (error) {
+        console.error('Save notification error:', error);
+        showNotification('Lỗi tạo thông báo: ' + error.message, 'error');
+    }
 }
 
-function deleteNotification(id) {
+async function deleteNotification(id) {
     if (!confirm('Bạn có chắc muốn xóa thông báo này?')) return;
     
-    notifications = notifications.filter(n => n.id !== id);
-    localStorage.setItem('notifications', JSON.stringify(notifications));
-    loadNotifications();
+    try {
+        await apiRequest(`/admin/notifications/${id}`, {
+            method: 'DELETE'
+        });
+        
+        await loadNotifications();
+        showNotification('Xóa thông báo thành công!', 'success');
+    } catch (error) {
+        console.error('Delete notification error:', error);
+        showNotification('Lỗi xóa thông báo: ' + error.message, 'error');
+    }
 }
 
 // Settings
-function loadSettings() {
-    const maintenanceMode = localStorage.getItem('maintenanceMode') === 'true';
-    const maintenanceMessage = localStorage.getItem('maintenanceMessage') || '';
-    const maintenanceETA = localStorage.getItem('maintenanceETA') || '30 phút';
-    const shopTelegram = localStorage.getItem('shopTelegram') || 'https://t.me/hanghoammo';
-    
-    document.getElementById('maintenanceMode').checked = maintenanceMode;
-    document.getElementById('maintenanceMessage').value = maintenanceMessage;
-    
-    if (document.getElementById('maintenanceETA')) {
-        document.getElementById('maintenanceETA').value = maintenanceETA;
+async function loadSettings() {
+    try {
+        const response = await apiRequest('/admin/settings');
+        const settings = response.data || {};
+        
+        // Maintenance settings
+        if (settings.maintenance) {
+            document.getElementById('maintenanceMode').checked = settings.maintenance.enabled || false;
+            document.getElementById('maintenanceMessage').value = settings.maintenance.message || '';
+            if (document.getElementById('maintenanceETA')) {
+                document.getElementById('maintenanceETA').value = settings.maintenance.eta || '30 phút';
+            }
+        }
+        
+        // Shop settings
+        if (settings.shop) {
+            if (document.getElementById('shopName')) {
+                document.getElementById('shopName').value = settings.shop.name || 'HangHoaMMO';
+            }
+            if (document.getElementById('shopPhone')) {
+                document.getElementById('shopPhone').value = settings.shop.phone || '0879.06.2222';
+            }
+            if (document.getElementById('shopEmail')) {
+                document.getElementById('shopEmail').value = settings.shop.email || 'support@hanghoammo.com';
+            }
+            if (document.getElementById('shopTelegram')) {
+                document.getElementById('shopTelegram').value = settings.shop.telegram || 'https://t.me/hanghoammo';
+            }
+        }
+        
+        // Load products for account upload
+        loadProductsForAccounts();
+    } catch (error) {
+        console.error('Load settings error:', error);
+        // Use defaults if API fails
+        loadProductsForAccounts();
     }
-    
-    if (document.getElementById('shopTelegram')) {
-        document.getElementById('shopTelegram').value = shopTelegram;
-    }
-    
-    // Load products for account upload
-    loadProductsForAccounts();
 }
 
 function loadProductsForAccounts() {
@@ -1038,35 +1072,21 @@ async function saveMaintenanceSettings() {
     try {
         const isEnabled = document.getElementById('maintenanceMode').checked;
         
-        // Gọi API để cập nhật
-        const response = await fetch('/api/maintenance/update', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+        await apiRequest('/admin/settings', {
+            method: 'PUT',
             body: JSON.stringify({
-                enabled: isEnabled,
-                message: message,
-                eta: eta || '30 phút',
-                telegram: localStorage.getItem('shopTelegram') || 'https://t.me/hanghoammo'
+                maintenance: {
+                    enabled: isEnabled,
+                    message: message,
+                    eta: eta || '30 phút'
+                }
             })
         });
         
-        const result = await response.json();
-        
-        if (result.success) {
-            // Backup to localStorage
-            localStorage.setItem('maintenanceMessage', message);
-            localStorage.setItem('maintenanceETA', eta || '30 phút');
-            sessionStorage.removeItem('maintenanceBannerClosed');
-            
-            alert('✅ Lưu cài đặt bảo trì thành công! Tất cả khách hàng sẽ thấy thông báo mới ngay lập tức!');
-        } else {
-            alert('❌ Lỗi: Không thể lưu cài đặt!');
-        }
+        showNotification('Lưu cài đặt bảo trì thành công!', 'success');
     } catch (error) {
         console.error('Error saving maintenance settings:', error);
-        alert('❌ Lỗi kết nối server! Vui lòng thử lại.');
+        showNotification('Lỗi lưu cài đặt: ' + error.message, 'error');
     }
 }
 
@@ -1075,15 +1095,30 @@ function saveMaintenanceMessage() {
     saveMaintenanceSettings();
 }
 
-function saveShopInfo() {
+async function saveShopInfo() {
     const shopName = document.getElementById('shopName').value;
     const shopPhone = document.getElementById('shopPhone').value;
     const shopEmail = document.getElementById('shopEmail').value;
     const shopTelegram = document.getElementById('shopTelegram').value;
     
-    localStorage.setItem('shopName', shopName);
-    localStorage.setItem('shopPhone', shopPhone);
-    localStorage.setItem('shopEmail', shopEmail);
+    try {
+        await apiRequest('/admin/settings', {
+            method: 'PUT',
+            body: JSON.stringify({
+                shop: {
+                    name: shopName,
+                    phone: shopPhone,
+                    email: shopEmail,
+                    telegram: shopTelegram
+                }
+            })
+        });
+        
+        showNotification('Lưu thông tin shop thành công!', 'success');
+    } catch (error) {
+        console.error('Error saving shop info:', error);
+        showNotification('Lỗi lưu thông tin: ' + error.message, 'error');
+    }
     localStorage.setItem('shopTelegram', shopTelegram);
     
     alert('Lưu thông tin shop thành công!');
@@ -2082,21 +2117,23 @@ async function deleteVoucher(voucherId) {
 
 async function loadAnalytics() {
     try {
-        const response = await apiRequest('/analytics/stats');
+        const response = await apiRequest('/admin/analytics');
         const stats = response.data || {};
         
-        document.getElementById('analyticsPageViews').textContent = stats.totalPageViews || 0;
+        document.getElementById('analyticsPageViews').textContent = stats.pageViews || 0;
         document.getElementById('analyticsUniqueVisitors').textContent = stats.uniqueVisitors || 0;
-        document.getElementById('analyticsEvents').textContent = stats.totalEvents || 0;
-        document.getElementById('analyticsAvgTime').textContent = stats.avgTimeOnSite || 0;
+        document.getElementById('analyticsEvents').textContent = stats.events || 0;
+        document.getElementById('analyticsAvgTime').textContent = stats.avgTime || 0;
         
         // Top pages
-        if (stats.topPages && stats.topPages.length > 0) {
-            const topPagesHTML = stats.topPages.map((page, index) => `
+        const topPagesResponse = await apiRequest('/admin/analytics/top-pages');
+        const topPages = topPagesResponse.data || [];
+        
+        if (topPages.length > 0) {
+            const topPagesHTML = topPages.map((page, index) => `
                 <div style="display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee;">
                     <div>
-                        <strong>${index + 1}. ${page.page_url}</strong>
-                        <div style="color: #999; font-size: 12px;">${page.page_title || 'N/A'}</div>
+                        <strong>${index + 1}. ${page.url}</strong>
                     </div>
                     <div style="text-align: right;">
                         <strong>${page.views}</strong> lượt xem
@@ -2109,7 +2146,7 @@ async function loadAnalytics() {
         }
         
         // Recent events
-        const eventsResponse = await apiRequest('/analytics/events?limit=10');
+        const eventsResponse = await apiRequest('/admin/analytics/recent-events');
         const events = eventsResponse.data || [];
         
         if (events.length > 0) {
@@ -2117,7 +2154,7 @@ async function loadAnalytics() {
                 <div style="display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee;">
                     <div>
                         <strong>${event.event_type}</strong>
-                        <div style="color: #999; font-size: 12px;">${event.page_url}</div>
+                        <div style="color: #999; font-size: 12px;">${event.page_url || 'N/A'}</div>
                     </div>
                     <div style="text-align: right; color: #999; font-size: 12px;">
                         ${formatDate(event.created_at)}

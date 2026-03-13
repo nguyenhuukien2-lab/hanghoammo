@@ -1,7 +1,7 @@
 // Analytics Routes
 const express = require('express');
 const router = express.Router();
-const supabase = require('../config/supabase');
+const { supabase } = require('../config/supabase');
 const { authenticateToken } = require('../middleware/auth');
 const UAParser = require('ua-parser-js');
 
