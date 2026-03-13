@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chi tiết sản phẩm - HangHoaMMO</title>
+    <link rel="icon" type="image/png" href="logo-mmo.png">
+    <link rel="shortcut icon" type="image/png" href="logo-mmo.png">
     <link rel="stylesheet" href="style.css?v=5.5">
     <link rel="stylesheet" href="reviews-wishlist.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -26,9 +28,6 @@
                 <div class="header-wrapper">
                     <div class="logo-new">
                         <a href="index.html">
-                            <div class="logo-box">
-                                <i class="fas fa-store"></i>
-                            </div>
                             <div class="logo-info">
                                 <h1>HangHoa<span>MMO</span></h1>
                                 <p>Chợ MMO uy tín #1</p>
@@ -130,74 +129,87 @@
     <!-- Product Detail -->
     <section class="product-detail-section">
         <div class="container">
-            <div class="product-detail-layout">
-                <!-- Left: Product Image & Info -->
-                <div class="product-detail-left">
-                    <div class="product-image-box">
+            <div class="product-detail-wrapper">
+                <!-- Left: Product Image -->
+                <div class="product-detail-image-col">
+                    <div class="product-image-container">
+                        <img id="productImage" src="" alt="Product" class="product-image-main">
                         <span class="product-badge-detail" id="productBadge">HOT</span>
-                        <img id="productImage" src="" alt="Product">
-                    </div>
-                    
-                    <div class="product-main-info">
-                        <h1 class="product-title" id="productTitle"></h1>
-                        
-                        <div class="product-meta-row">
-                            <div class="product-rating">
-                                <i class="fas fa-star"></i>
-                                <span>5.0</span>
-                            </div>
-                            <div class="product-sold">
-                                <span id="productSold">0</span> Đã bán
-                            </div>
-                            <div class="product-vendor">
-                                <img src="https://ui-avatars.com/api/?name=Manh98&background=667eea&color=fff" alt="Vendor">
-                                <span>Mạnh98</span>
-                            </div>
-                        </div>
-
-                        <div class="product-price-box">
-                            <div class="product-price" id="productPrice">0đ</div>
-                        </div>
-
-                        <div class="product-actions">
-                            <button class="btn-add-cart" onclick="addToCartFromDetail()">
-                                <i class="fas fa-shopping-cart"></i>
-                                Thêm vào giỏ hàng
-                            </button>
-                            <button class="btn-buy-now" onclick="buyNow()">
-                                Mua ngay
-                            </button>
-                            <button class="btn-wishlist" id="wishlistBtn" onclick="toggleWishlistFromDetail()">
-                                <i class="far fa-heart"></i>
-                            </button>
-                        </div>
                     </div>
                 </div>
 
-                <!-- Right: Product Description -->
-                <div class="product-detail-right">
-                    <div class="product-description-box">
-                        <h2>Mô tả sản phẩm</h2>
-                        <div class="product-description-content" id="productDescription">
-                            <p>Đang tải thông tin sản phẩm...</p>
+                <!-- Right: Product Info -->
+                <div class="product-detail-info-col">
+                    <!-- Product Header -->
+                    <div class="product-detail-header">
+                        <h1 class="product-detail-title" id="productTitle"></h1>
+                        <p class="product-detail-category" id="productCategory">Danh mục</p>
+                    </div>
+
+                    <!-- Rating & Stats -->
+                    <div class="product-detail-stats">
+                        <div class="rating-box">
+                            <div class="rating-score">
+                                <span class="score-number">5.0</span>
+                                <div class="stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Đã bán</span>
+                                <span class="stat-value" id="productSold">0</span>
+                            </div>
                         </div>
                     </div>
+
+                    <!-- Price -->
+                    <div class="product-detail-price">
+                        <span class="price-label">Giá:</span>
+                        <span class="price-value" id="productPrice">0đ</span>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="product-detail-description">
+                        <h3>Mô tả</h3>
+                        <p id="productDescription">Đang tải thông tin sản phẩm...</p>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="product-detail-actions">
+                        <button class="btn-detail-primary" onclick="addToCartFromDetail()">
+                            <i class="fas fa-shopping-cart"></i>
+                            Thêm vào giỏ
+                        </button>
+                        <button class="btn-detail-success" onclick="buyNow()">
+                            <i class="fas fa-check"></i>
+                            Mua ngay
+                        </button>
+                    </div>
+
+                    <!-- Wishlist -->
+                    <button class="btn-detail-wishlist" id="wishlistBtn" onclick="toggleWishlistFromDetail()">
+                        <i class="far fa-heart"></i>
+                        <span>Thêm vào yêu thích</span>
+                    </button>
                 </div>
             </div>
 
             <!-- Reviews Section -->
-            <div class="reviews-section">
-                <div class="reviews-header">
-                    <h2><i class="fas fa-star"></i> Đánh giá sản phẩm</h2>
-                    <button class="btn-write-review" onclick="openReviewModal()">
-                        <i class="fas fa-edit"></i> Viết đánh giá
-                    </button>
-                </div>
+            <div class="product-detail-reviews">
+                <h2><i class="fas fa-comments"></i> Bình luận & Đánh giá</h2>
                 
-                <div class="reviews-content">
-                    <div id="reviewStats" class="review-stats"></div>
-                    <div id="reviewsList" class="reviews-list"></div>
+                <div class="reviews-container">
+                    <div id="reviewStats" class="review-stats-detail"></div>
+                    <div id="reviewsList" class="reviews-list-detail"></div>
                 </div>
+
+                <button class="btn-write-review" onclick="openReviewModal()">
+                    <i class="fas fa-edit"></i> Viết đánh giá
+                </button>
             </div>
 
             <!-- Related Products -->
@@ -309,3 +321,5 @@
     </script>
 </body>
 </html>
+
+

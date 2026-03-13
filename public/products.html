@@ -1,9 +1,11 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sản phẩm - HangHoaMMO</title>
+    <title>S?n ph?m - HangHoaMMO</title>
+    <link rel="icon" type="image/png" href="logo-mmo.png">
+    <link rel="shortcut icon" type="image/png" href="logo-mmo.png">
     <link rel="stylesheet" href="style.css?v=3.0">
     <link rel="stylesheet" href="products-improved.css?v=1.0">
     <link rel="stylesheet" href="ai-chatbot.css">
@@ -11,11 +13,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Announcement Bar (Chạy chữ) -->
+    <!-- Announcement Bar (Ch?y ch?) -->
     <div class="announcement-bar">
         <div class="announcement-content">
             <marquee behavior="scroll" direction="left" scrollamount="5">
-                <span>🎉 Chào mừng Tết Nguyên Đán 2025! 🧧 Giảm giá đến 50% tất cả sản phẩm 🎊 Telegram: @hanghoammo 📞 Hotline: 0879.06.2222 💝 Miễn phí ship - Giao hàng tức thì 24/7</span>
+                <span>?? Ch�o m?ng T?t Nguy�n ��n 2025! ?? Gi?m gi� d?n 50% t?t c? s?n ph?m ?? Telegram: @hanghoammo ?? Hotline: 0879.06.2222 ?? Mi?n ph� ship - Giao h�ng t?c th� 24/7</span>
             </marquee>
         </div>
     </div>
@@ -27,18 +29,15 @@
                 <div class="header-wrapper">
                     <div class="logo-new">
                         <a href="index.html">
-                            <div class="logo-box">
-                                <i class="fas fa-store"></i>
-                            </div>
                             <div class="logo-info">
                                 <h1>HangHoa<span>MMO</span></h1>
-                                <p>Chợ MMO uy tín #1</p>
+                                <p>Ch? MMO uy t�n #1</p>
                             </div>
                         </a>
                     </div>
 
                     <div class="search-box-new">
-                        <input type="text" id="searchInputProducts" placeholder="Tìm kiếm sản phẩm, dịch vụ..." oninput="showSearchResults(this.value)" onfocus="showSearchResults(this.value)" onblur="hideSearchResults()">
+                        <input type="text" id="searchInputProducts" placeholder="T�m ki?m s?n ph?m, d?ch v?..." oninput="showSearchResults(this.value)" onfocus="showSearchResults(this.value)" onblur="hideSearchResults()">
                         <button onclick="performSearch()"><i class="fas fa-search"></i></button>
                         <div class="search-dropdown" id="searchDropdown"></div>
                     </div>
@@ -52,21 +51,21 @@
                         <!-- Wallet link - Show when logged in -->
                         <a href="wallet.html" class="btn-icon-text" id="walletLink" style="display: none;">
                             <i class="fas fa-wallet"></i>
-                            <span>Ví tiền</span>
+                            <span>V� ti?n</span>
                         </a>
                         
-                        <button class="btn-icon" onclick="toggleDarkMode()" title="Chế độ tối">
+                        <button class="btn-icon" onclick="toggleDarkMode()" title="Ch? d? t?i">
                             <i class="fas fa-moon" id="theme-icon"></i>
                         </button>
                         <!-- Show when not logged in -->
                         <div id="authButtons">
                             <button class="btn-auth login" onclick="openAuthModal('login')">
                                 <i class="fas fa-sign-in-alt"></i>
-                                <span>Đăng nhập</span>
+                                <span>�ang nh?p</span>
                             </button>
                             <button class="btn-auth register" onclick="openAuthModal('register')">
                                 <i class="fas fa-user-plus"></i>
-                                <span>Đăng ký</span>
+                                <span>�ang k�</span>
                             </button>
                         </div>
                         
@@ -93,8 +92,8 @@
             <div class="maintenance-content">
                 <i class="fas fa-tools"></i>
                 <div class="maintenance-text">
-                    <strong>Thông báo bảo trì</strong>
-                    <p id="maintenanceText">Website đang trong quá trình bảo trì. Vui lòng quay lại sau.</p>
+                    <strong>Th�ng b�o b?o tr�</strong>
+                    <p id="maintenanceText">Website dang trong qu� tr�nh b?o tr�. Vui l�ng quay l?i sau.</p>
                 </div>
                 <button class="maintenance-close" onclick="closeMaintenanceBanner()">
                     <i class="fas fa-times"></i>
@@ -108,46 +107,46 @@
         <div class="container">
             <!-- Breadcrumb -->
             <div class="breadcrumb-simple">
-                <a href="index.html">Trang chủ</a>
+                <a href="index.html">Trang ch?</a>
                 <span>/</span>
-                <span>Khám phá</span>
+                <span>Kh�m ph�</span>
             </div>
 
             <!-- Category Tabs -->
             <div class="category-tabs-row">
-                <button class="category-tab-pill active" onclick="filterByCategory('all')">Tất cả</button>
-                <button class="category-tab-pill" onclick="filterByCategory('ai')">AI & Công Nghệ</button>
-                <button class="category-tab-pill" onclick="filterByCategory('design')">Dịch Vụ MMO</button>
+                <button class="category-tab-pill active" onclick="filterByCategory('all')">T?t c?</button>
+                <button class="category-tab-pill" onclick="filterByCategory('ai')">AI & C�ng Ngh?</button>
+                <button class="category-tab-pill" onclick="filterByCategory('design')">D?ch V? MMO</button>
                 <button class="category-tab-pill" onclick="filterByCategory('email')">Email</button>
-                <button class="category-tab-pill" onclick="filterByCategory('entertainment')">Giải Trí</button>
-                <button class="category-tab-pill" onclick="filterByCategory('software')">Phần Mềm & Thiết Kế</button>
-                <button class="category-tab-pill" onclick="filterByCategory('other')">Tiện Ích & Khác</button>
+                <button class="category-tab-pill" onclick="filterByCategory('entertainment')">Gi?i Tr�</button>
+                <button class="category-tab-pill" onclick="filterByCategory('software')">Ph?n M?m & Thi?t K?</button>
+                <button class="category-tab-pill" onclick="filterByCategory('other')">Ti?n �ch & Kh�c</button>
             </div>
 
             <!-- Search Bar -->
             <div class="search-bar-simple">
                 <i class="fas fa-search"></i>
-                <input type="text" id="searchInput" placeholder="Tìm kiếm sản phẩm..." onkeyup="searchProducts()">
+                <input type="text" id="searchInput" placeholder="T�m ki?m s?n ph?m..." onkeyup="searchProducts()">
             </div>
 
             <!-- Filter Pills Row -->
             <div class="filter-pills-row">
-                <button class="filter-pill active" onclick="sortProducts('newest')">Mới nhất</button>
-                <button class="filter-pill" onclick="sortProducts('popular')">Nổi bật</button>
-                <button class="filter-pill" onclick="sortProducts('price-asc')">Giá thấp — cao</button>
-                <button class="filter-pill" onclick="sortProducts('price-desc')">Giá cao — thấp</button>
-                <button class="filter-pill" onclick="sortProducts('discount')">Bán chạy</button>
-                <button class="filter-pill" onclick="sortProducts('discount')">Đánh giá cao</button>
-                <button class="filter-pill" onclick="filterPrice('0-50000')">Dưới 50K</button>
+                <button class="filter-pill active" onclick="sortProducts('newest')">M?i nh?t</button>
+                <button class="filter-pill" onclick="sortProducts('popular')">N?i b?t</button>
+                <button class="filter-pill" onclick="sortProducts('price-asc')">Gi� th?p � cao</button>
+                <button class="filter-pill" onclick="sortProducts('price-desc')">Gi� cao � th?p</button>
+                <button class="filter-pill" onclick="sortProducts('discount')">B�n ch?y</button>
+                <button class="filter-pill" onclick="sortProducts('discount')">��nh gi� cao</button>
+                <button class="filter-pill" onclick="filterPrice('0-50000')">Du?i 50K</button>
                 <button class="filter-pill" onclick="filterPrice('50000-100000')">50K - 100K</button>
                 <button class="filter-pill" onclick="filterPrice('100000-500000')">100K - 500K</button>
                 <button class="filter-pill" onclick="filterPrice('500000-999999999')">500K - 1M</button>
-                <button class="filter-pill" onclick="filterPrice('1000000-999999999')">Trên 1M</button>
+                <button class="filter-pill" onclick="filterPrice('1000000-999999999')">Tr�n 1M</button>
             </div>
 
             <!-- Products Count -->
             <div class="products-count-simple">
-                <span id="productsCount">201</span> sản phẩm
+                <span id="productsCount">201</span> s?n ph?m
             </div>
         </div>
     </section>
@@ -162,7 +161,7 @@
             <!-- Pagination -->
             <div class="pagination">
                 <button class="page-btn" onclick="changePage('prev')">
-                    <i class="fas fa-chevron-left"></i> Trước
+                    <i class="fas fa-chevron-left"></i> Tru?c
                 </button>
                 <button class="page-btn active">1</button>
                 <button class="page-btn">2</button>
@@ -187,24 +186,24 @@
                         </div>
                         <span>HangHoa<span class="highlight">MMO</span></span>
                     </div>
-                    <p>Nền tảng mua bán tài khoản, dịch vụ số uy tín hàng đầu Việt Nam.</p>
+                    <p>N?n t?ng mua b�n t�i kho?n, d?ch v? s? uy t�n h�ng d?u Vi?t Nam.</p>
                 </div>
                 <div class="footer-col">
-                    <h3>Liên kết</h3>
+                    <h3>Li�n k?t</h3>
                     <ul>
-                        <li><a href="index.html">Trang chủ</a></li>
-                        <li><a href="products.html">Sản phẩm</a></li>
+                        <li><a href="index.html">Trang ch?</a></li>
+                        <li><a href="products.html">S?n ph?m</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
-                    <h3>Liên hệ</h3>
+                    <h3>Li�n h?</h3>
                     <ul class="contact-info">
                         <li><i class="fas fa-phone"></i> 0879.06.2222</li>
                     </ul>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2024 HangHoaMMO. Tất cả quyền được bảo lưu.</p>
+                <p>&copy; 2024 HangHoaMMO. T?t c? quy?n du?c b?o luu.</p>
             </div>
         </div>
     </footer>
@@ -214,29 +213,29 @@
         <div class="cart-overlay" onclick="toggleCart()"></div>
         <div class="cart-panel">
             <div class="cart-header">
-                <h3><i class="fas fa-shopping-cart"></i> Giỏ hàng (<span id="cartItemCount">0</span>)</h3>
-                <button class="close-btn" onclick="toggleCart()">×</button>
+                <h3><i class="fas fa-shopping-cart"></i> Gi? h�ng (<span id="cartItemCount">0</span>)</h3>
+                <button class="close-btn" onclick="toggleCart()">�</button>
             </div>
             <div class="cart-body" id="cartBody">
                 <div class="empty-cart">
                     <i class="fas fa-shopping-cart"></i>
-                    <p>Giỏ hàng của bạn đang trống</p>
+                    <p>Gi? h�ng c?a b?n dang tr?ng</p>
                 </div>
             </div>
             <div class="cart-summary">
                 <div class="summary-row">
-                    <span>Tạm tính (<span id="summaryItemCount">0</span> sản phẩm)</span>
-                    <span id="subtotal">0đ</span>
+                    <span>T?m t�nh (<span id="summaryItemCount">0</span> s?n ph?m)</span>
+                    <span id="subtotal">0d</span>
                 </div>
                 <div class="summary-row total">
-                    <span>Tổng cộng</span>
-                    <span class="total-amount" id="totalAmount">0đ</span>
+                    <span>T?ng c?ng</span>
+                    <span class="total-amount" id="totalAmount">0d</span>
                 </div>
             </div>
             <div class="cart-footer">
                 <button class="btn-checkout" onclick="checkout()">
                     <i class="fas fa-credit-card"></i>
-                    <span>Thanh toán ngay</span>
+                    <span>Thanh to�n ngay</span>
                 </button>
             </div>
         </div>
@@ -246,20 +245,20 @@
     <div class="auth-modal" id="authModal">
         <div class="auth-modal-overlay" onclick="closeAuthModal()"></div>
         <div class="auth-modal-content">
-            <button class="auth-modal-close" onclick="closeAuthModal()">×</button>
+            <button class="auth-modal-close" onclick="closeAuthModal()">�</button>
             
             <div class="auth-modal-header">
                 <div class="auth-modal-logo">
                     <i class="fas fa-shopping-bag"></i>
                     <span>HangHoaMMO</span>
                 </div>
-                <h2 id="authModalTitle">Chào mừng trở lại!</h2>
-                <p id="authModalSubtitle">Đăng nhập để tiếp tục mua sắm</p>
+                <h2 id="authModalTitle">Ch�o m?ng tr? l?i!</h2>
+                <p id="authModalSubtitle">�ang nh?p d? ti?p t?c mua s?m</p>
             </div>
 
             <div class="auth-modal-tabs">
-                <button class="auth-tab active" data-tab="login" onclick="switchAuthTab('login')">Đăng nhập</button>
-                <button class="auth-tab" data-tab="register" onclick="switchAuthTab('register')">Đăng ký</button>
+                <button class="auth-tab active" data-tab="login" onclick="switchAuthTab('login')">�ang nh?p</button>
+                <button class="auth-tab" data-tab="register" onclick="switchAuthTab('register')">�ang k�</button>
             </div>
 
             <!-- Login Form -->
@@ -273,10 +272,10 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Mật khẩu</label>
+                    <label>M?t kh?u</label>
                     <div class="input-wrapper">
                         <i class="fas fa-lock"></i>
-                        <input type="password" id="modalLoginPassword" placeholder="••••••••" required>
+                        <input type="password" id="modalLoginPassword" placeholder="��������" required>
                         <button type="button" class="toggle-password" onclick="toggleModalPassword('modalLoginPassword', event)">
                             <i class="fas fa-eye"></i>
                         </button>
@@ -284,7 +283,7 @@
                 </div>
 
                 <button type="submit" class="btn-submit">
-                    <span>Đăng nhập</span>
+                    <span>�ang nh?p</span>
                     <i class="fas fa-arrow-right"></i>
                 </button>
             </form>
@@ -292,10 +291,10 @@
             <!-- Register Form -->
             <form id="modalRegisterForm" class="auth-modal-form">
                 <div class="form-group">
-                    <label>Họ và tên</label>
+                    <label>H? v� t�n</label>
                     <div class="input-wrapper">
                         <i class="fas fa-user"></i>
-                        <input type="text" placeholder="Nguyễn Văn A" required>
+                        <input type="text" placeholder="Nguy?n Van A" required>
                     </div>
                 </div>
 
@@ -308,7 +307,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Số điện thoại</label>
+                    <label>S? di?n tho?i</label>
                     <div class="input-wrapper">
                         <i class="fas fa-phone"></i>
                         <input type="tel" placeholder="0909123456" required>
@@ -316,10 +315,10 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Mật khẩu</label>
+                    <label>M?t kh?u</label>
                     <div class="input-wrapper">
                         <i class="fas fa-lock"></i>
-                        <input type="password" id="modalRegisterPassword" placeholder="••••••••" required>
+                        <input type="password" id="modalRegisterPassword" placeholder="��������" required>
                         <button type="button" class="toggle-password" onclick="toggleModalPassword('modalRegisterPassword', event)">
                             <i class="fas fa-eye"></i>
                         </button>
@@ -327,10 +326,10 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Xác nhận mật khẩu</label>
+                    <label>X�c nh?n m?t kh?u</label>
                     <div class="input-wrapper">
                         <i class="fas fa-lock"></i>
-                        <input type="password" id="modalConfirmPassword" placeholder="••••••••" required>
+                        <input type="password" id="modalConfirmPassword" placeholder="��������" required>
                         <button type="button" class="toggle-password" onclick="toggleModalPassword('modalConfirmPassword', event)">
                             <i class="fas fa-eye"></i>
                         </button>
@@ -338,7 +337,7 @@
                 </div>
 
                 <button type="submit" class="btn-submit">
-                    <span>Đăng ký</span>
+                    <span>�ang k�</span>
                     <i class="fas fa-arrow-right"></i>
                 </button>
             </form>
@@ -448,8 +447,8 @@
                     <div class="product-info-explore">
                         <h3 class="product-name-explore">${product.name}</h3>
                         <div class="product-price-explore">
-                            <span class="price-current">${product.price.toLocaleString('vi-VN')}đ</span>
-                            ${product.oldPrice ? `<span class="price-old">${product.oldPrice.toLocaleString('vi-VN')}đ</span>` : ''}
+                            <span class="price-current">${product.price.toLocaleString('vi-VN')}d</span>
+                            ${product.oldPrice ? `<span class="price-old">${product.oldPrice.toLocaleString('vi-VN')}d</span>` : ''}
                             ${discountBadge}
                         </div>
                         <div class="product-meta-explore">
@@ -457,7 +456,7 @@
                                 <i class="fas fa-star"></i>
                                 <span>${product.rating || '5.0'}</span>
                             </div>
-                            <span class="sold-explore">Đã bán ${product.sold || 0}</span>
+                            <span class="sold-explore">�� b�n ${product.sold || 0}</span>
                         </div>
                         <div class="product-vendor-explore">
                             <img src="https://ui-avatars.com/api/?name=TH+Agency&background=667eea&color=fff&size=32" alt="Vendor">
@@ -466,9 +465,9 @@
                         <div class="product-actions-explore">
                             <button class="btn-add-to-cart-explore" onclick="quickAddToCart(event, '${productId}')">
                                 <i class="fas fa-shopping-cart"></i>
-                                <span>Thêm giỏ hàng</span>
+                                <span>Th�m gi? h�ng</span>
                             </button>
-                            <button class="btn-quick-view-explore" onclick="viewProduct(event, '${productId}')" title="Xem chi tiết">
+                            <button class="btn-quick-view-explore" onclick="viewProduct(event, '${productId}')" title="Xem chi ti?t">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
@@ -496,12 +495,12 @@
                 icon.classList.remove('far');
                 icon.classList.add('fas');
                 btn.classList.add('active');
-                showNotification('Đã thêm vào yêu thích!');
+                showNotification('�� th�m v�o y�u th�ch!');
             } else {
                 icon.classList.remove('fas');
                 icon.classList.add('far');
                 btn.classList.remove('active');
-                showNotification('Đã xóa khỏi yêu thích!');
+                showNotification('�� x�a kh?i y�u th�ch!');
             }
         }
         
@@ -572,3 +571,4 @@
     <!-- Notification -->
 </body>
 </html>
+
