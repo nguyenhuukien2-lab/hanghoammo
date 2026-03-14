@@ -72,10 +72,15 @@ router.post('/register', async (req, res) => {
             console.error('Failed to send welcome email:', err);
         });
 
-        // Gửi Telegram notification nếu có chat_id (không chờ)
+        // Gửi Telegram notification vào nhóm admin + chào mừng khách (không chờ)
+        telegramService.sendRegisterNotification(null, name, email).catch(err => {
+            console.error('Failed to send Telegram notification:', err);
+        });
+
+        // Gửi link mời nhóm Telegram cho khách nếu họ cung cấp chat_id
         if (req.body.telegram_chat_id) {
-            telegramService.sendRegisterNotification(req.body.telegram_chat_id, name, email).catch(err => {
-                console.error('Failed to send Telegram notification:', err);
+            telegramService.sendWelcomeWithGroupLink(req.body.telegram_chat_id, name).catch(err => {
+                console.error('Failed to send welcome Telegram:', err);
             });
         }
 

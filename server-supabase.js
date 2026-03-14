@@ -123,6 +123,29 @@ app.get('/api/health', (req, res) => {
     });
 });
 
+// Gửi tin giới thiệu website lên Telegram channel (admin only)
+app.post('/api/telegram/send-intro', async (req, res) => {
+    try {
+        const telegramService = require('./src/services/telegramService');
+        await telegramService.sendWebsiteIntro();
+        res.json({ success: true, message: 'Đã gửi tin giới thiệu lên channel!' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// Gửi thông báo sản phẩm mới lên channel (admin only)
+app.post('/api/telegram/send-product', async (req, res) => {
+    try {
+        const { name, price, description, category } = req.body;
+        const telegramService = require('./src/services/telegramService');
+        await telegramService.sendNewProduct(name, price, description, category);
+        res.json({ success: true, message: 'Đã gửi thông báo sản phẩm mới!' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
 // Reset rate limit (development only)
 app.post('/api/reset-rate-limit', (req, res) => {
     if (process.env.NODE_ENV !== 'development') {
@@ -219,6 +242,27 @@ app.listen(PORT, () => {
 ║   Admin: http://localhost:${PORT}/admin ║
 ╚═══════════════════════════════════════╝
     `);
+
+    // Tự động gửi tin giới thiệu website lên Telegram channel khi server khởi động
+    if (process.env.TELEGRAM_ADMIN_CHAT_ID) {
+        const telegramService = require('./src/services/telegramService');
+
+        // Gửi ngay lần đầu sau 3 giây
+        setTimeout(() => {
+            telegramService.sendWebsiteIntro()
+                .then(() => console.log('✅ Đã gửi tin giới thiệu lên Telegram channel'))
+                .catch(err => console.error('❌ Gửi Telegram thất bại:', err.message));
+        }, 3000);
+
+        // Lặp lại mỗi 5 phút
+        setInterval(() => {
+            telegramService.sendWebsiteIntro()
+                .then(() => console.log('✅ Telegram auto-post gửi thành công'))
+                .catch(err => console.error('❌ Telegram auto-post thất bại:', err.message));
+        }, 5 * 60 * 1000); // 5 phút
+
+        console.log('🤖 Telegram auto-post: BẬT (mỗi 5 phút)');
+    }
 });
 
 module.exports = app;

@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const paymentService = require('../services/paymentService');
 const { authenticateToken } = require('../middleware/auth');
-const supabase = require('../config/supabase');
+const { supabase } = require('../config/supabase');
 
 // Create VNPay payment
 router.post('/vnpay/create', authenticateToken, async (req, res) => {

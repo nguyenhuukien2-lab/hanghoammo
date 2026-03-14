@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const OpenAI = require('openai');
-const supabase = require('../config/supabase');
+const { supabase } = require('../config/supabase');
 
 // Initialize OpenAI only if API key is available
 let openai = null;

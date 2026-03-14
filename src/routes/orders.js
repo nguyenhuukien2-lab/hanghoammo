@@ -182,19 +182,18 @@ router.post('/create', authenticateToken, async (req, res) => {
                 console.error('Failed to send order email:', err);
             });
 
-            // Gửi Telegram notification nếu có chat_id (không chờ)
-            if (req.user.telegram_chat_id) {
-                telegramService.sendOrderNotification(
-                    req.user.telegram_chat_id,
-                    req.user.name,
-                    order.order_code,
-                    total_amount,
-                    items,
-                    deliveredAccounts
-                ).catch(err => {
-                    console.error('Failed to send Telegram notification:', err);
-                });
-            }
+            // Gửi Telegram notification (luôn gửi vào nhóm admin, gửi user nếu có chat_id)
+            telegramService.sendOrderNotification(
+                req.user.telegram_chat_id || null,
+                req.user.name,
+                order.order_code,
+                total_amount,
+                items,
+                deliveredAccounts,
+                req.user.email
+            ).catch(err => {
+                console.error('Failed to send Telegram notification:', err);
+            });
             
             return res.json({
                 success: true,

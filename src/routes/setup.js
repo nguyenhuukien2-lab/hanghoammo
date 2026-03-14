@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
-const supabase = require('../config/supabase');
+const { supabase } = require('../config/supabase');
 
 // Setup admin account (one-time use)
 router.post('/create-admin', async (req, res) => {
