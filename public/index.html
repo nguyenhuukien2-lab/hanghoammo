@@ -248,6 +248,8 @@
                             Nạp tiền
                         </button>
                     </div>
+
+
                 </div>
                 
                 <div class="hero-right">
@@ -476,7 +478,8 @@
     <script src="i18n.js"></script>
     <script src="ai-chatbot.js"></script>
     <script src="stock-manager.js"></script>
-    <script>
+
+    <!-- Telegram Floating Button đã có sẵn trong script.js -->    <script>
         // Language switcher functions
         function toggleLanguageMenu() {
             const menu = document.getElementById('languageMenu');
@@ -926,10 +929,26 @@
         }
     </script>
 
-    <!-- Floating Telegram Button -->
-    <div class="floating-telegram" onclick="openTelegramModal()" title="Tham gia Telegram">
-        <i class="fab fa-telegram-plane"></i>
-    </div>
+    <!-- Telegram Floating Button -->
+    <a href="https://t.me/hanghoammo" target="_blank" id="tgFloatBtn" title="Tham gia nhóm Telegram" style="
+        position:fixed; bottom:90px; right:24px; z-index:9998;
+        width:52px; height:52px; border-radius:50%;
+        background:linear-gradient(135deg,#0088cc,#0066aa);
+        display:flex; align-items:center; justify-content:center;
+        color:white; font-size:24px; text-decoration:none;
+        box-shadow:0 4px 16px rgba(0,136,204,0.45);
+        transition:transform 0.3s,box-shadow 0.3s;
+        animation: tgPulse 2.5s infinite;
+    ">
+        <i class="fab fa-telegram"></i>
+    </a>
+    <style>
+    @keyframes tgPulse {
+        0%,100%{box-shadow:0 4px 16px rgba(0,136,204,0.45);}
+        50%{box-shadow:0 4px 28px rgba(0,136,204,0.75);}
+    }
+    #tgFloatBtn:hover{transform:scale(1.12);}
+    </style>
 
 </body>
 </html>

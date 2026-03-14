@@ -164,6 +164,25 @@ module.exports = {
         try {
             const message = getRegisterMessage(userName, userEmail);
             await sendToAll(userChatId, message);
+
+            // Gửi link nhóm cho user qua bot nếu có chat_id
+            if (userChatId) {
+                const groupLink = process.env.TELEGRAM_GROUP_LINK || 'https://t.me/hanghoammo';
+                const welcomeMsg =
+`🎉 <b>Chào mừng ${userName} đến với HangHoaMMO!</b>
+
+Tham gia nhóm Telegram để:
+  📰 Nhận tin tức MMO mới nhất mỗi ngày
+  🎁 Ưu đãi & voucher độc quyền cho thành viên
+  ⚡ Thông báo đơn hàng realtime
+  💬 Hỗ trợ 24/7
+
+👉 <a href="${groupLink}">Nhấn vào đây để tham gia nhóm ngay!</a>
+
+🛒 Mua sắm: https://hanghoammo.onrender.com`;
+                await sendTelegramMessage(userChatId, welcomeMsg).catch(() => {});
+            }
+
             return { success: true };
         } catch (error) {
             console.error('Failed to send register notification:', error);
@@ -190,6 +209,19 @@ module.exports = {
                 await sendTelegramMessage(userChatId, userMsg).catch(err =>
                     console.error('Failed to send order to user:', err.message)
                 );
+
+                // Gửi link nhóm sau đơn hàng
+                const groupLink = process.env.TELEGRAM_GROUP_LINK || 'https://t.me/hanghoammo';
+                await sendTelegramMessage(userChatId,
+`💡 <b>Mẹo hay cho bạn!</b>
+
+Tham gia nhóm Telegram để:
+  📰 Nhận tin MMO & deal hot mỗi ngày
+  🎁 Voucher giảm giá độc quyền
+  🔔 Thông báo sản phẩm mới sớm nhất
+
+👉 <a href="${groupLink}">Tham gia nhóm ngay!</a>`
+                ).catch(() => {});
             }
 
             return { success: true };
