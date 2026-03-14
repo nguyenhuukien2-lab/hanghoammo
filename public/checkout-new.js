@@ -278,7 +278,7 @@ async function processPayment() {
         }));
         
         // Handle different payment methods
-        if (selectedMethod === 'vnpay' || selectedMethod === 'momo') {
+        if (selectedMethod === 'vnpay' || selectedMethod === 'momo' || selectedMethod === 'zalopay') {
             // Create payment request
             const response = await fetch(`/api/payment/${selectedMethod}/create`, {
                 method: 'POST',

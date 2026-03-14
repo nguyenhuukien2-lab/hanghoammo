@@ -103,6 +103,20 @@ async function processPayment(orderId, amount) {
                 throw new Error(data.message);
             }
         }
+        } else if (selectedPaymentMethod === 'zalopay') {
+            const response = await fetch('/api/payment/zalopay/create', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderId, amount, orderInfo: `Thanh toan don hang ${orderId}` })
+            });
+            const data = await response.json();
+            if (data.success) {
+                window.location.href = data.paymentUrl;
+                return { success: true, redirect: true };
+            } else {
+                throw new Error(data.message);
+            }
+        }
     } catch (error) {
         console.error('Process payment error:', error);
         showNotification(error.message || 'Có lỗi xảy ra khi thanh toán', 'error');
@@ -129,18 +143,84 @@ function checkPaymentCallback() {
 
 // Initialize payment UI
 function initPaymentUI() {
-    // Load wallet balance
     loadWalletBalance();
-    
-    // Check payment callback
     checkPaymentCallback();
-    
-    // Add event listeners for payment method selection
     document.querySelectorAll('input[name="paymentMethod"]').forEach(input => {
-        input.addEventListener('change', (e) => {
-            selectPaymentMethod(e.target.value);
-        });
+        input.addEventListener('change', (e) => selectPaymentMethod(e.target.value));
     });
+}
+
+// Render payment methods vào container
+function loadPaymentMethods(total = 0, balance = 0) {
+    const container = document.getElementById('paymentMethodsContainer');
+    if (!container) return;
+
+    const hasEnough = balance >= total;
+
+    container.innerHTML = `
+        <div class="payment-methods">
+            <h3><i class="fas fa-credit-card"></i> Chọn phương thức thanh toán</h3>
+
+            <div class="payment-method-item ${hasEnough ? 'selected' : ''}" onclick="selectPaymentMethod('wallet')">
+                <input type="radio" name="paymentMethod" value="wallet" ${hasEnough ? 'checked' : ''}>
+                <label>
+                    <div class="payment-icon" style="background:#e8f4fd;color:#0066FF">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="payment-info">
+                        <strong>Ví HangHoaMMO</strong>
+                        <span>Số dư: <b style="color:${hasEnough?'#28a745':'#dc3545'}">${balance.toLocaleString('vi-VN')}đ</b> ${!hasEnough ? '— Không đủ' : '— Giao hàng tức thì'}</span>
+                    </div>
+                    <i class="fas fa-check-circle"></i>
+                </label>
+            </div>
+
+            <div class="payment-method-item" onclick="selectPaymentMethod('zalopay')">
+                <input type="radio" name="paymentMethod" value="zalopay">
+                <label>
+                    <div class="payment-icon" style="background:#e8f9f0;padding:4px">
+                        <img src="https://zalopay.vn/images/logo.png" alt="ZaloPay" style="width:42px;height:42px;object-fit:contain" onerror="this.parentElement.innerHTML='<span style=font-size:20px>💙</span>'">
+                    </div>
+                    <div class="payment-info">
+                        <strong>ZaloPay</strong>
+                        <span>Thanh toán qua ví ZaloPay / QR / ATM / Visa</span>
+                    </div>
+                    <i class="fas fa-check-circle"></i>
+                </label>
+            </div>
+
+            <div class="payment-method-item" onclick="selectPaymentMethod('momo')">
+                <input type="radio" name="paymentMethod" value="momo">
+                <label>
+                    <div class="payment-icon" style="background:#fce8f5;color:#a50064">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <div class="payment-info">
+                        <strong>Momo</strong>
+                        <span>Thanh toán qua ví Momo (sắp ra mắt)</span>
+                    </div>
+                    <i class="fas fa-check-circle"></i>
+                </label>
+            </div>
+
+            <div class="payment-method-item" onclick="selectPaymentMethod('vnpay')">
+                <input type="radio" name="paymentMethod" value="vnpay">
+                <label>
+                    <div class="payment-icon" style="background:#fff0f0;color:#e53935">
+                        <i class="fas fa-university"></i>
+                    </div>
+                    <div class="payment-info">
+                        <strong>VNPay</strong>
+                        <span>Thanh toán qua ngân hàng / QR VNPay (sắp ra mắt)</span>
+                    </div>
+                    <i class="fas fa-check-circle"></i>
+                </label>
+            </div>
+        </div>
+    `;
+
+    // Set default
+    selectPaymentMethod(hasEnough ? 'wallet' : 'zalopay');
 }
 
 // Add payment method styles

@@ -265,4 +265,105 @@ router.post('/momo/notify', async (req, res) => {
     }
 });
 
+// ─── ZaloPay ─────────────────────────────────────────────────────────────────
+
+// Tạo đơn ZaloPay
+router.post('/zalopay/create', authenticateToken, async (req, res) => {
+    try {
+        const { orderId, amount, orderInfo } = req.body;
+
+        const result = await paymentService.createZaloPayPayment(
+            orderId,
+            amount,
+            orderInfo || `HangHoaMMO - Thanh toán đơn #${orderId}`
+        );
+
+        if (result.return_code === 1) {
+            // Lưu app_trans_id để đối soát sau
+            await supabase.from('orders').update({
+                payment_method: 'zalopay',
+                transaction_id: result.app_trans_id
+            }).eq('id', orderId);
+
+            res.json({ success: true, paymentUrl: result.order_url, appTransId: result.app_trans_id });
+        } else {
+            res.status(400).json({ success: false, message: result.return_message || 'Lỗi tạo đơn ZaloPay' });
+        }
+    } catch (error) {
+        console.error('ZaloPay create error:', error);
+        res.status(500).json({ success: false, message: 'Lỗi tạo thanh toán ZaloPay' });
+    }
+});
+
+// ZaloPay callback (redirect sau khi thanh toán)
+router.get('/zalopay/callback', async (req, res) => {
+    try {
+        const { apptransid, status } = req.query;
+        if (status === '1') {
+            // Tìm order theo transaction_id
+            const { data: order } = await supabase
+                .from('orders')
+                .select('id')
+                .eq('transaction_id', apptransid)
+                .single();
+
+            if (order) {
+                await supabase.from('orders').update({
+                    status: 'paid',
+                    payment_status: 'completed',
+                    paid_at: new Date().toISOString()
+                }).eq('id', order.id);
+
+                return res.redirect(`/orders.html?payment=success&orderId=${order.id}`);
+            }
+        }
+        res.redirect('/checkout.html?payment=failed&reason=zalopay');
+    } catch (error) {
+        console.error('ZaloPay callback error:', error);
+        res.redirect('/checkout.html?payment=error');
+    }
+});
+
+// ZaloPay IPN (server-to-server notify)
+router.post('/zalopay/notify', async (req, res) => {
+    try {
+        const { data: cbData, mac } = req.body;
+        const isValid = paymentService.verifyZaloPayCallback({ data: cbData, mac });
+
+        if (!isValid) return res.json({ return_code: -1, return_message: 'Invalid mac' });
+
+        const parsed = JSON.parse(cbData);
+        const appTransId = parsed.app_trans_id;
+
+        const { data: order } = await supabase
+            .from('orders')
+            .select('id')
+            .eq('transaction_id', appTransId)
+            .single();
+
+        if (order) {
+            await supabase.from('orders').update({
+                status: 'paid',
+                payment_status: 'completed',
+                paid_at: new Date().toISOString()
+            }).eq('id', order.id);
+        }
+
+        res.json({ return_code: 1, return_message: 'success' });
+    } catch (error) {
+        console.error('ZaloPay notify error:', error);
+        res.json({ return_code: 0, return_message: 'error' });
+    }
+});
+
+// Query trạng thái đơn ZaloPay
+router.get('/zalopay/query/:appTransId', authenticateToken, async (req, res) => {
+    try {
+        const result = await paymentService.queryZaloPayOrder(req.params.appTransId);
+        res.json({ success: true, data: result });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
 module.exports = router;
