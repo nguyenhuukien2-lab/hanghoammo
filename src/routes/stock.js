@@ -46,37 +46,31 @@ router.get('/products', async (req, res) => {
 
         if (error) throw error;
 
-        // Add stock information to products (simulated since we don't have stock columns yet)
+        // Lấy số tài khoản available thực tế từ DB
+        const productIds = (data || []).map(p => p.id);
+        let stockMap = {};
+        if (productIds.length > 0) {
+            const { data: accountCounts } = await supabase
+                .from('accounts')
+                .select('product_id')
+                .in('product_id', productIds)
+                .eq('status', 'available');
+            (accountCounts || []).forEach(a => {
+                stockMap[a.product_id] = (stockMap[a.product_id] || 0) + 1;
+            });
+        }
+
         const productsWithStock = (data || []).map(product => {
-            // Generate consistent stock based on product ID (so it's the same each time)
-            const productIdHash = product.id.split('').reduce((a, b) => {
-                a = ((a << 5) - a) + b.charCodeAt(0);
-                return a & a;
-            }, 0);
-            const stock = Math.abs(productIdHash % 100) + 10; // Stock between 10-109
-            
-            let stockStatus = 'in-stock';
-            let stockClass = 'in-stock';
-            let stockDisplay = `${stock} có sẵn`;
-            
+            const stock = stockMap[product.id] || 0;
+            let stockStatus, stockClass, stockDisplay;
             if (stock <= 0) {
-                stockStatus = 'out-of-stock';
-                stockClass = 'out-of-stock';
-                stockDisplay = 'Hết hàng';
-            } else if (stock <= 15) {
-                stockStatus = 'low-stock';
-                stockClass = 'low-stock';
-                stockDisplay = `Chỉ còn ${stock}`;
+                stockStatus = 'out-of-stock'; stockClass = 'out-of-stock'; stockDisplay = 'Hết hàng';
+            } else if (stock <= 5) {
+                stockStatus = 'low-stock'; stockClass = 'low-stock'; stockDisplay = `Chỉ còn ${stock}`;
+            } else {
+                stockStatus = 'in-stock'; stockClass = 'in-stock'; stockDisplay = `${stock} có sẵn`;
             }
-            
-            return {
-                ...product,
-                stock: stock,
-                stock_status: stockStatus,
-                stock_class: stockClass,
-                stock_display: stockDisplay,
-                has_active_flash_sale: false // For now, no flash sales
-            };
+            return { ...product, stock, stock_status: stockStatus, stock_class: stockClass, stock_display: stockDisplay, has_active_flash_sale: false };
         });
 
         // Apply tier pricing if user is logged in
@@ -159,35 +153,24 @@ router.get('/product/:id', async (req, res) => {
             });
         }
 
-        // Add stock information (simulated since we don't have stock columns yet)
-        const productIdHash = data.id.split('').reduce((a, b) => {
-            a = ((a << 5) - a) + b.charCodeAt(0);
-            return a & a;
-        }, 0);
-        const stock = Math.abs(productIdHash % 100) + 10; // Stock between 10-109
-        
-        let stockStatus = 'in-stock';
-        let stockClass = 'in-stock';
-        let stockDisplay = `${stock} có sẵn`;
-        
+        // Lấy số tài khoản available thực tế
+        const { data: accountCount } = await supabase
+            .from('accounts')
+            .select('id')
+            .eq('product_id', req.params.id)
+            .eq('status', 'available');
+        const stock = (accountCount || []).length;
+
+        let stockStatus, stockClass, stockDisplay;
         if (stock <= 0) {
-            stockStatus = 'out-of-stock';
-            stockClass = 'out-of-stock';
-            stockDisplay = 'Hết hàng';
-        } else if (stock <= 15) {
-            stockStatus = 'low-stock';
-            stockClass = 'low-stock';
-            stockDisplay = `Chỉ còn ${stock}`;
+            stockStatus = 'out-of-stock'; stockClass = 'out-of-stock'; stockDisplay = 'Hết hàng';
+        } else if (stock <= 5) {
+            stockStatus = 'low-stock'; stockClass = 'low-stock'; stockDisplay = `Chỉ còn ${stock}`;
+        } else {
+            stockStatus = 'in-stock'; stockClass = 'in-stock'; stockDisplay = `${stock} có sẵn`;
         }
-        
-        const productWithStock = {
-            ...data,
-            stock: stock,
-            stock_status: stockStatus,
-            stock_class: stockClass,
-            stock_display: stockDisplay,
-            has_active_flash_sale: false
-        };
+
+        const productWithStock = { ...data, stock, stock_status: stockStatus, stock_class: stockClass, stock_display: stockDisplay, has_active_flash_sale: false };
 
         // Apply tier pricing if user is logged in
         const authHeader = req.headers.authorization;

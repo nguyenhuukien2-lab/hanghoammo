@@ -134,6 +134,26 @@ app.post('/api/telegram/send-intro', async (req, res) => {
     }
 });
 
+// Gửi bản tin MMO thủ công (admin only)
+app.post('/api/telegram/send-news', async (req, res) => {
+    try {
+        const { runNewsSession } = require('./scripts/mmo-news-bot');
+        await runNewsSession('Thủ Công');
+        res.json({ success: true, message: 'Đã gửi bản tin MMO!' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// Trạng thái MMO News Bot
+app.get('/api/telegram/news-bot-status', (req, res) => {
+    res.json({
+        success: true,
+        enabled: process.env.MMO_NEWS_BOT_ENABLED === 'true',
+        schedule: '8:00, 12:00, 20:00 (giờ VN)'
+    });
+});
+
 // Gửi thông báo sản phẩm mới lên channel (admin only)
 app.post('/api/telegram/send-product', async (req, res) => {
     try {

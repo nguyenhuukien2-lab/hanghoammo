@@ -76,58 +76,65 @@ router.get('/dashboard', authenticateToken, async (req, res) => {
         if (req.user.role !== 'admin') {
             return res.status(403).json({ success: false, message: 'Không có quyền' });
         }
-        
+
         const { period = '7d' } = req.query;
-        
-        // Calculate date range
         let startDate = new Date();
-        if (period === '7d') {
-            startDate.setDate(startDate.getDate() - 7);
-        } else if (period === '30d') {
-            startDate.setDate(startDate.getDate() - 30);
-        } else if (period === '90d') {
-            startDate.setDate(startDate.getDate() - 90);
-        }
-        
-        // Get daily stats
-        const { data: dailyStats, error } = await supabase
-            .from('analytics_daily_stats')
-            .select('*')
-            .gte('date', startDate.toISOString().split('T')[0])
-            .order('date', { ascending: true });
-        
-        if (error) throw error;
-        
-        // Calculate totals
-        const totals = {
-            totalPageViews: 0,
-            uniqueVisitors: 0,
-            totalOrders: 0,
-            totalRevenue: 0,
-            avgOrderValue: 0,
-            conversionRate: 0
-        };
-        
-        dailyStats.forEach(stat => {
-            totals.totalPageViews += stat.total_page_views;
-            totals.uniqueVisitors += stat.unique_visitors;
-            totals.totalOrders += stat.total_orders;
-            totals.totalRevenue += parseFloat(stat.total_revenue);
+        if (period === '7d') startDate.setDate(startDate.getDate() - 7);
+        else if (period === '30d') startDate.setDate(startDate.getDate() - 30);
+        else if (period === '90d') startDate.setDate(startDate.getDate() - 90);
+        const startISO = startDate.toISOString();
+
+        // Lấy dữ liệu thực từ DB
+        const [ordersRes, usersRes, eventsRes] = await Promise.all([
+            supabase.from('orders').select('id, total_amount, created_at, status').gte('created_at', startISO),
+            supabase.from('users').select('id, created_at').gte('created_at', startISO),
+            supabase.from('analytics_events').select('id, event_type, created_at, device_type').gte('created_at', startISO)
+        ]);
+
+        const orders = ordersRes.data || [];
+        const users = usersRes.data || [];
+        const events = eventsRes.data || [];
+
+        const completedOrders = orders.filter(o => o.status === 'completed' || o.status === 'paid');
+        const totalRevenue = completedOrders.reduce((s, o) => s + parseFloat(o.total_amount || 0), 0);
+        const pageViews = events.filter(e => e.event_type === 'page_view').length;
+
+        // Group orders by day
+        const dailyMap = {};
+        completedOrders.forEach(o => {
+            const day = o.created_at.split('T')[0];
+            if (!dailyMap[day]) dailyMap[day] = { date: day, total_orders: 0, total_revenue: 0, total_page_views: 0, unique_visitors: 0 };
+            dailyMap[day].total_orders++;
+            dailyMap[day].total_revenue += parseFloat(o.total_amount || 0);
         });
-        
-        if (totals.totalOrders > 0) {
-            totals.avgOrderValue = totals.totalRevenue / totals.totalOrders;
-        }
-        
-        if (totals.uniqueVisitors > 0) {
-            totals.conversionRate = (totals.totalOrders / totals.uniqueVisitors) * 100;
-        }
-        
+        events.filter(e => e.event_type === 'page_view').forEach(e => {
+            const day = e.created_at.split('T')[0];
+            if (!dailyMap[day]) dailyMap[day] = { date: day, total_orders: 0, total_revenue: 0, total_page_views: 0, unique_visitors: 0 };
+            dailyMap[day].total_page_views++;
+        });
+        const dailyStats = Object.values(dailyMap).sort((a, b) => a.date.localeCompare(b.date));
+
+        // Device breakdown
+        const deviceBreakdown = {};
+        events.filter(e => e.event_type === 'page_view').forEach(e => {
+            const d = e.device_type || 'desktop';
+            deviceBreakdown[d] = (deviceBreakdown[d] || 0) + 1;
+        });
+
         res.json({
             success: true,
             data: {
                 dailyStats,
-                totals
+                totals: {
+                    totalPageViews: pageViews,
+                    uniqueVisitors: events.filter(e => e.event_type === 'page_view').length,
+                    totalOrders: completedOrders.length,
+                    totalRevenue,
+                    newUsers: users.length,
+                    avgOrderValue: completedOrders.length ? totalRevenue / completedOrders.length : 0,
+                    conversionRate: pageViews ? (completedOrders.length / pageViews * 100).toFixed(2) : 0
+                },
+                deviceBreakdown
             }
         });
     } catch (error) {
@@ -205,34 +212,37 @@ router.get('/top-products', authenticateToken, async (req, res) => {
         if (req.user.role !== 'admin') {
             return res.status(403).json({ success: false, message: 'Không có quyền' });
         }
-        
-        const { period = '30d', limit = 10 } = req.query;
-        
-        let startDate = new Date();
-        if (period === '7d') {
-            startDate.setDate(startDate.getDate() - 7);
-        } else if (period === '30d') {
-            startDate.setDate(startDate.getDate() - 30);
-        } else if (period === '90d') {
-            startDate.setDate(startDate.getDate() - 90);
-        }
-        
-        // Get top products by revenue
-        const { data: topProducts, error } = await supabase
-            .from('product_analytics')
-            .select(`
-                product_id,
-                products:product_id (name, image, price),
-                SUM(views) as total_views,
-                SUM(purchases) as total_purchases,
-                SUM(revenue) as total_revenue
-            `)
-            .gte('date', startDate.toISOString().split('T')[0])
-            .order('total_revenue', { ascending: false })
-            .limit(limit);
-        
-        if (error) throw error;
-        
+
+        const { limit = 10 } = req.query;
+
+        // Lấy top sản phẩm bán chạy từ order_items thực tế
+        const { data: items } = await supabase
+            .from('order_items')
+            .select('product_id, quantity, price, products(name, image, price, category)');
+
+        if (!items) return res.json({ success: true, data: [] });
+
+        const productMap = {};
+        items.forEach(item => {
+            const pid = item.product_id;
+            if (!productMap[pid]) {
+                productMap[pid] = {
+                    product_id: pid,
+                    name: item.products?.name,
+                    image: item.products?.image,
+                    category: item.products?.category,
+                    total_purchases: 0,
+                    total_revenue: 0
+                };
+            }
+            productMap[pid].total_purchases += item.quantity || 1;
+            productMap[pid].total_revenue += parseFloat(item.price || 0) * (item.quantity || 1);
+        });
+
+        const topProducts = Object.values(productMap)
+            .sort((a, b) => b.total_revenue - a.total_revenue)
+            .slice(0, parseInt(limit));
+
         res.json({ success: true, data: topProducts });
     } catch (error) {
         console.error('Get top products error:', error);

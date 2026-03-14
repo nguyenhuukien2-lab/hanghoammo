@@ -5,6 +5,68 @@ const paymentService = require('../services/paymentService');
 const { authenticateToken } = require('../middleware/auth');
 const { supabase } = require('../config/supabase');
 
+// ─── Thông tin chuyển khoản ngân hàng ────────────────────────────────────────
+router.get('/bank-info', (req, res) => {
+    res.json({
+        success: true,
+        data: {
+            banks: [
+                {
+                    bank: 'Vietcombank',
+                    account_number: process.env.BANK_ACCOUNT_VCB || '1234567890',
+                    account_name: process.env.BANK_ACCOUNT_NAME || 'NGUYEN HUU KIEN',
+                    branch: 'Chi nhánh TP.HCM'
+                },
+                {
+                    bank: 'MBBank',
+                    account_number: process.env.BANK_ACCOUNT_MB || '0987654321',
+                    account_name: process.env.BANK_ACCOUNT_NAME || 'NGUYEN HUU KIEN',
+                    branch: 'Chi nhánh TP.HCM'
+                }
+            ],
+            note: 'Nội dung chuyển khoản: NAP [email] [số tiền]',
+            min_amount: 10000,
+            processing_time: '5-15 phút trong giờ hành chính'
+        }
+    });
+});
+
+// ─── Tạo yêu cầu nạp tiền (chuyển khoản) ────────────────────────────────────
+router.post('/deposit/request', authenticateToken, async (req, res) => {
+    try {
+        const { amount, payment_method = 'bank_transfer', bank_name, transaction_ref } = req.body;
+
+        if (!amount || amount < 10000) {
+            return res.status(400).json({ success: false, message: 'Số tiền tối thiểu 10,000đ' });
+        }
+
+        const { data, error } = await supabase
+            .from('deposit_requests')
+            .insert({
+                user_id: req.user.id || req.user.userId,
+                amount: parseFloat(amount),
+                payment_method,
+                bank_name,
+                transaction_ref,
+                status: 'pending',
+                created_at: new Date().toISOString()
+            })
+            .select()
+            .single();
+
+        if (error) throw error;
+
+        res.json({
+            success: true,
+            message: 'Yêu cầu nạp tiền đã được gửi. Admin sẽ duyệt trong 5-15 phút.',
+            data
+        });
+    } catch (error) {
+        console.error('Deposit request error:', error);
+        res.status(500).json({ success: false, message: 'Lỗi tạo yêu cầu nạp tiền' });
+    }
+});
+
 // Create VNPay payment
 router.post('/vnpay/create', authenticateToken, async (req, res) => {
     try {

@@ -304,6 +304,16 @@ QUY TẮC:
     }
 });
 
+// Kiểm tra trạng thái AI
+router.get('/status', (req, res) => {
+    res.json({
+        success: true,
+        groq: !!process.env.GROQ_API_KEY,
+        gemini: !!process.env.GEMINI_API_KEY,
+        mode: process.env.GROQ_API_KEY ? 'groq' : process.env.GEMINI_API_KEY ? 'gemini' : 'fallback'
+    });
+});
+
 // Lấy lịch sử hội thoại
 router.get('/conversation/:id', async (req, res) => {
     try {
