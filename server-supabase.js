@@ -263,6 +263,17 @@ app.listen(PORT, () => {
 
         console.log('🤖 Telegram auto-post: BẬT (mỗi 5 phút)');
     }
+
+    // Khởi động MMO News Bot nếu bật
+    if (process.env.MMO_NEWS_BOT_ENABLED === 'true' && process.env.TELEGRAM_ADMIN_CHAT_ID) {
+        try {
+            const { startBot } = require('./scripts/mmo-news-bot');
+            startBot().catch(err => console.error('❌ MMO News Bot lỗi:', err.message));
+            console.log('📰 MMO News Bot: BẬT (tự động 8:00, 12:00, 20:00 hàng ngày)');
+        } catch (e) {
+            console.error('❌ Không khởi động được MMO News Bot:', e.message);
+        }
+    }
 });
 
 module.exports = app;

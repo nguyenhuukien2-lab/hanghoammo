@@ -121,6 +121,12 @@ async function apiRequest(endpoint, options = {}) {
         
         const data = await response.json();
         
+        // Nếu token không hợp lệ hoặc user không tồn tại → tự động logout
+        if (response.status === 401 || response.status === 403) {
+            logout();
+            return data;
+        }
+        
         if (!response.ok) {
             throw new Error(data.message || 'Có lỗi xảy ra');
         }

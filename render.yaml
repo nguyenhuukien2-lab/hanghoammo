@@ -1,0 +1,18 @@
+services:
+  # Web server chính
+  - type: web
+    name: hanghoammo
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVarGroups:
+      - hanghoammo-env
+
+  # MMO News Bot - chạy độc lập 24/7
+  - type: worker
+    name: hanghoammo-news-bot
+    runtime: node
+    buildCommand: npm install
+    startCommand: node scripts/mmo-news-bot.js
+    envVarGroups:
+      - hanghoammo-env
