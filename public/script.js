@@ -1487,6 +1487,16 @@ function loadProductDetail() {
     // Load variants
     loadProductVariants(product);
     
+    // Fill price display
+    const priceDisplay = document.getElementById('priceDisplay');
+    if (priceDisplay) {
+        priceDisplay.innerHTML = `<span class="price-current">${formatPrice(product.price)}</span>`;
+    }
+    
+    // Fill variant count
+    const variantCount = document.getElementById('variantCount');
+    if (variantCount) variantCount.textContent = '4';
+    
     // Set description
     const description = getProductDescription(product);
     document.getElementById('productDescription').innerHTML = description;
@@ -1513,7 +1523,7 @@ function loadProductVariants(product) {
     ];
     
     variantsContainer.innerHTML = variants.map((variant, index) => `
-        <div class="variant-option ${index === 0 ? 'active' : ''}" onclick="selectVariant(${JSON.stringify(variant).replace(/"/g, '&quot;')})">
+        <div class="variant-option ${index === 0 ? 'active' : ''}" onclick="selectVariant(${JSON.stringify(variant).replace(/"/g, '&quot;')}, this)">
             <span class="variant-name">${variant.name}</span>
             <span class="variant-price">${formatPrice(variant.price)}</span>
         </div>

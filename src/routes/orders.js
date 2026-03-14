@@ -4,6 +4,7 @@ const db = require('../config/database');
 const { authenticateToken } = require('../middleware/auth');
 const emailService = require('../services/emailService');
 const telegramService = require('../services/telegramService');
+const { supabase } = require('../config/supabase');
 
 // Create order and deduct from wallet
 router.post('/create', authenticateToken, async (req, res) => {
@@ -152,17 +153,11 @@ router.post('/create', authenticateToken, async (req, res) => {
             // Apply voucher if provided
             if (voucher_id && discount_amount) {
                 try {
-                    await fetch('http://localhost:3002/api/vouchers/apply', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': req.headers.authorization
-                        },
-                        body: JSON.stringify({
-                            voucher_id,
-                            order_id: order.id,
-                            discount_amount
-                        })
+                    await supabase.from('voucher_usage').insert({
+                        voucher_id,
+                        user_id: req.user.id,
+                        order_id: order.id,
+                        discount_amount
                     });
                 } catch (voucherErr) {
                     console.error('Failed to record voucher usage:', voucherErr);

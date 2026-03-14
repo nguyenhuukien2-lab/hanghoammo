@@ -141,10 +141,10 @@
 
                 <!-- Right: Product Info -->
                 <div class="product-detail-info-col">
-                    <!-- Product Header -->
-                    <div class="product-detail-header">
+                    <!-- Title -->
+                    <div>
                         <h1 class="product-detail-title" id="productTitle"></h1>
-                        <p class="product-detail-category" id="productCategory">Danh mục</p>
+                        <p class="product-detail-category" id="productCategory"></p>
                     </div>
 
                     <!-- Rating & Stats -->
@@ -153,57 +153,65 @@
                             <div class="rating-score">
                                 <span class="score-number">5.0</span>
                                 <div class="stars">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i><i class="fas fa-star"></i>
                                     <i class="fas fa-star"></i>
                                 </div>
                             </div>
                             <div class="stat-item">
-                                <span class="stat-label">Đã bán</span>
+                                <span class="stat-label">•</span>
                                 <span class="stat-value" id="productSold">0</span>
+                                <span class="stat-label">đã bán</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Price Box -->
+                    <!-- Price & Variants -->
                     <div class="product-price-box">
-                        <div class="price-label">Phân loại:</div>
-                        <div class="product-variants" id="productVariants">
-                            <!-- Variants will be loaded here -->
+                        <div class="price-main" id="priceDisplay">
+                            <!-- filled by JS -->
+                        </div>
+                        <div class="price-label">Phân loại (<span id="variantCount">0</span>)</div>
+                        <div class="product-variants" id="productVariants"></div>
+                        <div class="delivery-note">
+                            <i class="fas fa-clock"></i>
+                            <span>Giao thủ công</span>
                         </div>
                     </div>
 
-                    <!-- Quantity Box -->
+                    <!-- Quantity -->
                     <div class="product-quantity-box">
                         <div class="quantity-label">Số lượng</div>
                         <div class="quantity-controls">
-                            <button class="qty-btn" onclick="decreaseQuantity()">-</button>
+                            <button class="qty-btn" onclick="decreaseQuantity()">−</button>
                             <input type="number" id="quantityInput" value="1" min="1" readonly>
                             <button class="qty-btn" onclick="increaseQuantity()">+</button>
                         </div>
-                        <div class="stock-info" id="stockInfo">
-                            Còn hàng
-                        </div>
+                        <div class="stock-info" id="stockInfo">Còn hàng</div>
                     </div>
 
-                    <!-- Action Buttons -->
+                    <!-- Voucher -->
+                    <div class="voucher-row">
+                        <input type="text" class="voucher-input" id="voucherInput" placeholder="Nhập mã giảm giá (nếu có)">
+                        <button class="btn-apply-voucher" onclick="applyVoucher()">Áp dụng</button>
+                    </div>
+
+                    <!-- Actions -->
                     <div class="product-detail-actions">
                         <button class="btn-detail-primary" onclick="addToCartFromDetail()">
-                            <i class="fas fa-shopping-cart"></i>
-                            Thêm vào giỏ
+                            <i class="fas fa-shopping-cart"></i> Thêm giỏ hàng
                         </button>
-                        <button class="btn-detail-success" onclick="buyNow()">
-                            Mua ngay
-                        </button>
+                        <button class="btn-detail-success" onclick="buyNow()">Mua ngay</button>
                     </div>
 
-                    <!-- Wishlist -->
-                    <button class="btn-detail-wishlist" id="wishlistBtn" onclick="toggleWishlistFromDetail()">
-                        <i class="far fa-heart"></i>
-                        <span>Thêm vào yêu thích</span>
-                    </button>
+                    <!-- Footer note -->
+                    <div class="detail-footer-note">
+                        <button class="btn-detail-wishlist" id="wishlistBtn" onclick="toggleWishlistFromDetail()">
+                            <i class="far fa-heart"></i>
+                            <span>Chia sẻ sản phẩm</span>
+                        </button>
+                        <p class="seller-note">Seller sẽ gửi thông tin sau khi đặt hàng (trong 24h)</p>
+                    </div>
                 </div>
             </div>
 
@@ -314,14 +322,18 @@
         }
         
         // Select variant
-        function selectVariant(variantData) {
+        function selectVariant(variantData, el) {
             selectedVariant = variantData;
             
             // Update active state
-            document.querySelectorAll('.variant-option').forEach(el => {
-                el.classList.remove('active');
-            });
-            event.target.closest('.variant-option').classList.add('active');
+            document.querySelectorAll('.variant-option').forEach(e => e.classList.remove('active'));
+            (el || event.target.closest('.variant-option')).classList.add('active');
+
+            // Update price display
+            const priceDisplay = document.getElementById('priceDisplay');
+            if (priceDisplay) {
+                priceDisplay.innerHTML = `<span class="price-current">${formatPrice(variantData.price)}</span>`;
+            }
         }
         
         // Load product detail on page load

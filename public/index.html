@@ -7,8 +7,8 @@
     <title>HangHoaMMO - Chợ MMO uy tín #1</title>
     <link rel="icon" type="image/png" href="logo-mmo.png">
     <link rel="shortcut icon" type="image/png" href="logo-mmo.png">
-    <link rel="stylesheet" href="style.css?v=7.0">
-    <link rel="stylesheet" href="products-improved.css?v=2.0">
+    <link rel="stylesheet" href="style.css?v=8.0">
+    <link rel="stylesheet" href="products-improved.css?v=3.0">
     <link rel="stylesheet" href="ai-chatbot.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -335,13 +335,16 @@
     <section class="products-section">
         <div class="container">
             <div class="section-header">
-                <h2><i class="fas fa-fire"></i> Bán chạy nhất tuần</h2>
-                <p style="color: #999; font-size: 14px; margin-top: 5px;">Top sản phẩm hot trong 7 ngày qua</p>
+                <div class="section-title-wrap">
+                    <div class="section-icon"><i class="fas fa-fire"></i></div>
+                    <div>
+                        <h2>Bán chạy nhất tuần</h2>
+                        <p class="section-sub">Top sản phẩm hot trong 7 ngày qua</p>
+                    </div>
+                </div>
                 <a href="products.html" class="see-all">Xem thêm <i class="fas fa-arrow-right"></i></a>
             </div>
-            <div class="products-grid" id="bestSellers">
-                <!-- Products will be loaded here -->
-            </div>
+            <div class="products-grid" id="bestSellers"></div>
         </div>
     </section>
 
@@ -349,13 +352,16 @@
     <section class="products-section">
         <div class="container">
             <div class="section-header">
-                <h2><i class="fas fa-clock"></i> Sản phẩm mới nhất</h2>
-                <p style="color: #999; font-size: 14px; margin-top: 5px;">Vừa được đăng bán</p>
+                <div class="section-title-wrap">
+                    <div class="section-icon"><i class="fas fa-clock"></i></div>
+                    <div>
+                        <h2>Sản phẩm mới nhất</h2>
+                        <p class="section-sub">Vừa được đăng bán</p>
+                    </div>
+                </div>
                 <a href="products.html" class="see-all">Xem thêm <i class="fas fa-arrow-right"></i></a>
             </div>
-            <div class="products-grid" id="newProducts">
-                <!-- Products will be loaded here -->
-            </div>
+            <div class="products-grid" id="newProducts"></div>
         </div>
     </section>
 
@@ -363,12 +369,16 @@
     <section class="products-section">
         <div class="container">
             <div class="section-header">
-                <h2><i class="fas fa-fire"></i> Tìm kiếm hàng đầu</h2>
+                <div class="section-title-wrap">
+                    <div class="section-icon"><i class="fas fa-chart-line"></i></div>
+                    <div>
+                        <h2>Tìm kiếm hàng đầu</h2>
+                        <p class="section-sub">Sản phẩm được mua nhiều nhất</p>
+                    </div>
+                </div>
                 <a href="products.html" class="see-all">Xem thêm <i class="fas fa-arrow-right"></i></a>
             </div>
-            <div class="products-grid" id="hotProducts">
-                <!-- Products will be loaded here -->
-            </div>
+            <div class="products-grid" id="hotProducts"></div>
         </div>
     </section>
 
@@ -376,12 +386,16 @@
     <section class="products-section">
         <div class="container">
             <div class="section-header">
-                <h2><i class="fas fa-star"></i> Sản phẩm gợi ý</h2>
+                <div class="section-title-wrap">
+                    <div class="section-icon"><i class="fas fa-star"></i></div>
+                    <div>
+                        <h2>Sản phẩm gợi ý</h2>
+                        <p class="section-sub">Dành riêng cho bạn</p>
+                    </div>
+                </div>
                 <a href="products.html" class="see-all">Xem thêm <i class="fas fa-arrow-right"></i></a>
             </div>
-            <div class="products-grid" id="suggestedProducts">
-                <!-- Products will be loaded here -->
-            </div>
+            <div class="products-grid" id="suggestedProducts"></div>
         </div>
     </section>
 
@@ -580,43 +594,36 @@
         function renderHomeProducts() {
             console.log('Total products:', products.length);
             
-            // Sort products by sold (best sellers)
-            const bestSellers = [...products]
-                .sort((a, b) => (b.sold || 0) - (a.sold || 0))
-                .slice(0, 6);
-            
-            // Sort products by created date (newest first)
-            const newProducts = [...products]
-                .sort((a, b) => {
-                    const dateA = new Date(a.created_at || a.createdAt || 0);
-                    const dateB = new Date(b.created_at || b.createdAt || 0);
-                    return dateB - dateA;
-                })
-                .slice(0, 6);
-            
-            // Hot products - first 6
-            const hotProducts = products.slice(0, 6);
-            
-            // Suggested products - if we have more than 6, take 6-12, otherwise repeat from start
-            let suggestedProducts = [];
-            if (products.length > 6) {
-                suggestedProducts = products.slice(6, 12);
-            } else {
-                // If not enough products, just show all products
-                suggestedProducts = products.slice(0, 6);
-            }
-            
-            // If still not enough, fill with random products
-            if (suggestedProducts.length < 6 && products.length > 0) {
-                const remaining = 6 - suggestedProducts.length;
-                const shuffled = [...products].sort(() => 0.5 - Math.random());
-                suggestedProducts = [...suggestedProducts, ...shuffled.slice(0, remaining)];
-            }
+            // Track used IDs để không lặp sản phẩm
+            // Chỉ hiển thị đúng sản phẩm được gán vào mục đó
+            // Nếu mục nào chưa có sản phẩm gán, fallback tự động để không trống
+            const pinnedBest = products.filter(p => p.section === 'best_sellers');
+            const pinnedNew = products.filter(p => p.section === 'new_products');
+            const pinnedHot = products.filter(p => p.section === 'hot_products');
+            const pinnedSuggested = products.filter(p => p.section === 'suggested');
 
-            console.log('Best sellers:', bestSellers.length);
-            console.log('New products:', newProducts.length);
-            console.log('Hot products:', hotProducts.length);
-            console.log('Suggested products:', suggestedProducts.length);
+            const unassigned = products.filter(p => !p.section);
+
+            // Nếu mục nào chưa có sản phẩm gán thì dùng fallback từ unassigned
+            const bestSellers = pinnedBest.length > 0 ? pinnedBest :
+                [...unassigned].sort((a, b) => (b.sold || 0) - (a.sold || 0)).slice(0, 12);
+
+            const usedFallbackIds = new Set(bestSellers.map(p => p.id || p._id));
+
+            const newProducts = pinnedNew.length > 0 ? pinnedNew :
+                [...unassigned].filter(p => !usedFallbackIds.has(p.id || p._id))
+                    .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
+                    .slice(0, 12);
+
+            newProducts.forEach(p => usedFallbackIds.add(p.id || p._id));
+
+            const hotProducts = pinnedHot.length > 0 ? pinnedHot :
+                [...unassigned].filter(p => !usedFallbackIds.has(p.id || p._id)).slice(0, 12);
+
+            hotProducts.forEach(p => usedFallbackIds.add(p.id || p._id));
+
+            const suggestedProducts = pinnedSuggested.length > 0 ? pinnedSuggested :
+                [...unassigned].filter(p => !usedFallbackIds.has(p.id || p._id)).slice(0, 12);
 
             const bestSellersEl = document.getElementById('bestSellers');
             const newProductsEl = document.getElementById('newProducts');
@@ -670,8 +677,8 @@
                     </div>
                 `;
             } else {
-                // Regular price
-                priceHTML = `<div class="product-price">${displayPrice.toLocaleString('vi-VN')}đ</div>`;
+                // Regular price - chỉ hiện 1 giá
+                priceHTML = `<div class="product-price" style="font-size:13px;font-weight:700;color:#ff4d4f;margin:2px 0;">${displayPrice.toLocaleString('vi-VN')}đ</div>`;
             }
             
             // Stock indicator
@@ -723,12 +730,12 @@
                     <div class="product-info">
                         <h3 class="product-name" onclick="window.location.href='product-detail.html?id=${productId}'">${product.name}</h3>
                         ${priceHTML}
-                        ${stockHTML}
                         <div class="product-meta">
                             <div class="product-rating">
                                 <i class="fas fa-star"></i>
                                 <span>${product.rating || '5.0'}</span>
                             </div>
+                            <span class="sep">·</span>
                             <span class="product-sold">Đã bán ${product.sold || 0}</span>
                         </div>
                         <div class="product-vendor-home">
@@ -736,12 +743,6 @@
                             <span>TH Agency</span>
                         </div>
                         ${previewsHTML}
-                        <div class="product-actions-home">
-                            <button class="btn-add-to-cart-home" onclick="addToCartHome('${productId}')" ${product.stock <= 0 ? 'disabled' : ''}>
-                                <i class="fas fa-shopping-cart"></i>
-                                <span>${product.stock <= 0 ? 'Hết hàng' : 'Thêm giỏ hàng'}</span>
-                            </button>
-                        </div>
                         ${flashSaleHTML}
                     </div>
                 </div>

@@ -129,7 +129,7 @@ router.get('/:id', async (req, res) => {
 // Tạo sản phẩm mới (admin only)
 router.post('/', authenticateToken, requireAdmin, async (req, res) => {
     try {
-        const { name, category, price, image, badge, description } = req.body;
+        const { name, category, price, image, badge, description, section } = req.body;
 
         if (!name || !category || !price) {
             return res.status(400).json({
@@ -145,6 +145,7 @@ router.post('/', authenticateToken, requireAdmin, async (req, res) => {
             image,
             badge,
             description,
+            section: section || null,
             sold: 0
         });
 
@@ -165,7 +166,7 @@ router.post('/', authenticateToken, requireAdmin, async (req, res) => {
 // Cập nhật sản phẩm (admin only)
 router.put('/:id', authenticateToken, requireAdmin, async (req, res) => {
     try {
-        const { name, category, price, image, badge, description, sold } = req.body;
+        const { name, category, price, image, badge, description, sold, section } = req.body;
 
         const updatedProduct = await db.updateProduct(req.params.id, {
             name,
@@ -174,7 +175,8 @@ router.put('/:id', authenticateToken, requireAdmin, async (req, res) => {
             image,
             badge,
             description,
-            sold
+            sold,
+            section: section !== undefined ? (section || null) : undefined
         });
 
         res.json({

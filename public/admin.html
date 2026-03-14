@@ -272,6 +272,14 @@
                         <option value="vpn">VPN</option>
                         <option value="service">Service</option>
                     </select>
+                    <select id="filterSection" onchange="filterProducts()">
+                        <option value="">Tất cả mục</option>
+                        <option value="best_sellers">🔥 Bán chạy nhất tuần</option>
+                        <option value="new_products">🆕 Sản phẩm mới nhất</option>
+                        <option value="hot_products">📈 Tìm kiếm hàng đầu</option>
+                        <option value="suggested">⭐ Sản phẩm gợi ý</option>
+                        <option value="__none__">— Chưa gán mục</option>
+                    </select>
                 </div>
 
                 <div class="table-responsive">
@@ -284,6 +292,7 @@
                                 <th>Giá</th>
                                 <th>Đã bán</th>
                                 <th>Badge</th>
+                                <th>Mục</th>
                                 <th>Thao tác</th>
                             </tr>
                         </thead>
@@ -766,6 +775,16 @@
                             <option value="NEW">NEW</option>
                             <option value="SALE">SALE</option>
                             <option value="VIP">VIP</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Hiển thị ở mục</label>
+                        <select id="productSection">
+                            <option value="">-- Tự động --</option>
+                            <option value="best_sellers">🔥 Bán chạy nhất tuần</option>
+                            <option value="new_products">🆕 Sản phẩm mới nhất</option>
+                            <option value="hot_products">📈 Tìm kiếm hàng đầu</option>
+                            <option value="suggested">⭐ Sản phẩm gợi ý</option>
                         </select>
                     </div>
                     <div class="form-group full-width">
