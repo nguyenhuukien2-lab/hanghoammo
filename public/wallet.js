@@ -83,6 +83,7 @@ async function loadDepositRequests() {
             };
             
             const paymentMethodText = {
+                'zalopay': '💙 ZaloPay',
                 'momo': '📱 MoMo',
                 'vietinbank': '🏦 VietinBank'
             };
@@ -119,6 +120,14 @@ async function loadDepositRequests() {
 
 // Bank account information
 const bankAccounts = {
+    zalopay: {
+        title: '💙 Thông tin ZaloPay',
+        accountNumber: '0879062222',
+        bankName: 'ZaloPay (Liên kết MBBank)',
+        accountHolder: 'NGUYEN HUU KIEN',
+        bin: '970422',
+        template: 'compact'
+    },
     momo: {
         title: '📱 Thông tin ví MoMo',
         accountNumber: '0879062222',
