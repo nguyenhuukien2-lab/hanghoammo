@@ -85,7 +85,9 @@ async function loadDepositRequests() {
             const paymentMethodText = {
                 'zalopay': '💙 ZaloPay',
                 'momo': '📱 MoMo',
-                'vietinbank': '🏦 VietinBank'
+                'vnpay': '🔴 VNPay',
+                'vietinbank': '🏦 VietinBank',
+                'mbbank': '🏦 MBBank'
             };
             
             return `
@@ -133,7 +135,15 @@ const bankAccounts = {
         accountNumber: '0879062222',
         bankName: 'Ví MoMo',
         accountHolder: 'NGUYEN HUU KIEN',
-        bin: '9704', // MoMo BIN code
+        bin: '9704',
+        template: 'compact'
+    },
+    vnpay: {
+        title: '🔴 Thông tin VNPay QR',
+        accountNumber: '101884511335',
+        bankName: 'VietinBank (VNPay QR)',
+        accountHolder: 'NGUYEN HUU KIEN',
+        bin: '970415',
         template: 'compact'
     },
     vietinbank: {
@@ -141,7 +151,15 @@ const bankAccounts = {
         accountNumber: '101884511335',
         bankName: 'VietinBank CN BAC DA NANG - HOI SO',
         accountHolder: 'NGUYEN HUU KIEN',
-        bin: '970415', // VietinBank BIN code
+        bin: '970415',
+        template: 'compact'
+    },
+    mbbank: {
+        title: '🏦 Thông tin MBBank',
+        accountNumber: '0879062222',
+        bankName: 'MBBank',
+        accountHolder: 'NGUYEN HUU KIEN',
+        bin: '970422',
         template: 'compact'
     }
 };
