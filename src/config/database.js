@@ -165,16 +165,27 @@ const db = {
     async markAccountAsSold(accountId, userId, orderId) {
         const { data, error } = await supabase
             .from('accounts')
-            .update({
-                status: 'sold',
-                sold_at: new Date(),
-                sold_to: userId
-            })
+            .update({ status: 'sold', sold_at: new Date(), sold_to: userId })
             .eq('id', accountId)
             .select()
             .single();
-        
+
         if (error) throw error;
+
+        // Cập nhật stock_count thực tế trên products
+        if (data?.product_id) {
+            const { count } = await supabase
+                .from('accounts')
+                .select('id', { count: 'exact', head: true })
+                .eq('product_id', data.product_id)
+                .eq('status', 'available');
+
+            await supabase
+                .from('products')
+                .update({ stock_count: count || 0 })
+                .eq('id', data.product_id);
+        }
+
         return data;
     },
 
@@ -184,8 +195,23 @@ const db = {
             .insert([accountData])
             .select()
             .single();
-        
+
         if (error) throw error;
+
+        // Cập nhật stock_count
+        if (data?.product_id) {
+            const { count } = await supabase
+                .from('accounts')
+                .select('id', { count: 'exact', head: true })
+                .eq('product_id', data.product_id)
+                .eq('status', 'available');
+
+            await supabase
+                .from('products')
+                .update({ stock_count: count || 0 })
+                .eq('id', data.product_id);
+        }
+
         return data;
     },
 
