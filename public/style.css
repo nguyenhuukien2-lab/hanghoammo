@@ -4183,22 +4183,19 @@ body.dark-mode .hero-wrapper:hover::before {
 }
 
 .hero-search-box:focus-within {
-    border-color: #0066FF;
-    box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+    border-color: #cbd5e1;
+    box-shadow: none;
 }
 
 .hero-search-box i:first-child {
-    position: absolute;
-    left: 18px;
-    color: #94a3b8;
-    font-size: 16px;
+    display: none;
 }
 
 .hero-search-box input {
     flex: 1;
     border: none;
     background: transparent;
-    padding: 15px 20px 15px 50px;
+    padding: 15px 20px 15px 20px;
     font-size: 15px;
     outline: none;
     color: #1e293b;
@@ -4210,14 +4207,13 @@ body.dark-mode .hero-wrapper:hover::before {
 }
 
 .hero-search-box button {
-    background: #0066FF;
+    background: transparent;
     border: none;
-    padding: 15px 24px;
+    padding: 15px 18px;
     border-radius: 0 8px 8px 0;
-    color: white;
-    font-weight: 700;
+    color: #94a3b8;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: color 0.2s;
     font-size: 16px;
     display: flex;
     align-items: center;
@@ -4231,7 +4227,7 @@ body.dark-mode .hero-wrapper:hover::before {
 
 .hero-search-box button i {
     font-size: 18px;
-    color: white !important;
+    color: #94a3b8 !important;
     display: inline-block !important;
     visibility: visible !important;
     opacity: 1 !important;
@@ -4240,8 +4236,13 @@ body.dark-mode .hero-wrapper:hover::before {
 }
 
 .hero-search-box button:hover {
-    background: #0052CC;
+    background: transparent;
     box-shadow: none;
+    color: #475569;
+}
+
+.hero-search-box button:hover i {
+    color: #475569 !important;
 }
 
 .hero-features-inline {
