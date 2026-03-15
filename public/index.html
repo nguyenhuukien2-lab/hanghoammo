@@ -601,46 +601,21 @@
             const pinnedNew = products.filter(p => p.section === 'new_products');
             const pinnedHot = products.filter(p => p.section === 'hot_products');
             const pinnedSuggested = products.filter(p => p.section === 'suggested');
-
-            // Sản phẩm chưa gán section nào
             const unassigned = products.filter(p => !p.section);
 
-            // Nếu đã có sản phẩm gán đúng mục → hiện đúng mục đó
-            // Nếu chưa có ai gán → fallback auto (để trang không trống)
-            const anyPinned = pinnedBest.length > 0 || pinnedNew.length > 0 || pinnedHot.length > 0 || pinnedSuggested.length > 0;
+            // Mỗi mục: nếu có sản phẩm gán đúng → hiện đó
+            // Nếu chưa có → fallback từ unassigned (mỗi mục độc lập, có thể trùng)
+            const bestSellers = pinnedBest.length > 0 ? pinnedBest :
+                [...unassigned].sort((a, b) => (b.sold || 0) - (a.sold || 0)).slice(0, 12);
 
-            let bestSellers, newProducts, hotProducts, suggestedProducts;
+            const newProducts = pinnedNew.length > 0 ? pinnedNew :
+                [...unassigned].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)).slice(0, 12);
 
-            if (anyPinned) {
-                // Đã có sản phẩm được gán → chỉ hiện đúng mục, không fallback
-                bestSellers = pinnedBest;
-                newProducts = pinnedNew;
-                hotProducts = pinnedHot;
-                suggestedProducts = pinnedSuggested;
-            } else {
-                // Chưa ai gán section → fallback auto, không lặp
-                const usedIds = new Set();
+            const hotProducts = pinnedHot.length > 0 ? pinnedHot :
+                [...unassigned].slice(0, 12);
 
-                bestSellers = [...unassigned]
-                    .sort((a, b) => (b.sold || 0) - (a.sold || 0))
-                    .slice(0, 12);
-                bestSellers.forEach(p => usedIds.add(p.id || p._id));
-
-                newProducts = [...unassigned]
-                    .filter(p => !usedIds.has(p.id || p._id))
-                    .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
-                    .slice(0, 12);
-                newProducts.forEach(p => usedIds.add(p.id || p._id));
-
-                hotProducts = [...unassigned]
-                    .filter(p => !usedIds.has(p.id || p._id))
-                    .slice(0, 12);
-                hotProducts.forEach(p => usedIds.add(p.id || p._id));
-
-                suggestedProducts = [...unassigned]
-                    .filter(p => !usedIds.has(p.id || p._id))
-                    .slice(0, 12);
-            }
+            const suggestedProducts = pinnedSuggested.length > 0 ? pinnedSuggested :
+                [...unassigned].slice(0, 12);
 
             const bestSellersEl = document.getElementById('bestSellers');
             const newProductsEl = document.getElementById('newProducts');
