@@ -119,9 +119,9 @@ const registerEmailTemplate = (userName, userEmail) => {
 const orderEmailTemplate = (userName, orderCode, orderTotal, orderItems, accounts) => {
     const itemsHtml = orderItems.map(item => `
         <tr>
-            <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.product_name}</td>
-            <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
-            <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">${formatPrice(item.product_price)}</td>
+            <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.product_name || item.name}</td>
+            <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity || 1}</td>
+            <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">${formatPrice(item.product_price || item.price)}</td>
         </tr>
     `).join('');
     
