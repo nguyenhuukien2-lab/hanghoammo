@@ -3,6 +3,7 @@ const cors = require('cors');
 const path = require('path');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
+const compression = require('compression');
 require('dotenv').config();
 
 const app = express();
@@ -48,13 +49,30 @@ const otpLimiter = rateLimit({
     skip: () => process.env.NODE_ENV === 'development', // Bỏ qua hoàn toàn khi development
 });
 
-// Middleware
-app.use(cors());
+// GZIP Compression - giảm 60-70% dung lượng response
+app.use(compression());
+
+// CORS - giới hạn domain được phép gọi API
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',')
+    : ['http://localhost:3001', 'http://localhost:3000'];
+
+app.use(cors({
+    origin: function(origin, callback) {
+        // Cho phép request không có origin (mobile apps, curl, server-to-server)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+            return callback(null, true);
+        }
+        return callback(new Error('CORS không cho phép từ origin này'), false);
+    },
+    credentials: true
+}));
+app.options('*', cors());
+
+// Body parsers
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-// Handle OPTIONS requests for CORS
-app.options('*', cors());
 
 // File upload middleware
 const fileUpload = require('express-fileupload');
@@ -63,8 +81,12 @@ app.use(fileUpload({
     abortOnLimit: true,
     responseOnLimit: 'File quá lớn. Tối đa 5MB.'
 }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-app.use(express.static('public'));
+
+// Static files với cache 1 ngày (tối ưu tốc độ tải trang)
+app.use(express.static('public', {
+    maxAge: process.env.NODE_ENV === 'development' ? 0 : '1d',
+    etag: true
+}));
 
 // Apply general rate limiter to all routes
 app.use('/api/', generalLimiter);
@@ -90,6 +112,8 @@ const blogRoutes = require('./src/routes/blog');
 const analyticsRoutes = require('./src/routes/analytics');
 const resellerRoutes = require('./src/routes/reseller');
 const stockRoutes = require('./src/routes/stock');
+const telegramRoutes = require('./src/routes/telegram');
+const systemRoutes = require('./src/routes/system');
 
 // API Routes
 app.use('/api/auth', authRoutes);
@@ -112,6 +136,8 @@ app.use('/api/blog', blogRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/reseller', resellerRoutes);
 app.use('/api/stock', stockRoutes);
+app.use('/api/telegram', telegramRoutes);
+app.use('/api', systemRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -123,49 +149,6 @@ app.get('/api/health', (req, res) => {
     });
 });
 
-// Gửi tin giới thiệu website lên Telegram channel (admin only)
-app.post('/api/telegram/send-intro', async (req, res) => {
-    try {
-        const telegramService = require('./src/services/telegramService');
-        await telegramService.sendWebsiteIntro();
-        res.json({ success: true, message: 'Đã gửi tin giới thiệu lên channel!' });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
-});
-
-// Gửi bản tin MMO thủ công (admin only)
-app.post('/api/telegram/send-news', async (req, res) => {
-    try {
-        const { runNewsSession } = require('./scripts/mmo-news-bot');
-        await runNewsSession('Thủ Công');
-        res.json({ success: true, message: 'Đã gửi bản tin MMO!' });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
-});
-
-// Trạng thái MMO News Bot
-app.get('/api/telegram/news-bot-status', (req, res) => {
-    res.json({
-        success: true,
-        enabled: process.env.MMO_NEWS_BOT_ENABLED === 'true',
-        schedule: '8:00, 12:00, 20:00 (giờ VN)'
-    });
-});
-
-// Gửi thông báo sản phẩm mới lên channel (admin only)
-app.post('/api/telegram/send-product', async (req, res) => {
-    try {
-        const { name, price, description, category } = req.body;
-        const telegramService = require('./src/services/telegramService');
-        await telegramService.sendNewProduct(name, price, description, category);
-        res.json({ success: true, message: 'Đã gửi thông báo sản phẩm mới!' });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
-});
-
 // Reset rate limit (development only)
 app.post('/api/reset-rate-limit', (req, res) => {
     if (process.env.NODE_ENV !== 'development') {
@@ -174,48 +157,10 @@ app.post('/api/reset-rate-limit', (req, res) => {
             message: 'Chỉ khả dụng trong môi trường development'
         });
     }
-    
-    // Reset rate limiters
     generalLimiter.resetKey(req.ip);
     authLimiter.resetKey(req.ip);
     otpLimiter.resetKey(req.ip);
-    
-    res.json({
-        success: true,
-        message: 'Đã reset rate limit cho IP này'
-    });
-});
-
-// Maintenance API (giữ nguyên)
-let maintenanceSettings = {
-    enabled: false,
-    message: 'Website đang bảo trì',
-    eta: '30 phút',
-    telegram: 'https://t.me/hanghoammo'
-};
-
-app.get('/api/maintenance/status', (req, res) => {
-    res.json({
-        success: true,
-        data: maintenanceSettings
-    });
-});
-
-app.post('/api/maintenance/update', (req, res) => {
-    const { enabled, message, eta, telegram } = req.body;
-    
-    maintenanceSettings = {
-        enabled: enabled !== undefined ? enabled : maintenanceSettings.enabled,
-        message: message || maintenanceSettings.message,
-        eta: eta || maintenanceSettings.eta,
-        telegram: telegram || maintenanceSettings.telegram
-    };
-    
-    res.json({
-        success: true,
-        message: 'Cập nhật cài đặt bảo trì thành công',
-        data: maintenanceSettings
-    });
+    res.json({ success: true, message: 'Đã reset rate limit cho IP này' });
 });
 
 // Serve HTML pages
