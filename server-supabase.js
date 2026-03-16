@@ -54,14 +54,19 @@ app.use(compression());
 
 // CORS - giới hạn domain được phép gọi API
 const allowedOrigins = process.env.ALLOWED_ORIGINS
-    ? process.env.ALLOWED_ORIGINS.split(',')
+    ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
     : ['http://localhost:3001', 'http://localhost:3000'];
+
+// Tự động thêm BASE_URL vào danh sách cho phép
+if (process.env.BASE_URL && !allowedOrigins.includes(process.env.BASE_URL)) {
+    allowedOrigins.push(process.env.BASE_URL);
+}
 
 app.use(cors({
     origin: function(origin, callback) {
         // Cho phép request không có origin (mobile apps, curl, server-to-server)
         if (!origin) return callback(null, true);
-        if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+        if (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
             return callback(null, true);
         }
         return callback(new Error('CORS không cho phép từ origin này'), false);
