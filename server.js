@@ -82,6 +82,9 @@ wss.on('connection', (ws, req) => {
 app.locals.chatClients = chatClients;
 app.locals.WebSocket = WebSocket;
 
+// Trust proxy - bắt buộc trên Render/Heroku để rate limiter hoạt động đúng
+app.set('trust proxy', 1);
+
 // Force HTTPS in production
 if (process.env.NODE_ENV === 'production') {
     app.use((req, res, next) => {
@@ -153,16 +156,21 @@ app.use(helmet({
 // Rate limiting
 const generalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: process.env.NODE_ENV === 'development' ? 1000 : 100,
-    message: { success: false, message: 'Quá nhiều request từ IP này. Vui lòng thử lại sau 15 phút.' },
+    max: process.env.NODE_ENV === 'development' ? 1000 : 500,
+    message: { success: false, message: 'Quá nhiều request. Vui lòng thử lại sau 15 phút.' },
     standardHeaders: true,
     legacyHeaders: false,
+    skip: (req) => {
+        // Không rate limit các route public quan trọng
+        const skipPaths = ['/api/stock/products', '/api/products', '/api/maintenance/status', '/api/health'];
+        return skipPaths.some(p => req.path.startsWith(p));
+    }
 });
 
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: process.env.NODE_ENV === 'development' ? 100 : 5,
-    message: { success: false, message: 'Quá nhiều lần đăng nhập/đăng ký. Vui lòng thử lại sau 15 phút.' },
+    max: process.env.NODE_ENV === 'development' ? 100 : 20,
+    message: { success: false, message: 'Quá nhiều lần đăng nhập. Vui lòng thử lại sau 15 phút.' },
     skipSuccessfulRequests: true,
 });
 
@@ -252,17 +260,29 @@ app.use((req, res, next) => {
         return next();
     }
 
-    // Bỏ qua các route không cần CSRF (webhook, payment callback)
-    const skipPaths = ['/api/payment/vnpay-return', '/api/payment/vnpay-ipn',
-                       '/api/payment/momo-callback', '/api/payment/zalopay-callback',
-                       '/api/telegram'];
+    // Bỏ qua các route không cần CSRF (webhook, payment callback, ai-chat public)
+    const skipPaths = [
+        '/api/payment/vnpay-return', '/api/payment/vnpay-ipn',
+        '/api/payment/momo-callback', '/api/payment/zalopay-callback',
+        '/api/telegram', '/api/ai-chat/message', '/api/analytics/track'
+    ];
     if (skipPaths.some(p => req.path.startsWith(p))) return next();
 
-    // Kiểm tra CSRF token
+    // Kiểm tra CSRF token - nếu không có cookie thì tạo mới và cho qua
     const cookieToken = req.cookies.csrfToken;
+    if (!cookieToken) {
+        // Tạo token mới và cho request đi qua (lần đầu tiên)
+        const csrfToken = crypto.randomBytes(32).toString('hex');
+        res.cookie('csrfToken', csrfToken, {
+            httpOnly: false,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 24 * 60 * 60 * 1000
+        });
+        return next();
+    }
     const headerToken = req.headers['x-csrf-token'];
-
-    if (!cookieToken || !headerToken || cookieToken !== headerToken) {
+    if (!headerToken || cookieToken !== headerToken) {
         return res.status(403).json({
             success: false,
             message: 'CSRF token không hợp lệ'
