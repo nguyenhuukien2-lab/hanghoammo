@@ -293,6 +293,10 @@ app.use(express.static('public', {
 // Also serve pages from the new pages directory
 app.use(express.static('public/pages'));
 
+// Maintenance status - đặt trước rate limiter để không bị chặn
+const systemRoutes = require('./src/routes/system');
+app.use('/api', systemRoutes);
+
 // Apply general rate limiter to all routes
 app.use('/api/', generalLimiter);
 
@@ -318,7 +322,6 @@ const analyticsRoutes = require('./src/routes/analytics');
 const resellerRoutes = require('./src/routes/reseller');
 const stockRoutes = require('./src/routes/stock');
 const telegramRoutes = require('./src/routes/telegram');
-const systemRoutes = require('./src/routes/system');
 
 // API Routes - auth với slow down chống brute force
 app.use('/api/auth', authLimiter, authSlowDown, authRoutes);
@@ -342,7 +345,6 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/reseller', resellerRoutes);
 app.use('/api/stock', stockRoutes);
 app.use('/api/telegram', telegramRoutes);
-app.use('/api', systemRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

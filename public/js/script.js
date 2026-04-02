@@ -1922,52 +1922,44 @@ function checkout() {
 }
 
 
-// Maintenance Banner Functions
-// Maintenance Banner Functions - Check from API
+// Maintenance Banner Functions - Check from API with 5min client cache
 async function checkMaintenanceMode() {
+    const cacheKey = 'maintenanceCache';
+    const cacheTime = 5 * 60 * 1000; // 5 phút
     try {
-        // Gọi API để lấy trạng thái real-time từ server
+        const cached = sessionStorage.getItem(cacheKey);
+        if (cached) {
+            const { data, ts } = JSON.parse(cached);
+            if (Date.now() - ts < cacheTime) { applyMaintenanceBanner(data); return; }
+        }
         const response = await fetch('/api/maintenance/status');
+        if (!response.ok) return;
         const result = await response.json();
-        
-        if (!result.success) {
-            console.log('Failed to fetch maintenance status');
-            return;
-        }
-        
-        const { enabled, message, eta, telegram } = result.data;
-        const bannerClosed = sessionStorage.getItem('maintenanceBannerClosed') === 'true';
-        
-        const banner = document.getElementById('maintenanceBanner');
-        const messageEl = document.getElementById('maintenanceText');
-        const etaEl = document.getElementById('maintenanceETA');
-        const telegramEl = document.getElementById('maintenanceTelegram');
-        
-        if (banner && enabled && !bannerClosed) {
-            if (messageEl) {
-                messageEl.textContent = message || 'Chúng tôi đang nâng cấp hệ thống để mang đến trải nghiệm tốt hơn cho bạn. Vui lòng quay lại sau ít phút.';
-            }
-            if (etaEl) {
-                etaEl.textContent = eta || '30 phút';
-            }
-            if (telegramEl) {
-                telegramEl.href = telegram || 'https://t.me/hanghoammo';
-            }
-            banner.style.display = 'block';
-        } else if (banner && !enabled) {
-            // Nếu admin tắt banner, ẩn ngay lập tức
-            banner.style.display = 'none';
-        }
+        if (!result.success) return;
+        sessionStorage.setItem(cacheKey, JSON.stringify({ data: result.data, ts: Date.now() }));
+        applyMaintenanceBanner(result.data);
     } catch (error) {
-        console.error('Error checking maintenance mode:', error);
-        // Fallback to localStorage if API fails
         const maintenanceMode = localStorage.getItem('maintenanceMode') === 'true';
-        const bannerClosed = sessionStorage.getItem('maintenanceBannerClosed') === 'true';
         const banner = document.getElementById('maintenanceBanner');
-        
-        if (banner && maintenanceMode && !bannerClosed) {
+        if (banner && maintenanceMode && sessionStorage.getItem('maintenanceBannerClosed') !== 'true') {
             banner.style.display = 'block';
         }
+    }
+}
+
+function applyMaintenanceBanner({ enabled, message, eta, telegram } = {}) {
+    const banner = document.getElementById('maintenanceBanner');
+    if (!banner) return;
+    if (enabled && sessionStorage.getItem('maintenanceBannerClosed') !== 'true') {
+        const el = document.getElementById('maintenanceText');
+        const etaEl = document.getElementById('maintenanceETA');
+        const tgEl = document.getElementById('maintenanceTelegram');
+        if (el) el.textContent = message || 'Hệ thống đang nâng cấp. Vui lòng quay lại sau.';
+        if (etaEl) etaEl.textContent = eta || '30 phút';
+        if (tgEl) tgEl.href = telegram || 'https://t.me/hanghoammo';
+        banner.style.display = 'block';
+    } else {
+        banner.style.display = 'none';
     }
 }
 
@@ -1982,8 +1974,8 @@ function closeMaintenanceBanner() {
     }
 }
 
-// Auto-check maintenance status every 30 seconds
-setInterval(checkMaintenanceMode, 30000);
+// Auto-check maintenance status every 5 minutes (tránh rate limit)
+setInterval(checkMaintenanceMode, 5 * 60 * 1000);
 
 // Add slide up animation
 const style = document.createElement('style');
