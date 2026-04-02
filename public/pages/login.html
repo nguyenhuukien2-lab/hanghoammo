@@ -544,10 +544,16 @@
                     headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': getCsrfToken() },
                     body: JSON.stringify({ email, password })
                 });
-                const result = await response.json();
+
+                let result;
+                try {
+                    result = await response.json();
+                } catch {
+                    showErrorMessage('Server lỗi! Vui lòng thử lại sau.');
+                    return;
+                }
 
                 if (result.requires2FA) {
-                    // Chuyển sang form 2FA
                     pendingEmail = result.email || email;
                     document.getElementById('loginForm').style.display = 'none';
                     document.getElementById('twoFAForm').style.display = 'block';
@@ -558,6 +564,7 @@
                     showErrorMessage(result.message || 'Đăng nhập thất bại!');
                 }
             } catch (error) {
+                console.error('Login fetch error:', error);
                 showErrorMessage('Lỗi kết nối! Vui lòng thử lại.');
             } finally {
                 btn.innerHTML = '<span>Đăng nhập</span><i class="fas fa-arrow-right"></i>';
