@@ -9,7 +9,7 @@ router.post('/create-admin', async (req, res) => {
         const { secret } = req.body;
         
         // Simple security check
-        if (secret !== 'hanghoammo2025') {
+        if (secret !== process.env.SETUP_SECRET) {
             return res.status(403).json({
                 success: false,
                 message: 'Không có quyền truy cập'

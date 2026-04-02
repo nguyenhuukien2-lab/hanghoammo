@@ -141,7 +141,8 @@ class AIChatbot {
             const response = await fetch('/api/ai-chat/message', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': typeof getCsrfToken === 'function' ? getCsrfToken() : ''
                 },
                 body: JSON.stringify({
                     message: message,
@@ -331,7 +332,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Check if OpenAI API key is configured
     fetch('/api/ai-chat/message', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': typeof getCsrfToken === 'function' ? getCsrfToken() : ''
+        },
         body: JSON.stringify({ message: 'test' })
     }).then(response => {
         if (response.status !== 500) {

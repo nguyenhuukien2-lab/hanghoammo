@@ -2,16 +2,21 @@
 
 let selectedPaymentMethod = 'wallet';
 
+function getCsrfToken() {
+    return document.cookie.split('; ')
+        .find(row => row.startsWith('csrfToken='))
+        ?.split('=')[1] || '';
+}
+
 // Load wallet balance
 async function loadWalletBalance() {
     const authToken = localStorage.getItem('authToken');
     if (!authToken) return;
-    
+
     try {
         const response = await fetch('/api/wallet', {
-            headers: {
-                'Authorization': `Bearer ${authToken}`
-            }
+            headers: { 'Authorization': `Bearer ${authToken}` },
+            credentials: 'include'
         });
         
         const data = await response.json();
@@ -51,7 +56,9 @@ async function processPayment(orderId, amount) {
         showNotification('Vui lòng đăng nhập!', 'error');
         return;
     }
-    
+
+    const csrfToken = getCsrfToken();
+
     try {
         if (selectedPaymentMethod === 'wallet') {
             // Pay with wallet - already handled in order creation
@@ -62,15 +69,17 @@ async function processPayment(orderId, amount) {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${authToken}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrfToken
                 },
+                credentials: 'include',
                 body: JSON.stringify({
                     orderId,
                     amount,
                     orderInfo: `Thanh toan don hang ${orderId}`
                 })
             });
-            
+
             const data = await response.json();
             if (data.success) {
                 // Redirect to VNPay
@@ -85,8 +94,10 @@ async function processPayment(orderId, amount) {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${authToken}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrfToken
                 },
+                credentials: 'include',
                 body: JSON.stringify({
                     orderId,
                     amount,
@@ -102,11 +113,15 @@ async function processPayment(orderId, amount) {
             } else {
                 throw new Error(data.message);
             }
-        }
         } else if (selectedPaymentMethod === 'zalopay') {
             const response = await fetch('/api/payment/zalopay/create', {
                 method: 'POST',
-                headers: { 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json' },
+                headers: {
+                    'Authorization': `Bearer ${authToken}`,
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrfToken
+                },
+                credentials: 'include',
                 body: JSON.stringify({ orderId, amount, orderInfo: `Thanh toan don hang ${orderId}` })
             });
             const data = await response.json();

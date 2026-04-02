@@ -1229,9 +1229,8 @@ a {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    font-size: 13px;
 }
-}
+
 
 .btn-outline:hover {
     background: var(--primary);
@@ -3352,7 +3351,7 @@ body.dark-mode .user-profile-btn:hover {
     font-size: 10px;
     color: #999;
     margin: 3px 0;
-}
+
     font-size: 13px;
     color: var(--text-secondary);
     padding-top: 10px;
@@ -3501,6 +3500,8 @@ body.dark-mode .user-profile-btn:hover {
     .product-price {
         font-size: 13px;
     }
+
+    .footer-content {
         grid-template-columns: 1fr;
         gap: 30px;
     }

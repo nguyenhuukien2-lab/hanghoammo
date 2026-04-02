@@ -2,7 +2,12 @@
 require('dotenv').config();
 const https = require('https');
 
-const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '8602357719:AAEuMFXaUyBICsbDFttf3KpdaCRvx1ybkKU';
+const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+
+if (!BOT_TOKEN) {
+    console.error('❌ TELEGRAM_BOT_TOKEN chưa được set trong .env');
+    process.exit(1);
+}
 
 // Test getMe API
 function testBot() {

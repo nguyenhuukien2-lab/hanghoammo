@@ -45,31 +45,49 @@ router.get('/deposits', authenticateToken, requireAdmin, async (req, res) => {
 router.post('/approve-deposit', authenticateToken, requireAdmin, async (req, res) => {
     try {
         const { deposit_id, user_id, amount } = req.body;
-        
+
         if (!deposit_id || !user_id || !amount) {
-            return res.status(400).json({
-                success: false,
-                message: 'Thiếu thông tin bắt buộc'
-            });
+            return res.status(400).json({ success: false, message: 'Thiếu thông tin bắt buộc' });
         }
-        
+
+        // Validate amount - phải là số dương, không quá 50 triệu mỗi lần
+        const numAmount = parseFloat(amount);
+        if (isNaN(numAmount) || numAmount <= 0 || numAmount > 50000000) {
+            return res.status(400).json({ success: false, message: 'Số tiền không hợp lệ (1đ - 50,000,000đ)' });
+        }
+
+        // Verify deposit request tồn tại và còn pending
+        const { data: deposit, error: depErr } = await supabase
+            .from('deposit_requests')
+            .select('id, status, amount, user_id')
+            .eq('id', deposit_id)
+            .single();
+
+        if (depErr || !deposit) {
+            return res.status(404).json({ success: false, message: 'Không tìm thấy yêu cầu nạp tiền' });
+        }
+        if (deposit.status !== 'pending') {
+            return res.status(400).json({ success: false, message: 'Yêu cầu này đã được xử lý rồi' });
+        }
+        // Đảm bảo user_id khớp với deposit
+        if (deposit.user_id !== user_id) {
+            return res.status(400).json({ success: false, message: 'Thông tin không khớp' });
+        }
         // 1. Update deposit status
-        await db.updateDepositRequest(deposit_id, {
-            status: 'approved'
-        });
-        
+        await db.updateDepositRequest(deposit_id, { status: 'approved' });
+
         // 2. Get current wallet balance
         const wallet = await db.getWallet(user_id);
-        const newBalance = wallet.balance + amount;
-        
+        const newBalance = wallet.balance + numAmount;
+
         // 3. Update wallet balance
         await db.updateWalletBalance(user_id, newBalance);
-        
+
         // 4. Create transaction record
         await db.createTransaction({
             user_id: user_id,
             type: 'deposit',
-            amount: amount,
+            amount: numAmount,
             description: `Nạp tiền - Mã yêu cầu #${deposit_id}`,
             balance_after: newBalance
         });
@@ -78,24 +96,13 @@ router.post('/approve-deposit', authenticateToken, requireAdmin, async (req, res
         const user = await db.getUserById(user_id);
         if (user && user.email) {
             emailService.sendDepositApprovedEmail(
-                user.email,
-                user.name,
-                amount,
-                newBalance
-            ).catch(err => {
-                console.error('Failed to send deposit approved email:', err);
-            });
+                user.email, user.name, numAmount, newBalance
+            ).catch(err => console.error('Failed to send deposit approved email:', err));
 
-            // Gửi Telegram notification nếu có chat_id
             if (user.telegram_chat_id) {
                 telegramService.sendDepositApprovedNotification(
-                    user.telegram_chat_id,
-                    user.name,
-                    amount,
-                    newBalance
-                ).catch(err => {
-                    console.error('Failed to send Telegram notification:', err);
-                });
+                    user.telegram_chat_id, user.name, numAmount, newBalance
+                ).catch(err => console.error('Failed to send Telegram notification:', err));
             }
         }
         
@@ -152,19 +159,81 @@ router.get('/users', authenticateToken, requireAdmin, async (req, res) => {
             .from('users')
             .select('id, name, email, phone, role, created_at')
             .order('created_at', { ascending: false });
-        
+
         if (error) throw error;
-        
-        res.json({
-            success: true,
-            data: data
-        });
+
+        res.json({ success: true, data });
     } catch (error) {
         console.error('Get users error:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Lỗi khi lấy danh sách người dùng'
-        });
+        res.status(500).json({ success: false, message: 'Lỗi khi lấy danh sách người dùng' });
+    }
+});
+
+// Admin reset password cho user
+router.post('/users/:id/reset-password', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { newPassword } = req.body;
+
+        if (!newPassword || newPassword.length < 8) {
+            return res.status(400).json({ success: false, message: 'Mật khẩu phải ít nhất 8 ký tự' });
+        }
+
+        // Kiểm tra user tồn tại
+        const { data: user, error: userErr } = await supabase
+            .from('users')
+            .select('id, name, email, role')
+            .eq('id', id)
+            .single();
+
+        if (userErr || !user) {
+            return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng' });
+        }
+
+        // Không cho reset mật khẩu admin khác
+        if (user.role === 'admin' && user.id !== req.user.id) {
+            return res.status(403).json({ success: false, message: 'Không thể reset mật khẩu admin khác' });
+        }
+
+        const bcrypt = require('bcryptjs');
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        await supabase.from('users').update({ password: hashedPassword }).eq('id', id);
+
+        console.log(`Admin ${req.user.email} reset password for user ${user.email}`);
+
+        res.json({ success: true, message: `Đã reset mật khẩu cho ${user.email}` });
+    } catch (error) {
+        console.error('Admin reset password error:', error);
+        res.status(500).json({ success: false, message: 'Lỗi khi reset mật khẩu' });
+    }
+});
+
+// Admin ban/unban user
+router.post('/users/:id/toggle-ban', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const { data: user, error: userErr } = await supabase
+            .from('users')
+            .select('id, email, role, status')
+            .eq('id', id)
+            .single();
+
+        if (userErr || !user) {
+            return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng' });
+        }
+        if (user.role === 'admin') {
+            return res.status(403).json({ success: false, message: 'Không thể ban tài khoản admin' });
+        }
+
+        const newStatus = user.status === 'banned' ? 'active' : 'banned';
+        await supabase.from('users').update({ status: newStatus }).eq('id', id);
+
+        res.json({ success: true, message: `Đã ${newStatus === 'banned' ? 'khóa' : 'mở khóa'} tài khoản ${user.email}`, status: newStatus });
+    } catch (error) {
+        console.error('Toggle ban error:', error);
+        res.status(500).json({ success: false, message: 'Lỗi khi thay đổi trạng thái' });
     }
 });
 

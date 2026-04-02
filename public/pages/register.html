@@ -460,13 +460,14 @@
                     </button>
 
                     <div class="login-link">
-                        Đã có tài khoản? <a href="login-new.html">Đăng nhập</a>
+                        Đã có tài khoản? <a href="login.html">Đăng nhập</a>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
+    <script src="../js/script.js"></script>
     <script>
         function togglePassword(inputId, iconId) {
             const input = document.getElementById(inputId);
@@ -518,7 +519,10 @@
             try {
                 const response = await fetch('/api/auth/register', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': getCsrfToken()
+                    },
                     body: JSON.stringify(data)
                 });
 
@@ -536,7 +540,8 @@
                                 method: 'POST',
                                 headers: { 
                                     'Content-Type': 'application/json',
-                                    'Authorization': `Bearer ${result.token}`
+                                    'Authorization': `Bearer ${result.token}`,
+                                    'X-CSRF-Token': getCsrfToken()
                                 },
                                 body: JSON.stringify({ referral_code: data.referralCode })
                             });
@@ -553,9 +558,11 @@
                     }
                     showSuccessMessage(successMsg);
                     
-                    // Chuyển hướng sau 1.5 giây
+                    // Chuyển hướng
                     setTimeout(() => {
-                        window.location.href = 'index.html';
+                        const redirectUrl = localStorage.getItem('redirectAfterLogin') || 'index.html';
+                        localStorage.removeItem('redirectAfterLogin');
+                        window.location.href = redirectUrl;
                     }, 1500);
                 } else {
                     showErrorMessage(result.message || 'Đăng ký thất bại!');

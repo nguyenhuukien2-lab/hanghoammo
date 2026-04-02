@@ -1,15 +1,15 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sản phẩm - HangHoaMMO</title>
+    <title>S?n ph?m - HangHoaMMO</title>
     <link rel="icon" type="image/png" href="images/logo-mmo.png">
     <link rel="shortcut icon" type="image/png" href="images/logo-mmo.png">
-    <link rel="stylesheet" href="css/style.css?v=7.0">
-    <link rel="stylesheet" href="css/products-improved.css?v=2.0">
-    <link rel="stylesheet" href="css/ai-chatbot.css">
+    <link rel="stylesheet" href="../css/style.css?v=7.0">
+    <link rel="stylesheet" href="../css/products-improved.css?v=2.0">
+    <link rel="stylesheet" href="../css/ai-chatbot.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -18,7 +18,7 @@
     <div class="announcement-bar" style="display: none;">
         <div class="announcement-content">
             <marquee behavior="scroll" direction="left" scrollamount="5">
-                <span>🎉 Chào mừng đến với HangHoaMMO! 🧧 Giảm giá đến 50% tất cả sản phẩm 🎊 Telegram: @hanghoammo 📞 Hotline: 0879.06.2222 💝 Miễn phí ship - Giao hàng tức thì 24/7</span>
+                <span>?? Ch�o m?ng d?n v?i HangHoaMMO! ?? Gi?m gi� d?n 50% t?t c? s?n ph?m ?? Telegram: @hanghoammo ?? Hotline: 0879.06.2222 ?? Mi?n ph� ship - Giao h�ng t?c th� 24/7</span>
             </marquee>
         </div>
     </div>
@@ -32,13 +32,13 @@
                         <a href="index.html">
                             <div class="logo-info">
                                 <h1>HangHoa<span>MMO</span></h1>
-                                <p>Chợ MMO uy tín #1</p>
+                                <p>Ch? MMO uy t�n #1</p>
                             </div>
                         </a>
                     </div>
 
                     <div class="search-box-new">
-                        <input type="text" id="searchInputProducts" placeholder="Tìm kiếm sản phẩm, dịch vụ..." oninput="showSearchResults(this.value)" onfocus="showSearchResults(this.value)" onblur="hideSearchResults()">
+                        <input type="text" id="searchInputProducts" placeholder="T�m ki?m s?n ph?m, d?ch v?..." oninput="showSearchResults(this.value)" onfocus="showSearchResults(this.value)" onblur="hideSearchResults()">
                         <button onclick="performSearch()"><i class="fas fa-search"></i></button>
                         <div class="search-dropdown" id="searchDropdown"></div>
                     </div>
@@ -52,27 +52,27 @@
                         <!-- Wallet link - Show when logged in -->
                         <a href="wallet.html" class="btn-icon-text" id="walletLink" style="display: none;">
                             <i class="fas fa-wallet"></i>
-                            <span>Nạp tiền</span>
+                            <span>N?p ti?n</span>
                         </a>
                         
                         <div class="theme-toggle-wrapper">
-                            <button class="btn-icon btn-theme-toggle" onclick="toggleThemeMenu()" title="Chế độ hiển thị">
+                            <button class="btn-icon btn-theme-toggle" onclick="toggleThemeMenu()" title="Ch? d? hi?n th?">
                                 <i class="fas fa-desktop"></i>
                             </button>
                             <div class="theme-menu" id="themeMenu">
                                 <div class="theme-option active" data-theme="system" onclick="setTheme('system')">
                                     <i class="fas fa-desktop"></i>
-                                    <span>Hệ thống</span>
+                                    <span>H? th?ng</span>
                                     <i class="fas fa-check theme-check"></i>
                                 </div>
                                 <div class="theme-option" data-theme="light" onclick="setTheme('light')">
                                     <i class="fas fa-sun"></i>
-                                    <span>Sáng</span>
+                                    <span>S�ng</span>
                                     <i class="fas fa-check theme-check"></i>
                                 </div>
                                 <div class="theme-option" data-theme="dark" onclick="setTheme('dark')">
                                     <i class="fas fa-moon"></i>
-                                    <span>Tối</span>
+                                    <span>T?i</span>
                                     <i class="fas fa-check theme-check"></i>
                                 </div>
                             </div>
@@ -80,13 +80,13 @@
 
                         <!-- Show when not logged in -->
                         <div id="authButtons">
-                            <button class="btn-auth login" onclick="window.location.href='login-new.html'">
+                            <button class="btn-auth login" onclick="window.location.href='login.html'">
                                 <i class="fas fa-sign-in-alt"></i>
-                                <span>Đăng nhập</span>
+                                <span>�ang nh?p</span>
                             </button>
-                            <button class="btn-auth register" onclick="window.location.href='register-new.html'">
+                            <button class="btn-auth register" onclick="window.location.href='register.html'">
                                 <i class="fas fa-user-plus"></i>
-                                <span>Đăng ký</span>
+                                <span>�ang k�</span>
                             </button>
                         </div>
                         
@@ -115,46 +115,46 @@
         <div class="container">
             <!-- Breadcrumb -->
             <div class="breadcrumb-simple">
-                <a href="index.html">Trang chủ</a>
+                <a href="index.html">Trang ch?</a>
                 <span>/</span>
-                <span>Khám phá</span>
+                <span>Kh�m ph�</span>
             </div>
 
             <!-- Category Tabs -->
             <div class="category-tabs-row">
-                <button class="category-tab-pill active" onclick="filterByCategory('all')">Tất cả</button>
-                <button class="category-tab-pill" onclick="filterByCategory('ai')">AI & Công Nghệ</button>
-                <button class="category-tab-pill" onclick="filterByCategory('design')">Dịch Vụ MMO</button>
+                <button class="category-tab-pill active" onclick="filterByCategory('all')">T?t c?</button>
+                <button class="category-tab-pill" onclick="filterByCategory('ai')">AI & C�ng Ngh?</button>
+                <button class="category-tab-pill" onclick="filterByCategory('design')">D?ch V? MMO</button>
                 <button class="category-tab-pill" onclick="filterByCategory('email')">Email</button>
-                <button class="category-tab-pill" onclick="filterByCategory('entertainment')">Giải Trí</button>
-                <button class="category-tab-pill" onclick="filterByCategory('software')">Phần Mềm & Thiết Kế</button>
-                <button class="category-tab-pill" onclick="filterByCategory('other')">Tiện ích & Khác</button>
+                <button class="category-tab-pill" onclick="filterByCategory('entertainment')">Gi?i Tr�</button>
+                <button class="category-tab-pill" onclick="filterByCategory('software')">Ph?n M?m & Thi?t K?</button>
+                <button class="category-tab-pill" onclick="filterByCategory('other')">Ti?n �ch & Kh�c</button>
             </div>
 
             <!-- Search Bar -->
             <div class="search-bar-simple">
                 <i class="fas fa-search"></i>
-                <input type="text" id="searchInput" placeholder="Tìm kiếm sản phẩm..." onkeyup="searchProducts()">
+                <input type="text" id="searchInput" placeholder="T�m ki?m s?n ph?m..." onkeyup="searchProducts()">
             </div>
 
             <!-- Filter Pills Row -->
             <div class="filter-pills-row">
-                <button class="filter-pill active" onclick="sortProducts('newest')">Mới nhất</button>
-                <button class="filter-pill" onclick="sortProducts('popular')">Nổi bật</button>
-                <button class="filter-pill" onclick="sortProducts('price-asc')">Giá thấp → cao</button>
-                <button class="filter-pill" onclick="sortProducts('price-desc')">Giá cao → thấp</button>
-                <button class="filter-pill" onclick="sortProducts('discount')">Bán chạy</button>
-                <button class="filter-pill" onclick="sortProducts('discount')">Đánh giá cao</button>
-                <button class="filter-pill" onclick="filterPrice('0-50000')">Dưới 50K</button>
+                <button class="filter-pill active" onclick="sortProducts('newest')">M?i nh?t</button>
+                <button class="filter-pill" onclick="sortProducts('popular')">N?i b?t</button>
+                <button class="filter-pill" onclick="sortProducts('price-asc')">Gi� th?p ? cao</button>
+                <button class="filter-pill" onclick="sortProducts('price-desc')">Gi� cao ? th?p</button>
+                <button class="filter-pill" onclick="sortProducts('discount')">B�n ch?y</button>
+                <button class="filter-pill" onclick="sortProducts('discount')">��nh gi� cao</button>
+                <button class="filter-pill" onclick="filterPrice('0-50000')">Du?i 50K</button>
                 <button class="filter-pill" onclick="filterPrice('50000-100000')">50K - 100K</button>
                 <button class="filter-pill" onclick="filterPrice('100000-500000')">100K - 500K</button>
                 <button class="filter-pill" onclick="filterPrice('500000-999999999')">500K - 1M</button>
-                <button class="filter-pill" onclick="filterPrice('1000000-999999999')">Trên 1M</button>
+                <button class="filter-pill" onclick="filterPrice('1000000-999999999')">Tr�n 1M</button>
             </div>
 
             <!-- Products Count -->
             <div class="products-count-simple">
-                <span id="productsCount">0</span> sản phẩm
+                <span id="productsCount">0</span> s?n ph?m
             </div>
         </div>
     </section>
@@ -169,7 +169,7 @@
             <!-- Pagination -->
             <div class="pagination">
                 <button class="page-btn" onclick="changePage('prev')">
-                    <i class="fas fa-chevron-left"></i> Trước
+                    <i class="fas fa-chevron-left"></i> Tru?c
                 </button>
                 <button class="page-btn active">1</button>
                 <button class="page-btn">2</button>
@@ -188,7 +188,7 @@
             <div class="footer-top">
                 <div class="footer-brand">
                     <h2>HangHoa<span>MMO</span></h2>
-                    <p>Nền tảng mua bán tài khoản, dịch vụ game uy tín hàng đầu Việt Nam.<br>Giao dịch an toàn, nhanh chóng và bảo mật.</p>
+                    <p>N?n t?ng mua b�n t�i kho?n, d?ch v? game uy t�n h�ng d?u Vi?t Nam.<br>Giao d?ch an to�n, nhanh ch�ng v� b?o m?t.</p>
                     <div class="footer-social">
                         <a href="https://facebook.com" target="_blank" title="Facebook"><i class="fab fa-facebook"></i></a>
                         <a href="https://t.me/hanghoammo" target="_blank" title="Telegram"><i class="fab fa-telegram"></i></a>
@@ -199,33 +199,33 @@
                 
                 <div class="footer-links">
                     <div class="footer-col">
-                        <h4>LIÊN KẾT</h4>
+                        <h4>LI�N K?T</h4>
                         <ul>
-                            <li><a href="index.html">Trang chủ</a></li>
-                            <li><a href="products.html">Sản phẩm</a></li>
-                            <li><a href="blog-list.html">Điều giá</a></li>
+                            <li><a href="index.html">Trang ch?</a></li>
+                            <li><a href="products.html">S?n ph?m</a></li>
+                            <li><a href="blog-list.html">�i?u gi�</a></li>
                         </ul>
                     </div>
                     
                     <div class="footer-col">
-                        <h4>CHÍNH SÁCH</h4>
+                        <h4>CH�NH S�CH</h4>
                         <ul>
-                            <li><a href="#">Điều khoản</a></li>
-                            <li><a href="#">Bảo mật</a></li>
-                            <li><a href="#">Đổi trả</a></li>
-                            <li><a href="#">Thanh toán</a></li>
-                            <li><a href="#">Mua hàng</a></li>
+                            <li><a href="#">�i?u kho?n</a></li>
+                            <li><a href="#">B?o m?t</a></li>
+                            <li><a href="#">�?i tr?</a></li>
+                            <li><a href="#">Thanh to�n</a></li>
+                            <li><a href="#">Mua h�ng</a></li>
                         </ul>
                     </div>
                     
                     <div class="footer-col">
-                        <h4>LIÊN HỆ</h4>
+                        <h4>LI�N H?</h4>
                         <ul class="footer-contact">
                             <li><i class="fab fa-telegram"></i> <a href="https://t.me/hanghoammo" target="_blank">@bachhoasupport</a></li>
                             <li><i class="fas fa-phone"></i> Zalo: 0879.06.2222</li>
                             <li><i class="fas fa-envelope"></i> bachhoammo.suport@gmail.com</li>
                             <li><i class="fas fa-phone"></i> 0879.06.2222</li>
-                            <li><i class="fas fa-map-marker-alt"></i> Đà Nẵng</li>
+                            <li><i class="fas fa-map-marker-alt"></i> �� N?ng</li>
                         </ul>
                     </div>
                 </div>
@@ -234,13 +234,13 @@
             <div class="footer-divider"></div>
             
             <div class="footer-keywords">
-                <h4>Từ khóa nổi bật</h4>
+                <h4>T? kh�a n?i b?t</h4>
                 <div class="keywords-list">
                     <a href="#">gmail</a>
                     <a href="#">view</a>
                     <a href="#">follow</a>
-                    <a href="#">Uy Tín</a>
-                    <a href="#">Chất Lượng</a>
+                    <a href="#">Uy T�n</a>
+                    <a href="#">Ch?t Lu?ng</a>
                     <a href="#">Youtube</a>
                     <a href="#">Youtube Premium</a>
                     <a href="#">tiktok</a>
@@ -253,26 +253,26 @@
                     <a href="#">INSTAGRAM</a>
                     <a href="#">ChatGPT</a>
                     <a href="#">capcut pro</a>
-                    <a href="#">Nâng Cấp Chính Chủ</a>
+                    <a href="#">N�ng C?p Ch�nh Ch?</a>
                     <a href="#">youtube video</a>
                     <a href="#">youtube music</a>
                     <a href="#">youtube shorts</a>
                     <a href="#">youtube live</a>
                     <a href="#">youtube studio</a>
-                    <a href="#">CLONE NAME VIỆT 2FA</a>
+                    <a href="#">CLONE NAME VI?T 2FA</a>
                 </div>
-                <button class="keywords-toggle" onclick="toggleKeywords()">Xem thêm</button>
+                <button class="keywords-toggle" onclick="toggleKeywords()">Xem th�m</button>
             </div>
             
             <div class="footer-bottom">
-                <p>© 2026 BachHoaMMO. Tất cả quyền được bảo lưu.</p>
-                <p class="footer-team">Thiết kế bởi <a href="#">BachHoaMMO Team</a></p>
+                <p>� 2026 BachHoaMMO. T?t c? quy?n du?c b?o luu.</p>
+                <p class="footer-team">Thi?t k? b?i <a href="#">BachHoaMMO Team</a></p>
             </div>
         </div>
     </footer>
 
-    <script src="js/script.js"></script>
-    <script src="js/ai-chatbot.js"></script>
-    <script src="js/products-page.js"></script>
+    <script src="../js/script.js"></script>
+    <script src="../js/ai-chatbot.js"></script>
+    <script src="../js/products-page.js"></script>
 </body>
 </html>

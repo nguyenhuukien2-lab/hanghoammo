@@ -284,7 +284,8 @@ async function processPayment() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authToken}`
+                    'Authorization': `Bearer ${authToken}`,
+                    'X-CSRF-Token': getCsrfToken()
                 },
                 body: JSON.stringify({
                     amount: total,
@@ -322,7 +323,8 @@ async function processPayment() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${authToken}`
+                'Authorization': `Bearer ${authToken}`,
+                'X-CSRF-Token': getCsrfToken()
             },
             body: JSON.stringify(orderData)
         });
@@ -454,7 +456,8 @@ async function applyVoucher() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${authToken}`
+                'Authorization': `Bearer ${authToken}`,
+                'X-CSRF-Token': getCsrfToken()
             },
             body: JSON.stringify({
                 code: code,

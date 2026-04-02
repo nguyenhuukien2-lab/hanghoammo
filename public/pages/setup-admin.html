@@ -84,6 +84,7 @@
         <div class="result" id="result"></div>
     </div>
 
+    <script src="../js/script.js"></script>
     <script>
         async function createAdmin() {
             const btn = document.getElementById('createBtn');
@@ -97,7 +98,8 @@
                 const response = await fetch('/api/setup/create-admin', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': getCsrfToken()
                     },
                     body: JSON.stringify({
                         secret: 'hanghoammo2025'

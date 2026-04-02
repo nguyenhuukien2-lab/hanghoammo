@@ -121,7 +121,7 @@ function renderProductsExplore(productsToRender) {
         // Click on card to view details (except buttons)
         productCard.addEventListener('click', (e) => {
             if (!e.target.closest('button')) {
-                window.location.href = `product-detail.html?id=${productId}`;
+                checkAuthAndRedirect(`product-detail.html?id=${productId}`);
             }
         });
         
@@ -151,7 +151,7 @@ function toggleWishlist(event, productId) {
 // View product function
 function viewProduct(event, productId) {
     event.stopPropagation();
-    window.location.href = `product-detail.html?id=${productId}`;
+    checkAuthAndRedirect(`product-detail.html?id=${productId}`);
 }
 
 // Quick add to cart function

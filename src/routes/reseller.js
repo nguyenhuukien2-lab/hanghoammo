@@ -42,7 +42,7 @@ router.get('/my-tier', authenticateToken, async (req, res) => {
         const { data: userData, error: userError } = await supabase
             .from('users')
             .select('user_tier, total_spent')
-            .eq('id', req.user.userId)
+            .eq('id', req.user.id)
             .single();
 
         if (userError) throw userError;
@@ -94,7 +94,7 @@ router.get('/upgrade-history', authenticateToken, async (req, res) => {
         const { data, error } = await supabase
             .from('tier_upgrade_history')
             .select('*')
-            .eq('user_id', req.user.userId)
+            .eq('user_id', req.user.id)
             .order('upgraded_at', { ascending: false });
 
         if (error) throw error;
@@ -124,7 +124,7 @@ router.get('/api-keys', authenticateToken, async (req, res) => {
         const { data: userData } = await supabase
             .from('users')
             .select('user_tier')
-            .eq('id', req.user.userId)
+            .eq('id', req.user.id)
             .single();
 
         const { data: tierData } = await supabase
@@ -143,7 +143,7 @@ router.get('/api-keys', authenticateToken, async (req, res) => {
         const { data, error } = await supabase
             .from('api_keys')
             .select('id, name, api_key, is_active, calls_today, last_call_at, created_at, expires_at')
-            .eq('user_id', req.user.userId)
+            .eq('user_id', req.user.id)
             .order('created_at', { ascending: false });
 
         if (error) throw error;
@@ -171,7 +171,7 @@ router.post('/api-keys', authenticateToken, async (req, res) => {
         const { data: userData } = await supabase
             .from('users')
             .select('user_tier')
-            .eq('id', req.user.userId)
+            .eq('id', req.user.id)
             .single();
 
         const { data: tierData } = await supabase
@@ -195,7 +195,7 @@ router.post('/api-keys', authenticateToken, async (req, res) => {
         const { data, error } = await supabase
             .from('api_keys')
             .insert({
-                user_id: req.user.userId,
+                user_id: req.user.id,
                 api_key: apiKey,
                 api_secret: hashedSecret,
                 name: name || 'API Key',
@@ -232,7 +232,7 @@ router.delete('/api-keys/:id', authenticateToken, async (req, res) => {
             .from('api_keys')
             .delete()
             .eq('id', req.params.id)
-            .eq('user_id', req.user.userId);
+            .eq('user_id', req.user.id);
 
         if (error) throw error;
 
@@ -257,14 +257,14 @@ router.put('/api-keys/:id/toggle', authenticateToken, async (req, res) => {
             .from('api_keys')
             .select('is_active')
             .eq('id', req.params.id)
-            .eq('user_id', req.user.userId)
+            .eq('user_id', req.user.id)
             .single();
 
         const { error } = await supabase
             .from('api_keys')
             .update({ is_active: !keyData.is_active })
             .eq('id', req.params.id)
-            .eq('user_id', req.user.userId);
+            .eq('user_id', req.user.id);
 
         if (error) throw error;
 
@@ -292,7 +292,7 @@ router.get('/referral-code', authenticateToken, async (req, res) => {
         let { data: referralData } = await supabase
             .from('referrals')
             .select('referral_code')
-            .eq('referrer_id', req.user.userId)
+            .eq('referrer_id', req.user.id)
             .limit(1)
             .single();
 
@@ -303,7 +303,7 @@ router.get('/referral-code', authenticateToken, async (req, res) => {
             const { data: newReferral, error } = await supabase
                 .from('referrals')
                 .insert({
-                    referrer_id: req.user.userId,
+                    referrer_id: req.user.id,
                     referral_code: code
                 })
                 .select()
@@ -339,7 +339,7 @@ router.get('/referrals', authenticateToken, async (req, res) => {
                 *,
                 referred:users!referrals_referred_id_fkey(id, email, full_name, created_at)
             `)
-            .eq('referrer_id', req.user.userId)
+            .eq('referrer_id', req.user.id)
             .not('referred_id', 'is', null);
 
         if (error) throw error;
@@ -368,7 +368,7 @@ router.get('/commissions', authenticateToken, async (req, res) => {
                 referred:users!commission_history_referred_id_fkey(email, full_name),
                 order:orders(id, total_amount, created_at)
             `)
-            .eq('referrer_id', req.user.userId)
+            .eq('referrer_id', req.user.id)
             .order('created_at', { ascending: false });
 
         if (error) throw error;
@@ -426,7 +426,7 @@ router.post('/apply-referral', authenticateToken, async (req, res) => {
         }
 
         // Không thể tự giới thiệu mình
-        if (referralData.referrer_id === req.user.userId) {
+        if (referralData.referrer_id === req.user.id) {
             return res.status(400).json({
                 success: false,
                 message: 'Không thể sử dụng mã giới thiệu của chính mình'
@@ -437,7 +437,7 @@ router.post('/apply-referral', authenticateToken, async (req, res) => {
         const { data: existingRef } = await supabase
             .from('referrals')
             .select('id')
-            .eq('referred_id', req.user.userId)
+            .eq('referred_id', req.user.id)
             .single();
 
         if (existingRef) {
@@ -450,7 +450,7 @@ router.post('/apply-referral', authenticateToken, async (req, res) => {
         // Cập nhật referred_id
         const { error: updateError } = await supabase
             .from('referrals')
-            .update({ referred_id: req.user.userId })
+            .update({ referred_id: req.user.id })
             .eq('referral_code', referral_code.toUpperCase());
 
         if (updateError) throw updateError;

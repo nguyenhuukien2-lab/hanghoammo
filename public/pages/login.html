@@ -418,6 +418,7 @@
                     <p>Đăng nhập để tiếp tục mua sắm</p>
                 </div>
 
+                <!-- Login Form -->
                 <form id="loginForm">
                     <div class="form-group">
                         <label>Email</label>
@@ -452,18 +453,52 @@
                     </button>
 
                     <div class="signup-link">
-                        Chưa có tài khoản? <a href="register-new.html">Đăng ký ngay</a>
+                        Chưa có tài khoản? <a href="register.html">Đăng ký ngay</a>
+                    </div>
+                </form>
+
+                <!-- 2FA Form (ẩn mặc định) -->
+                <form id="twoFAForm" style="display:none;">
+                    <div style="text-align:center; margin-bottom:24px;">
+                        <div style="font-size:48px; margin-bottom:12px;">🔐</div>
+                        <h3 style="font-size:20px; font-weight:700; color:#111827; margin-bottom:8px;">Xác thực 2 bước</h3>
+                        <p style="color:#6B7280; font-size:14px;">Nhập mã 6 chữ số từ ứng dụng Authenticator</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Mã xác thực</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-shield-alt input-icon"></i>
+                            <input type="text" id="twoFACode" class="form-input" 
+                                   placeholder="000000" maxlength="6" 
+                                   pattern="[0-9]{6}" autocomplete="one-time-code"
+                                   style="letter-spacing:8px; font-size:20px; text-align:center; padding-left:16px;">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="submit-btn">
+                        <span>Xác nhận</span>
+                        <i class="fas fa-check"></i>
+                    </button>
+
+                    <div style="text-align:center; margin-top:16px;">
+                        <button type="button" onclick="backToLogin()" 
+                                style="background:none; border:none; color:#6B7280; cursor:pointer; font-size:14px;">
+                            <i class="fas fa-arrow-left"></i> Quay lại đăng nhập
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
+    <script src="../js/script.js"></script>
     <script>
+        let pendingEmail = '';
+
         function togglePassword() {
             const input = document.getElementById('password');
             const icon = document.getElementById('toggleIcon');
-            
             if (input.type === 'password') {
                 input.type = 'text';
                 icon.className = 'fas fa-eye-slash';
@@ -473,47 +508,84 @@
             }
         }
 
+        function backToLogin() {
+            document.getElementById('twoFAForm').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+            pendingEmail = '';
+        }
+
+        function handleLoginSuccess(result) {
+            localStorage.setItem('authToken', result.token);
+            localStorage.setItem('currentUser', JSON.stringify(result.user));
+            showSuccessMessage('Đăng nhập thành công! Đang chuyển hướng...');
+            setTimeout(() => {
+                const redirectUrl = localStorage.getItem('redirectAfterLogin') || 'index.html';
+                localStorage.removeItem('redirectAfterLogin');
+                window.location.href = redirectUrl;
+            }, 1000);
+        }
+
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
             const email = this.querySelector('input[type="email"]').value;
             const password = this.querySelector('input[type="password"]').value;
             const btn = this.querySelector('.submit-btn');
-            
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang đăng nhập...';
             btn.disabled = true;
 
             try {
                 const response = await fetch('/api/auth/login', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': getCsrfToken() },
                     body: JSON.stringify({ email, password })
                 });
-
-                console.log('Response status:', response.status);
                 const result = await response.json();
-                console.log('Response data:', result);
 
-                if (result.success) {
-                    // Lưu token và thông tin người dùng
-                    localStorage.setItem('authToken', result.token);
-                    localStorage.setItem('currentUser', JSON.stringify(result.user));
-                    
-                    // Hiển thị thông báo thành công
-                    showSuccessMessage('Đăng nhập thành công! Đang chuyển hướng...');
-                    
-                    // Chuyển hướng sau 1 giây
-                    setTimeout(() => {
-                        window.location.href = 'index.html';
-                    }, 1000);
+                if (result.requires2FA) {
+                    // Chuyển sang form 2FA
+                    pendingEmail = result.email || email;
+                    document.getElementById('loginForm').style.display = 'none';
+                    document.getElementById('twoFAForm').style.display = 'block';
+                    document.getElementById('twoFACode').focus();
+                } else if (result.success) {
+                    handleLoginSuccess(result);
                 } else {
                     showErrorMessage(result.message || 'Đăng nhập thất bại!');
                 }
             } catch (error) {
-                console.error('Login error:', error);
                 showErrorMessage('Lỗi kết nối! Vui lòng thử lại.');
             } finally {
                 btn.innerHTML = '<span>Đăng nhập</span><i class="fas fa-arrow-right"></i>';
+                btn.disabled = false;
+            }
+        });
+
+        document.getElementById('twoFAForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const code = document.getElementById('twoFACode').value.trim();
+            const btn = this.querySelector('.submit-btn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xác thực...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/api/auth/2fa/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': getCsrfToken() },
+                    body: JSON.stringify({ email: pendingEmail, token: code })
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    handleLoginSuccess(result);
+                } else {
+                    showErrorMessage(result.message || 'Mã xác thực không đúng!');
+                    document.getElementById('twoFACode').value = '';
+                    document.getElementById('twoFACode').focus();
+                }
+            } catch (error) {
+                showErrorMessage('Lỗi kết nối! Vui lòng thử lại.');
+            } finally {
+                btn.innerHTML = '<span>Xác nhận</span><i class="fas fa-check"></i>';
                 btn.disabled = false;
             }
         });

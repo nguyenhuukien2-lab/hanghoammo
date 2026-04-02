@@ -7,9 +7,9 @@
     <title>HangHoaMMO - Chợ MMO uy tín #1</title>
     <link rel="icon" type="image/png" href="images/logo-mmo.png">
     <link rel="shortcut icon" type="image/png" href="images/logo-mmo.png">
-    <link rel="stylesheet" href="css/style.css?v=8.0">
-    <link rel="stylesheet" href="css/products-improved.css?v=3.0">
-    <link rel="stylesheet" href="css/ai-chatbot.css">
+    <link rel="stylesheet" href="../css/style.css?v=8.0">
+    <link rel="stylesheet" href="../css/products-improved.css?v=3.0">
+    <link rel="stylesheet" href="../css/ai-chatbot.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -30,7 +30,7 @@
                 <div class="header-wrapper">
                     <div class="logo-new">
                         <a href="index.html" style="display:flex;align-items:center;gap:12px;text-decoration:none;">
-                            <img src="images/logo-mmo.png" alt="HangHoaMMO" style="height:48px;width:48px;object-fit:cover;border-radius:12px;">
+                            <img src="../images/logo-mmo.png" alt="HangHoaMMO" style="height:48px;width:48px;object-fit:cover;border-radius:12px;">
                             <div class="logo-info">
                                 <h1>HangHoa<span>MMO</span></h1>
                                 <p>Chợ MMO uy tín #1</p>
@@ -87,11 +87,11 @@
 
                         <!-- Show when not logged in -->
                         <div id="authButtons">
-                            <button class="btn-auth login" onclick="window.location.href='login-new.html'">
+                            <button class="btn-auth login" onclick="window.location.href='login.html'">
                                 <i class="fas fa-sign-in-alt"></i>
                                 <span>Đăng nhập</span>
                             </button>
-                            <button class="btn-auth register" onclick="window.location.href='register-new.html'">
+                            <button class="btn-auth register" onclick="window.location.href='register.html'">
                                 <i class="fas fa-user-plus"></i>
                                 <span>Đăng ký</span>
                             </button>
@@ -488,10 +488,10 @@
         </div>
     </footer>
 
-    <script src="js/script.js"></script>
-    <script src="js/i18n.js"></script>
-    <script src="js/ai-chatbot.js"></script>
-    <script src="js/stock-manager.js"></script>
+    <script src="../js/script.js"></script>
+    <script src="../js/i18n.js"></script>
+    <script src="../js/ai-chatbot.js"></script>
+    <script src="../js/stock-manager.js"></script>
 
     <!-- Telegram Floating Button đã có sẵn trong script.js -->    <script>
         // Language switcher functions
@@ -711,7 +711,7 @@
             
             return `
                 <div class="product-card" data-product-id="${productId}">
-                    <div class="product-image" onclick="window.location.href='product-detail.html?id=${productId}'">
+                    <div class="product-image" onclick="checkAuthAndRedirect('product-detail.html?id=${productId}')">
                         ${product.image ? `<img src="${product.image}" alt="${product.name}" onerror="this.parentElement.innerHTML='<div class=\\'product-placeholder\\'><i class=\\'fas fa-box\\'></i></div>'">` : `<div class="product-placeholder"><i class="fas fa-box"></i></div>`}
                         ${badge}
                         ${product.tier_discount_percent ? `<div class="tier-discount-badge">-${product.tier_discount_percent}%</div>` : ''}
@@ -720,7 +720,7 @@
                         </button>
                     </div>
                     <div class="product-info">
-                        <h3 class="product-name" onclick="window.location.href='product-detail.html?id=${productId}'">${product.name}</h3>
+                        <h3 class="product-name" onclick="checkAuthAndRedirect('product-detail.html?id=${productId}')">${product.name}</h3>
                         ${priceHTML}
                         <div class="product-meta">
                             <div class="product-rating">

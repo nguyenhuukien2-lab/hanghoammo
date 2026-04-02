@@ -3,6 +3,23 @@ const API_URL = '/api';
 let authToken = localStorage.getItem('authToken') || null;
 let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
 
+// CSRF Helper
+function getCsrfToken() {
+    const name = 'csrfToken=';
+    const decodedCookie = decodeURIComponent(document.cookie);
+    const ca = decodedCookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) === 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return '';
+}
+
 // Products Data
 let products = [];
 
@@ -106,6 +123,7 @@ let cart = JSON.parse(localStorage.getItem('cart')) || [];
 async function apiRequest(endpoint, options = {}) {
     const headers = {
         'Content-Type': 'application/json',
+        ...(!['GET', 'HEAD', 'OPTIONS'].includes(options.method || 'GET') ? { 'X-CSRF-Token': getCsrfToken() } : {}),
         ...options.headers
     };
     
@@ -441,9 +459,9 @@ function showNotification(message, type = 'success') {
 // Auth Modal Functions - Redirect to new pages
 function openAuthModal(tab = 'login') {
     if (tab === 'login') {
-        window.location.href = 'login-new.html';
+        window.location.href = 'login.html';
     } else if (tab === 'register') {
-        window.location.href = 'register-new.html';
+        window.location.href = 'register.html';
     }
 }
 
@@ -1415,9 +1433,22 @@ function hideSearchResults() {
     }, 200);
 }
 
+function checkAuthAndRedirect(targetUrl) {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        // Có thể lưu lại trang định truy cập để quay lại sau khi đăng nhập
+        localStorage.setItem('redirectAfterLogin', targetUrl);
+        window.location.href = 'login.html';
+        return false;
+    }
+    if (targetUrl) {
+        window.location.href = targetUrl;
+    }
+    return true;
+}
+
 function goToProduct(productId) {
-    // For now, just add to cart or show details
-    addToCart(productId);
+    checkAuthAndRedirect(`product-detail.html?id=${productId}`);
 }
 
 function viewAllResults(query) {

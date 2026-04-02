@@ -239,6 +239,14 @@ router.get('/flash-sales', async (req, res) => {
             .gte('end_time', new Date().toISOString())
             .order('end_time', { ascending: true });
 
+        // If table doesn't exist yet, return empty array
+        if (error && error.code === '42P01') {
+            return res.json({
+                success: true,
+                data: []
+            });
+        }
+
         if (error) throw error;
 
         res.json({
@@ -247,10 +255,9 @@ router.get('/flash-sales', async (req, res) => {
         });
     } catch (error) {
         console.error('Get flash sales error:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Lỗi khi lấy danh sách flash sales',
-            error: error.message
+        res.json({
+            success: true,
+            data: [] // Return empty instead of error
         });
     }
 });
@@ -418,6 +425,104 @@ router.post('/admin/flash-sale', authenticateToken, requireAdmin, async (req, re
             message: 'Lỗi khi tạo flash sale',
             error: error.message
         });
+    }
+});
+
+// PUT /api/stock/admin/flash-sale/:id - Cập nhật flash sale
+router.put('/admin/flash-sale/:id', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+        const { title, description, sale_price, start_time, end_time, max_quantity, is_active } = req.body;
+
+        const updateData = {};
+        if (title !== undefined) updateData.title = title;
+        if (description !== undefined) updateData.description = description;
+        if (sale_price !== undefined) updateData.sale_price = parseFloat(sale_price);
+        if (start_time !== undefined) updateData.start_time = start_time;
+        if (end_time !== undefined) updateData.end_time = end_time;
+        if (max_quantity !== undefined) updateData.max_quantity = max_quantity ? parseInt(max_quantity) : null;
+        if (is_active !== undefined) updateData.is_active = is_active;
+
+        const { data, error } = await supabase
+            .from('flash_sales')
+            .update(updateData)
+            .eq('id', req.params.id)
+            .select()
+            .single();
+
+        if (error) throw error;
+
+        res.json({ success: true, message: 'Cập nhật flash sale thành công', data });
+    } catch (error) {
+        console.error('Update flash sale error:', error);
+        res.status(500).json({ success: false, message: 'Lỗi khi cập nhật flash sale', error: error.message });
+    }
+});
+
+// DELETE /api/stock/admin/flash-sale/:id - Xóa flash sale
+router.delete('/admin/flash-sale/:id', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+        const { error } = await supabase
+            .from('flash_sales')
+            .delete()
+            .eq('id', req.params.id);
+
+        if (error) throw error;
+
+        res.json({ success: true, message: 'Xóa flash sale thành công' });
+    } catch (error) {
+        console.error('Delete flash sale error:', error);
+        res.status(500).json({ success: false, message: 'Lỗi khi xóa flash sale', error: error.message });
+    }
+});
+
+// GET /api/stock/admin/flash-sales - Lấy tất cả flash sales (admin)
+router.get('/admin/flash-sales', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('flash_sales')
+            .select(`*, product:products(id, name, image)`)
+            .order('created_at', { ascending: false });
+
+        if (error && error.code === '42P01') return res.json({ success: true, data: [] });
+        if (error) throw error;
+
+        res.json({ success: true, data: data || [] });
+    } catch (error) {
+        console.error('Get all flash sales error:', error);
+        res.status(500).json({ success: false, message: 'Lỗi khi lấy danh sách flash sale', error: error.message });
+    }
+});
+
+// GET /api/stock/admin/previews/:productId - Lấy previews của sản phẩm
+router.get('/admin/previews/:productId', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('product_previews')
+            .select('*')
+            .eq('product_id', req.params.productId)
+            .order('display_order', { ascending: true });
+
+        if (error) throw error;
+        res.json({ success: true, data: data || [] });
+    } catch (error) {
+        console.error('Get previews error:', error);
+        res.status(500).json({ success: false, message: 'Lỗi khi lấy previews', error: error.message });
+    }
+});
+
+// DELETE /api/stock/admin/preview/:id - Xóa preview
+router.delete('/admin/preview/:id', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+        const { error } = await supabase
+            .from('product_previews')
+            .delete()
+            .eq('id', req.params.id);
+
+        if (error) throw error;
+        res.json({ success: true, message: 'Xóa preview thành công' });
+    } catch (error) {
+        console.error('Delete preview error:', error);
+        res.status(500).json({ success: false, message: 'Lỗi khi xóa preview', error: error.message });
     }
 });
 

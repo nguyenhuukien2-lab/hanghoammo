@@ -150,16 +150,11 @@ const db = {
 
     // Accounts (tài khoản bán)
     async getAvailableAccount(productId) {
-        const { data, error } = await supabase
-            .from('accounts')
-            .select('*')
-            .eq('product_id', productId)
-            .eq('status', 'available')
-            .limit(1)
-            .single();
-        
+        // Atomic update: chọn và đánh dấu sold trong 1 query để tránh race condition
+        // Dùng RPC function hoặc update với returning để đảm bảo chỉ 1 request lấy được account
+        const { data, error } = await supabase.rpc('claim_account', { p_product_id: productId });
         if (error && error.code !== 'PGRST116') throw error;
-        return data;
+        return data || null;
     },
 
     async markAccountAsSold(accountId, userId, orderId) {

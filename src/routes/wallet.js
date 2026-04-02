@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/database');
 const { authenticateToken } = require('../middleware/auth');
+const { validateDeposit } = require('../middleware/validate');
 
 // Lấy thông tin ví
 router.get('/', authenticateToken, async (req, res) => {
@@ -38,20 +39,16 @@ router.get('/transactions', authenticateToken, async (req, res) => {
 });
 
 // Tạo yêu cầu nạp tiền
-router.post('/deposit', authenticateToken, async (req, res) => {
+router.post('/deposit', authenticateToken, validateDeposit, async (req, res) => {
     try {
         const { amount, payment_method, transaction_code, note } = req.body;
 
-        if (!amount || amount <= 0) {
-            return res.status(400).json({
-                success: false,
-                message: 'Số tiền nạp không hợp lệ'
-            });
-        }
+        // amount đã được validate bởi validateDeposit middleware
+        const numAmount = parseFloat(amount);
 
         const depositRequest = await db.createDepositRequest({
             user_id: req.user.id,
-            amount,
+            amount: numAmount,
             payment_method,
             transaction_code,
             note,

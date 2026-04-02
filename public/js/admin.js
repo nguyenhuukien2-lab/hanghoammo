@@ -1,6 +1,4 @@
-// Initialize
-const SUPABASE_URL = 'https://wjqahsmislryiuqfmyux.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqcWFoc21pc2xyeWl1cWZteXV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5Nzk2MzgsImV4cCI6MjA4ODU1NTYzOH0.lmWlhC_iyfkS9brC23G_dulQhaC56YCTQtQfg93YGDk';
+// Initialize - credentials removed, all API calls go through backend
 
 document.addEventListener('DOMContentLoaded', async function() {
     // Check if already logged in
@@ -42,8 +40,10 @@ function setupAdminLogin() {
             const response = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': getCsrfToken()
                 },
+                credentials: 'include',
                 body: JSON.stringify({ email, password })
             });
             
@@ -97,7 +97,8 @@ async function checkAdminAuth() {
             headers: {
                 'Authorization': `Bearer ${authToken}`,
                 'Content-Type': 'application/json'
-            }
+            },
+            credentials: 'include'
         });
         
         if (!response.ok) {
@@ -123,16 +124,28 @@ async function checkAdminAuth() {
 }
 
 // API Request Helper
+function getCsrfToken() {
+    return document.cookie.split('; ')
+        .find(row => row.startsWith('csrfToken='))
+        ?.split('=')[1] || '';
+}
+
 async function apiRequest(endpoint, options = {}) {
     const authToken = localStorage.getItem('authToken');
-    
+    const method = (options.method || 'GET').toUpperCase();
+
     const defaultOptions = {
         headers: {
             'Authorization': `Bearer ${authToken}`,
             'Content-Type': 'application/json'
-        }
+        },
+        credentials: 'include'
     };
-    
+
+    if (!['GET', 'HEAD', 'OPTIONS'].includes(method)) {
+        defaultOptions.headers['X-CSRF-Token'] = getCsrfToken();
+    }
+
     const response = await fetch(`/api${endpoint}`, {
         ...defaultOptions,
         ...options,
@@ -141,9 +154,9 @@ async function apiRequest(endpoint, options = {}) {
             ...options.headers
         }
     });
-    
+
     const result = await response.json();
-    
+
     if (!result.success) {
         throw new Error(result.message || 'Request failed');
     }
@@ -512,8 +525,10 @@ async function uploadImageToSupabase(file) {
         const response = await fetch('/api/upload-image', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+                'X-CSRF-Token': getCsrfToken()
             },
+            credentials: 'include',
             body: formData
         });
         
@@ -650,59 +665,139 @@ function updateOrderStatus(orderId, newStatus) {
 // Customers Management
 async function loadCustomers() {
     try {
-        // If customers already loaded from dashboard, just render
         if (customers.length === 0) {
             const data = await apiRequest('/admin/users');
             customers = data.data || [];
         }
-        
+
         const tbody = document.getElementById('customersTable');
         if (customers.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center">Chưa có khách hàng</td></tr>';
-            if (document.getElementById('totalCustomers')) {
-                document.getElementById('totalCustomers').textContent = '0';
-            }
+            tbody.innerHTML = '<tr><td colspan="9" class="text-center">Chưa có khách hàng</td></tr>';
+            if (document.getElementById('totalCustomers')) document.getElementById('totalCustomers').textContent = '0';
             return;
         }
-        
-        // Calculate stats for each customer
+
         const customersWithStats = customers.map(user => {
             const customerOrders = orders.filter(o => o.user_id === user.id);
             const totalSpent = customerOrders
                 .filter(o => o.status === 'completed')
                 .reduce((sum, o) => sum + (o.total_amount || 0), 0);
-            
-            return {
-                ...user,
-                orderCount: customerOrders.length,
-                totalSpent: totalSpent
-            };
+            return { ...user, orderCount: customerOrders.length, totalSpent };
         });
-        
-        // Sort by total spent (descending)
+
         customersWithStats.sort((a, b) => b.totalSpent - a.totalSpent);
-        
+
         tbody.innerHTML = customersWithStats.map(customer => `
-            <tr>
+            <tr id="customer-row-${customer.id}">
                 <td><strong>${customer.email}</strong></td>
                 <td>${customer.name || 'N/A'}</td>
+                <td>${customer.phone || '—'}</td>
                 <td>${customer.orderCount}</td>
                 <td><strong>${formatPrice(customer.totalSpent)}</strong></td>
+                <td>
+                    <div style="display:flex;gap:6px;align-items:center;min-width:200px;">
+                        <div style="position:relative;flex:1;">
+                            <input type="password" id="newpw-${customer.id}"
+                                placeholder="Mật khẩu mới..."
+                                style="width:100%;padding:6px 32px 6px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px;">
+                            <button type="button" onclick="toggleAdminPw('${customer.id}')"
+                                style="position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#666;padding:0;">
+                                <i class="fas fa-eye" id="eye-${customer.id}"></i>
+                            </button>
+                        </div>
+                        <button class="btn-warning btn-sm" onclick="adminResetPassword('${customer.id}', '${customer.email}')" title="Đặt lại mật khẩu">
+                            <i class="fas fa-key"></i>
+                        </button>
+                    </div>
+                </td>
+                <td>
+                    <span class="status-badge ${customer.status === 'banned' ? 'status-cancelled' : 'status-completed'}" id="status-${customer.id}">
+                        ${customer.status === 'banned' ? '🔒 Bị khóa' : '✅ Hoạt động'}
+                    </span>
+                </td>
                 <td>${formatDate(customer.created_at)}</td>
                 <td>
-                    <button class="btn-primary btn-sm" onclick="viewCustomerDetails(${customer.id})" title="Xem chi tiết">
+                    <button class="btn-primary btn-sm" onclick="viewCustomerDetails('${customer.id}')" title="Xem chi tiết">
                         <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn-${customer.status === 'banned' ? 'success' : 'danger'} btn-sm"
+                        onclick="adminToggleBan('${customer.id}', '${customer.email}')"
+                        title="${customer.status === 'banned' ? 'Mở khóa' : 'Khóa tài khoản'}"
+                        id="ban-btn-${customer.id}">
+                        <i class="fas fa-${customer.status === 'banned' ? 'unlock' : 'ban'}"></i>
                     </button>
                 </td>
             </tr>
         `).join('');
-        
-        if (document.getElementById('totalCustomers')) {
-            document.getElementById('totalCustomers').textContent = customers.length;
-        }
+
+        if (document.getElementById('totalCustomers')) document.getElementById('totalCustomers').textContent = customers.length;
     } catch (error) {
         console.error('Load customers error:', error);
         showNotification('Không thể tải danh sách khách hàng: ' + error.message, 'error');
+    }
+}
+
+function toggleAdminPw(userId) {
+    const input = document.getElementById(`newpw-${userId}`);
+    const icon = document.getElementById(`eye-${userId}`);
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fas fa-eye-slash';
+    } else {
+        input.type = 'password';
+        icon.className = 'fas fa-eye';
+    }
+}
+
+async function adminResetPassword(userId, email) {
+    const input = document.getElementById(`newpw-${userId}`);
+    const newPassword = input.value.trim();
+
+    if (!newPassword) {
+        showNotification('Vui lòng nhập mật khẩu mới!', 'error');
+        return;
+    }
+    if (newPassword.length < 8) {
+        showNotification('Mật khẩu phải ít nhất 8 ký tự!', 'error');
+        return;
+    }
+    if (!confirm(`Đặt lại mật khẩu cho ${email}?\n\nMật khẩu mới: ${newPassword}`)) return;
+
+    try {
+        await apiRequest(`/admin/users/${userId}/reset-password`, {
+            method: 'POST',
+            body: JSON.stringify({ newPassword })
+        });
+        showNotification(`✅ Đã reset mật khẩu cho ${email}`, 'success');
+        input.value = '';
+    } catch (error) {
+        showNotification('Lỗi: ' + error.message, 'error');
+    }
+}
+
+async function adminToggleBan(userId, email) {
+    const action = document.getElementById(`ban-btn-${userId}`)?.querySelector('i')?.className?.includes('ban') ? 'khóa' : 'mở khóa';
+    if (!confirm(`Bạn có chắc muốn ${action} tài khoản ${email}?`)) return;
+
+    try {
+        const result = await apiRequest(`/admin/users/${userId}/toggle-ban`, { method: 'POST' });
+        const isBanned = result.status === 'banned';
+
+        // Cập nhật UI không cần reload
+        const statusEl = document.getElementById(`status-${userId}`);
+        const banBtn = document.getElementById(`ban-btn-${userId}`);
+        if (statusEl) {
+            statusEl.className = `status-badge ${isBanned ? 'status-cancelled' : 'status-completed'}`;
+            statusEl.textContent = isBanned ? '🔒 Bị khóa' : '✅ Hoạt động';
+        }
+        if (banBtn) {
+            banBtn.className = `btn-${isBanned ? 'success' : 'danger'} btn-sm`;
+            banBtn.title = isBanned ? 'Mở khóa' : 'Khóa tài khoản';
+            banBtn.innerHTML = `<i class="fas fa-${isBanned ? 'unlock' : 'ban'}"></i>`;
+        }
+        showNotification(result.message, 'success');
+    } catch (error) {
+        showNotification('Lỗi: ' + error.message, 'error');
     }
 }
 
@@ -1208,6 +1303,11 @@ function toggleDarkMode() {
 }
 
 function logout() {
+    fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'X-CSRF-Token': getCsrfToken() }
+    }).catch(() => {});
     localStorage.removeItem('authToken');
     localStorage.removeItem('currentUser');
     window.location.href = 'index.html';

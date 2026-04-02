@@ -1,5 +1,24 @@
 // Profile Page JavaScript
 
+function getCsrfToken() {
+    return document.cookie.split('; ')
+        .find(row => row.startsWith('csrfToken='))
+        ?.split('=')[1] || '';
+}
+
+// Helper fetch với auth + CSRF + credentials
+async function authFetch(url, options = {}) {
+    const authToken = localStorage.getItem('authToken');
+    const method = (options.method || 'GET').toUpperCase();
+    const headers = {
+        'Content-Type': 'application/json',
+        ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {}),
+        ...(!['GET', 'HEAD', 'OPTIONS'].includes(method) ? { 'X-CSRF-Token': getCsrfToken() } : {}),
+        ...options.headers
+    };
+    return fetch(url, { ...options, headers, credentials: 'include' });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     checkLoginStatus(); // Cập nhật trạng thái đăng nhập
     loadUserProfile();
@@ -46,12 +65,7 @@ async function loadUserProfile() {
     try {
         const authToken = localStorage.getItem('authToken');
         if (authToken) {
-            const response = await fetch('/api/wallet', {
-                headers: {
-                    'Authorization': `Bearer ${authToken}`,
-                    'Content-Type': 'application/json'
-                }
-            });
+            const response = await authFetch('/api/wallet');
             
             if (response.ok) {
                 const data = await response.json();
@@ -79,13 +93,8 @@ async function loadUserOrders() {
     
     try {
         const authToken = localStorage.getItem('authToken');
-        const response = await fetch('/api/orders/my-orders', {
-            headers: {
-                'Authorization': `Bearer ${authToken}`,
-                'Content-Type': 'application/json'
-            }
-        });
-        
+        const response = await authFetch('/api/orders/my-orders');
+
         if (!response.ok) {
             throw new Error('Failed to load orders');
         }
@@ -306,13 +315,8 @@ async function saveProfile() {
     const telegramChatId = document.getElementById('telegramChatId').value.trim();
     if (telegramChatId) {
         try {
-            const authToken = localStorage.getItem('authToken');
-            const response = await fetch('/api/auth/update-telegram', {
+            const response = await authFetch('/api/auth/update-telegram', {
                 method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${authToken}`,
-                    'Content-Type': 'application/json'
-                },
                 body: JSON.stringify({ telegram_chat_id: telegramChatId })
             });
             
@@ -351,6 +355,11 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function logout() {
+    fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'X-CSRF-Token': getCsrfToken() }
+    }).catch(() => {});
     localStorage.removeItem('authToken');
     localStorage.removeItem('currentUser');
     window.location.href = 'index.html';
@@ -383,13 +392,8 @@ async function loadMessages() {
     try {
         const authToken = localStorage.getItem('authToken');
         if (!authToken) return;
-        
-        const response = await fetch('/api/chat/my-messages', {
-            headers: {
-                'Authorization': `Bearer ${authToken}`,
-                'Content-Type': 'application/json'
-            }
-        });
+
+        const response = await authFetch('/api/chat/my-messages');
         
         const data = await response.json();
         if (!data.success) return;
@@ -445,12 +449,8 @@ async function sendMessage(event) {
     
     try {
         const authToken = localStorage.getItem('authToken');
-        const response = await fetch('/api/chat/send', {
+        const response = await authFetch('/api/chat/send', {
             method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${authToken}`,
-                'Content-Type': 'application/json'
-            },
             body: JSON.stringify({ message })
         });
         
@@ -472,13 +472,7 @@ async function sendMessage(event) {
 async function markMessagesAsRead() {
     try {
         const authToken = localStorage.getItem('authToken');
-        await fetch('/api/chat/mark-read', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${authToken}`,
-                'Content-Type': 'application/json'
-            }
-        });
+        await authFetch('/api/chat/mark-read', { method: 'POST' });
     } catch (error) {
         console.error('Mark read error:', error);
     }
@@ -601,12 +595,8 @@ async function requestOTP() {
     
     try {
         const authToken = localStorage.getItem('authToken');
-        const response = await fetch('/api/auth/request-password-otp', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${authToken}`,
-                'Content-Type': 'application/json'
-            }
+        const response = await authFetch('/api/auth/request-password-otp', {
+            method: 'POST'
         });
         
         const data = await response.json();
@@ -675,17 +665,9 @@ async function handleChangePassword(event) {
     
     try {
         const authToken = localStorage.getItem('authToken');
-        const response = await fetch('/api/auth/change-password-auth', {
+        const response = await authFetch('/api/auth/change-password-auth', {
             method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${authToken}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                currentPassword,
-                newPassword,
-                otp
-            })
+            body: JSON.stringify({ currentPassword, newPassword, otp })
         });
         
         const data = await response.json();

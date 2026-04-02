@@ -3,13 +3,27 @@ const router = express.Router();
 const db = require('../config/database');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 const { supabase } = require('../config/supabase');
+const { validateProduct, validateUUIDParam, validatePagination } = require('../middleware/validate');
 
-// Lấy tất cả sản phẩm (public) - có tính giá theo tier nếu đăng nhập
-router.get('/', async (req, res) => {
+// Lấy tất cả sản phẩm (public) - có pagination và tính giá theo tier nếu đăng nhập
+router.get('/', validatePagination, async (req, res) => {
     try {
-        const products = await db.getAllProducts();
-        
-        // Nếu có token, tính giá theo tier
+        const page = Math.max(1, parseInt(req.query.page) || 1);
+        const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 20));
+        const offset = (page - 1) * limit;
+        const category = req.query.category || null;
+        const search = req.query.search || null;
+
+        // Build query
+        let query = supabase.from('products').select('*', { count: 'exact' });
+        if (category) query = query.eq('category', category);
+        if (search) query = query.ilike('name', `%${search}%`);
+        query = query.order('created_at', { ascending: false }).range(offset, offset + limit - 1);
+
+        const { data: products, error, count } = await query;
+        if (error) throw error;
+
+        // Tính giá theo tier nếu có token
         const authHeader = req.headers.authorization;
         if (authHeader && authHeader.startsWith('Bearer ')) {
             try {
@@ -17,7 +31,6 @@ router.get('/', async (req, res) => {
                 const jwt = require('jsonwebtoken');
                 const decoded = jwt.verify(token, process.env.JWT_SECRET);
                 
-                // Lấy tier của user
                 const { data: userData } = await supabase
                     .from('users')
                     .select('user_tier')
@@ -25,7 +38,6 @@ router.get('/', async (req, res) => {
                     .single();
                 
                 if (userData) {
-                    // Lấy discount percent của tier
                     const { data: tierData } = await supabase
                         .from('tier_config')
                         .select('discount_percent')
@@ -33,7 +45,6 @@ router.get('/', async (req, res) => {
                         .single();
                     
                     if (tierData && tierData.discount_percent > 0) {
-                        // Áp dụng discount cho tất cả sản phẩm
                         products.forEach(product => {
                             const originalPrice = product.price;
                             const discountAmount = originalPrice * tierData.discount_percent / 100;
@@ -45,14 +56,21 @@ router.get('/', async (req, res) => {
                     }
                 }
             } catch (tokenError) {
-                // Token không hợp lệ, bỏ qua việc tính discount
-                console.log('Invalid token for pricing:', tokenError.message);
+                // Token không hợp lệ, bỏ qua discount
             }
         }
         
         res.json({
             success: true,
-            data: products
+            data: products,
+            pagination: {
+                page,
+                limit,
+                total: count,
+                totalPages: Math.ceil(count / limit),
+                hasNext: offset + limit < count,
+                hasPrev: page > 1
+            }
         });
     } catch (error) {
         console.error('Get products error:', error);
@@ -127,7 +145,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Tạo sản phẩm mới (admin only)
-router.post('/', authenticateToken, requireAdmin, async (req, res) => {
+router.post('/', authenticateToken, requireAdmin, validateProduct, async (req, res) => {
     try {
         const { name, category, price, image, badge, description, section } = req.body;
 

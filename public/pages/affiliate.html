@@ -6,7 +6,7 @@
     <title>Affiliate - HangHoaMMO</title>
     <link rel="icon" type="image/png" href="images/logo-mmo.png">
     <link rel="shortcut icon" type="image/png" href="images/logo-mmo.png">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .affiliate-container {
@@ -228,7 +228,7 @@
         </div>
     </div>
 
-    <script src="js/script.js"></script>
+    <script src="../js/script.js"></script>
     <script>
         async function checkAffiliateStatus() {
             const authToken = localStorage.getItem('authToken');
@@ -278,7 +278,10 @@
             try {
                 const response = await fetch('/api/affiliate/register', {
                     method: 'POST',
-                    headers: { 'Authorization': `Bearer ${authToken}` }
+                    headers: { 
+                        'Authorization': `Bearer ${authToken}`,
+                        'X-CSRF-Token': getCsrfToken()
+                    },
                 });
                 
                 const data = await response.json();

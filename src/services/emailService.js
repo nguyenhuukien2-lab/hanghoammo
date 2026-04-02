@@ -380,6 +380,102 @@ const passwordChangedTemplate = (userName, userEmail) => {
     };
 };
 
+// Template email reset password
+const passwordResetTemplate = (userName, resetLink) => {
+    return {
+        subject: '🔑 Đặt lại mật khẩu - HangHoaMMO',
+        html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f5f5f5;">
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+                    <h1 style="color: white; margin: 0;">🔑 Đặt lại mật khẩu</h1>
+                </div>
+                
+                <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px;">
+                    <h2 style="color: #333;">Xin chào ${userName}!</h2>
+                    <p style="color: #666; line-height: 1.6;">
+                        Bạn đã yêu cầu đặt lại mật khẩu. Click vào nút bên dưới để tạo mật khẩu mới:
+                    </p>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="${resetLink}" 
+                           style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                                  color: white; padding: 15px 40px; text-decoration: none; 
+                                  border-radius: 25px; display: inline-block; font-weight: bold;">
+                            🔑 Đặt lại mật khẩu
+                        </a>
+                    </div>
+                    
+                    <p style="color: #999; font-size: 13px; line-height: 1.6;">
+                        Hoặc copy link sau vào trình duyệt:<br>
+                        <code style="background: #f5f5f5; padding: 8px; display: block; margin-top: 10px; word-break: break-all; border-radius: 4px;">${resetLink}</code>
+                    </p>
+                    
+                    <div style="background: #fff3e0; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                        <p style="margin: 0; color: #e65100; font-size: 14px;">
+                            ⏰ Link có hiệu lực trong <strong>1 giờ</strong>
+                        </p>
+                    </div>
+                    
+                    <div style="background: #ffebee; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                        <p style="margin: 0; color: #c62828; font-size: 14px;">
+                            ⚠️ Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.
+                        </p>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; padding: 20px; color: #999; font-size: 12px;">
+                    <p>© 2025 HangHoaMMO. All rights reserved.</p>
+                </div>
+            </div>
+        `
+    };
+};
+
+// Template email xác thực tài khoản
+const emailVerificationTemplate = (userName, verificationLink) => {
+    return {
+        subject: '✉️ Xác thực email - HangHoaMMO',
+        html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f5f5f5;">
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+                    <h1 style="color: white; margin: 0;">✉️ Xác thực Email</h1>
+                </div>
+                
+                <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px;">
+                    <h2 style="color: #333;">Xin chào ${userName}!</h2>
+                    <p style="color: #666; line-height: 1.6;">
+                        Cảm ơn bạn đã đăng ký tài khoản tại HangHoaMMO. Vui lòng xác thực email để kích hoạt tài khoản.
+                    </p>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="${verificationLink}" 
+                           style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                                  color: white; padding: 15px 40px; text-decoration: none; 
+                                  border-radius: 25px; display: inline-block; font-weight: bold;">
+                            ✅ Xác thực Email
+                        </a>
+                    </div>
+                    
+                    <p style="color: #999; font-size: 13px; line-height: 1.6;">
+                        Hoặc copy link sau vào trình duyệt:<br>
+                        <code style="background: #f5f5f5; padding: 8px; display: block; margin-top: 10px; word-break: break-all; border-radius: 4px;">${verificationLink}</code>
+                    </p>
+                    
+                    <div style="background: #fff3e0; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                        <p style="margin: 0; color: #e65100; font-size: 14px;">
+                            ⏰ Link xác thực có hiệu lực trong <strong>24 giờ</strong>
+                        </p>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; padding: 20px; color: #999; font-size: 12px;">
+                    <p>© 2025 HangHoaMMO. All rights reserved.</p>
+                </div>
+            </div>
+        `
+    };
+};
+
 // Export functions
 module.exports = {
     sendRegisterEmail: (userName, userEmail) => {
@@ -404,6 +500,16 @@ module.exports = {
     
     sendPasswordOTPEmail: (userName, userEmail, otp) => {
         const template = passwordOTPTemplate(userName, userEmail, otp);
+        return sendEmail(userEmail, template);
+    },
+    
+    sendEmailVerification: (userName, userEmail, verificationLink) => {
+        const template = emailVerificationTemplate(userName, verificationLink);
+        return sendEmail(userEmail, template);
+    },
+    
+    sendPasswordResetEmail: (userName, userEmail, resetLink) => {
+        const template = passwordResetTemplate(userName, resetLink);
         return sendEmail(userEmail, template);
     }
 };

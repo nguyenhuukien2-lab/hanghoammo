@@ -4,6 +4,66 @@ const router = express.Router();
 const paymentService = require('../services/paymentService');
 const { authenticateToken } = require('../middleware/auth');
 const { supabase } = require('../config/supabase');
+const db = require('../config/database');
+const emailService = require('../services/emailService');
+const telegramService = require('../services/telegramService');
+
+// Sau khi payment gateway xác nhận thành công → giao tài khoản cho user
+async function deliverAccountsForOrder(orderId) {
+    try {
+        // Lấy order + items chưa có account
+        const { data: order } = await supabase
+            .from('orders')
+            .select('*, users(id, name, email, telegram_chat_id)')
+            .eq('id', orderId)
+            .single();
+
+        if (!order) return;
+
+        const { data: items } = await supabase
+            .from('order_items')
+            .select('*')
+            .eq('order_id', orderId)
+            .is('account_id', null);
+
+        if (!items || items.length === 0) return;
+
+        const deliveredAccounts = [];
+
+        for (const item of items) {
+            for (let i = 0; i < (item.quantity || 1); i++) {
+                const account = await db.getAvailableAccount(item.product_id);
+                if (account) {
+                    await supabase.from('accounts')
+                        .update({ sold_to: order.user_id })
+                        .eq('id', account.id);
+
+                    await supabase.from('order_items')
+                        .update({ account_id: account.id })
+                        .eq('id', item.id);
+
+                    deliveredAccounts.push({
+                        product_name: item.product_name,
+                        username: account.username,
+                        password: account.password
+                    });
+                }
+            }
+        }
+
+        if (deliveredAccounts.length > 0 && order.users) {
+            const u = order.users;
+            emailService.sendOrderEmail(u.email, u.name, order.order_code, order.total, [], deliveredAccounts)
+                .catch(e => console.error('Delivery email error:', e));
+            telegramService.sendOrderNotification(u.telegram_chat_id || null, u.name, order.order_code, order.total, [], deliveredAccounts, u.email)
+                .catch(e => console.error('Delivery telegram error:', e));
+        }
+
+        console.log(`✅ Delivered ${deliveredAccounts.length} accounts for order ${orderId}`);
+    } catch (err) {
+        console.error('deliverAccountsForOrder error:', err);
+    }
+}
 
 // ─── Thông tin chuyển khoản ngân hàng ────────────────────────────────────────
 router.get('/bank-info', (req, res) => {
@@ -139,6 +199,9 @@ router.get('/vnpay/callback', async (req, res) => {
             if (error) {
                 console.error('Update order error:', error);
             }
+
+            // Giao tài khoản sau khi thanh toán thành công
+            deliverAccountsForOrder(orderId).catch(e => console.error('VNPay delivery error:', e));
             
             res.redirect(`/orders.html?payment=success&orderId=${orderId}`);
         } else {
@@ -220,6 +283,8 @@ router.get('/momo/callback', async (req, res) => {
                     paid_at: new Date().toISOString()
                 })
                 .eq('id', orderId);
+
+            deliverAccountsForOrder(orderId).catch(e => console.error('Momo delivery error:', e));
             
             res.redirect(`/orders.html?payment=success&orderId=${orderId}`);
         } else {
@@ -256,6 +321,8 @@ router.post('/momo/notify', async (req, res) => {
                     paid_at: new Date().toISOString()
                 })
                 .eq('id', orderId);
+
+            deliverAccountsForOrder(orderId).catch(e => console.error('Momo IPN delivery error:', e));
         }
         
         res.json({ resultCode: 0, message: 'Success' });
@@ -314,6 +381,7 @@ router.get('/zalopay/callback', async (req, res) => {
                     paid_at: new Date().toISOString()
                 }).eq('id', order.id);
 
+                deliverAccountsForOrder(order.id).catch(e => console.error('ZaloPay delivery error:', e));
                 return res.redirect(`/orders.html?payment=success&orderId=${order.id}`);
             }
         }
@@ -347,6 +415,8 @@ router.post('/zalopay/notify', async (req, res) => {
                 payment_status: 'completed',
                 paid_at: new Date().toISOString()
             }).eq('id', order.id);
+
+            deliverAccountsForOrder(order.id).catch(e => console.error('ZaloPay IPN delivery error:', e));
         }
 
         res.json({ return_code: 1, return_message: 'success' });

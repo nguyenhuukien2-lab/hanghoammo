@@ -365,6 +365,28 @@ router.post('/posts/:id/comments', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
         const { content, parent_id } = req.body;
+
+        if (!content || !content.trim()) {
+            return res.status(400).json({ success: false, message: 'Nội dung bình luận không được trống' });
+        }
+
+        // Nếu là reply, kiểm tra parent phải là top-level (không cho reply lồng 3 cấp)
+        if (parent_id) {
+            const { data: parent } = await supabase
+                .from('blog_comments')
+                .select('parent_id, post_id')
+                .eq('id', parent_id)
+                .single();
+
+            if (!parent) {
+                return res.status(404).json({ success: false, message: 'Bình luận gốc không tồn tại' });
+            }
+            if (parent.post_id !== id) {
+                return res.status(400).json({ success: false, message: 'Bình luận không thuộc bài viết này' });
+            }
+            // Nếu parent đã là reply → gán lại về parent của nó (flatten về 1 cấp)
+            // Giữ nguyên parent_id của parent để reply luôn thuộc top-level comment
+        }
         
         const { data: comment, error } = await supabase
             .from('blog_comments')
@@ -372,18 +394,105 @@ router.post('/posts/:id/comments', authenticateToken, async (req, res) => {
                 post_id: id,
                 user_id: req.user.id,
                 parent_id: parent_id || null,
-                content,
-                status: 'approved' // Auto approve for now
+                content: content.trim(),
+                status: 'approved'
             })
-            .select()
+            .select(`*, users:user_id (name, email)`)
             .single();
         
         if (error) throw error;
+
+        // Cập nhật comment_count trên bài viết
+        await supabase.rpc('increment_comment_count', { post_id: id }).catch(() => {
+            // Nếu RPC chưa có thì update thủ công
+            supabase.from('blog_posts')
+                .select('comment_count')
+                .eq('id', id)
+                .single()
+                .then(({ data }) => {
+                    if (data) {
+                        supabase.from('blog_posts')
+                            .update({ comment_count: (data.comment_count || 0) + 1 })
+                            .eq('id', id);
+                    }
+                });
+        });
         
         res.json({ success: true, data: comment, message: 'Bình luận thành công!' });
     } catch (error) {
         console.error('Create comment error:', error);
         res.status(500).json({ success: false, message: 'Lỗi tạo bình luận' });
+    }
+});
+
+// Update comment (chỉ chủ comment)
+router.put('/posts/:postId/comments/:commentId', authenticateToken, async (req, res) => {
+    try {
+        const { commentId } = req.params;
+        const { content } = req.body;
+
+        if (!content || !content.trim()) {
+            return res.status(400).json({ success: false, message: 'Nội dung không được trống' });
+        }
+
+        const { data: existing } = await supabase
+            .from('blog_comments')
+            .select('user_id')
+            .eq('id', commentId)
+            .single();
+
+        if (!existing) return res.status(404).json({ success: false, message: 'Bình luận không tồn tại' });
+        if (existing.user_id !== req.user.id && req.user.role !== 'admin') {
+            return res.status(403).json({ success: false, message: 'Không có quyền chỉnh sửa' });
+        }
+
+        const { data, error } = await supabase
+            .from('blog_comments')
+            .update({ content: content.trim(), updated_at: new Date().toISOString() })
+            .eq('id', commentId)
+            .select(`*, users:user_id (name, email)`)
+            .single();
+
+        if (error) throw error;
+        res.json({ success: true, data, message: 'Cập nhật bình luận thành công!' });
+    } catch (error) {
+        console.error('Update comment error:', error);
+        res.status(500).json({ success: false, message: 'Lỗi cập nhật bình luận' });
+    }
+});
+
+// Delete comment (chủ comment hoặc admin)
+router.delete('/posts/:postId/comments/:commentId', authenticateToken, async (req, res) => {
+    try {
+        const { postId, commentId } = req.params;
+
+        const { data: existing } = await supabase
+            .from('blog_comments')
+            .select('user_id')
+            .eq('id', commentId)
+            .single();
+
+        if (!existing) return res.status(404).json({ success: false, message: 'Bình luận không tồn tại' });
+        if (existing.user_id !== req.user.id && req.user.role !== 'admin') {
+            return res.status(403).json({ success: false, message: 'Không có quyền xóa' });
+        }
+
+        // Xóa replies trước, rồi xóa comment
+        await supabase.from('blog_comments').delete().eq('parent_id', commentId);
+        await supabase.from('blog_comments').delete().eq('id', commentId);
+
+        // Giảm comment_count
+        const { data: post } = await supabase.from('blog_posts').select('comment_count').eq('id', postId).single();
+        if (post) {
+            await supabase.from('blog_posts')
+                .update({ comment_count: Math.max(0, (post.comment_count || 1) - 1) })
+                .eq('id', postId);
+        }
+
+        res.json({ success: true, message: 'Xóa bình luận thành công!' });
+    } catch (error) {
+        console.error('Delete comment error:', error);
+        res.status(500).json({ success: false, message: 'Lỗi xóa bình luận' });
     }
 });
 

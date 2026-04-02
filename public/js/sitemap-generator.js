@@ -11,8 +11,8 @@ async function generateSitemap() {
             { url: '/', priority: 1.0, changefreq: 'daily' },
             { url: '/products.html', priority: 0.9, changefreq: 'daily' },
             { url: '/blog.html', priority: 0.8, changefreq: 'daily' },
-            { url: '/login-new.html', priority: 0.5, changefreq: 'monthly' },
-            { url: '/register-new.html', priority: 0.5, changefreq: 'monthly' }
+            { url: '/login.html', priority: 0.5, changefreq: 'monthly' },
+            { url: '/register.html', priority: 0.5, changefreq: 'monthly' }
         ];
         
         staticPages.forEach(page => {

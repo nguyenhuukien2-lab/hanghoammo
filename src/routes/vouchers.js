@@ -1,8 +1,7 @@
-// Vouchers Routes
 const express = require('express');
 const router = express.Router();
 const { supabase } = require('../config/supabase');
-const { authenticateToken } = require('../middleware/auth');
+const { authenticateToken, requireAdmin } = require('../middleware/auth');
 
 // Get all active vouchers
 router.get('/', async (req, res) => {
@@ -25,13 +24,8 @@ router.get('/', async (req, res) => {
 });
 
 // Get all vouchers (Admin only)
-router.get('/admin/all', authenticateToken, async (req, res) => {
+router.get('/admin/all', authenticateToken, requireAdmin, async (req, res) => {
     try {
-        // Check if user is admin
-        if (req.user.role !== 'admin') {
-            return res.status(403).json({ success: false, message: 'Không có quyền' });
-        }
-        
         const { data: vouchers, error } = await supabase
             .from('vouchers')
             .select('*')
@@ -185,13 +179,8 @@ router.post('/apply', authenticateToken, async (req, res) => {
 });
 
 // Create voucher (Admin only)
-router.post('/admin/create', authenticateToken, async (req, res) => {
+router.post('/admin/create', authenticateToken, requireAdmin, async (req, res) => {
     try {
-        // Check if user is admin
-        if (req.user.role !== 'admin') {
-            return res.status(403).json({ success: false, message: 'Không có quyền' });
-        }
-        
         const voucherData = {
             ...req.body,
             code: req.body.code.toUpperCase(),
@@ -214,13 +203,8 @@ router.post('/admin/create', authenticateToken, async (req, res) => {
 });
 
 // Update voucher (Admin only)
-router.put('/admin/:id', authenticateToken, async (req, res) => {
+router.put('/admin/:id', authenticateToken, requireAdmin, async (req, res) => {
     try {
-        // Check if user is admin
-        if (req.user.role !== 'admin') {
-            return res.status(403).json({ success: false, message: 'Không có quyền' });
-        }
-        
         const { id } = req.params;
         const updateData = {
             ...req.body,
@@ -248,13 +232,8 @@ router.put('/admin/:id', authenticateToken, async (req, res) => {
 });
 
 // Delete voucher (Admin only)
-router.delete('/admin/:id', authenticateToken, async (req, res) => {
+router.delete('/admin/:id', authenticateToken, requireAdmin, async (req, res) => {
     try {
-        // Check if user is admin
-        if (req.user.role !== 'admin') {
-            return res.status(403).json({ success: false, message: 'Không có quyền' });
-        }
-        
         const { id } = req.params;
         
         const { error } = await supabase

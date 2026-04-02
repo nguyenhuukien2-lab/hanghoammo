@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function checkLoginStatus() {
     const token = localStorage.getItem('token');
     if (!token) {
-        window.location.href = 'login-new.html';
+        window.location.href = 'login.html';
         return;
     }
 }

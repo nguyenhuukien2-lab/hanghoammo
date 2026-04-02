@@ -1,0 +1,169 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - HangHoaMMO Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f1f5f9; color: #1e293b; }
+        .header { background: white; padding: 16px 24px; display: flex; align-items: center;
+            justify-content: space-between; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 10; }
+        .header h1 { font-size: 20px; font-weight: 700; }
+        .header a { color: #6366f1; text-decoration: none; font-size: 14px; }
+        .period-tabs { display: flex; gap: 8px; padding: 20px 24px 0; }
+        .period-tab { padding: 8px 16px; border-radius: 8px; border: 1px solid #e2e8f0;
+            background: white; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s; }
+        .period-tab.active { background: #6366f1; color: white; border-color: #6366f1; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px; padding: 20px 24px; }
+        .stat-card { background: white; border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0; }
+        .stat-label { font-size: 13px; color: #64748b; margin-bottom: 8px; }
+        .stat-value { font-size: 28px; font-weight: 700; color: #1e293b; }
+        .stat-sub { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+        .charts-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; padding: 0 24px 20px; }
+        .chart-card { background: white; border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0; }
+        .chart-title { font-size: 15px; font-weight: 600; margin-bottom: 16px; }
+        .top-products { padding: 0 24px 24px; }
+        .top-products-card { background: white; border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0; }
+        .product-row { display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
+        .product-row:last-child { border-bottom: none; }
+        .product-rank { width: 28px; height: 28px; border-radius: 50%; background: #f1f5f9;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; color: #64748b; margin-right: 12px; flex-shrink: 0; }
+        .product-rank.top1 { background: #fef3c7; color: #d97706; }
+        .product-rank.top2 { background: #f1f5f9; color: #475569; }
+        .product-rank.top3 { background: #fef2f2; color: #dc2626; }
+        .product-name { flex: 1; font-size: 14px; font-weight: 500; }
+        .product-revenue { font-size: 14px; font-weight: 600; color: #6366f1; }
+        .product-count { font-size: 12px; color: #94a3b8; margin-left: 12px; }
+        .loading { text-align: center; padding: 40px; color: #94a3b8; }
+        .error-msg { background: #fef2f2; color: #dc2626; padding: 12px 16px;
+            border-radius: 8px; margin: 16px 24px; font-size: 14px; }
+        @media (max-width: 768px) {
+            .charts-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <h1>📊 Analytics</h1>
+    <a href="admin.html"><i class="fas fa-arrow-left"></i> Về Admin</a>
+</div>
+<div id="authError" class="error-msg" style="display:none;">
+    Bạn cần đăng nhập với quyền admin. <a href="login.html">Đăng nhập</a>
+</div>
+<div id="mainContent" style="display:none;">
+    <div class="period-tabs">
+        <button class="period-tab active" onclick="setPeriod('7d',this)">7 ngày</button>
+        <button class="period-tab" onclick="setPeriod('30d',this)">30 ngày</button>
+        <button class="period-tab" onclick="setPeriod('90d',this)">90 ngày</button>
+    </div>
+    <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Doanh thu</div><div class="stat-value" id="statRevenue">—</div><div class="stat-sub">Đơn hoàn thành</div></div>
+        <div class="stat-card"><div class="stat-label">Đơn hàng</div><div class="stat-value" id="statOrders">—</div><div class="stat-sub">Đã thanh toán</div></div>
+        <div class="stat-card"><div class="stat-label">Người dùng mới</div><div class="stat-value" id="statUsers">—</div><div class="stat-sub">Đăng ký mới</div></div>
+        <div class="stat-card"><div class="stat-label">Lượt xem trang</div><div class="stat-value" id="statViews">—</div><div class="stat-sub">Page views</div></div>
+        <div class="stat-card"><div class="stat-label">Giá trị TB/đơn</div><div class="stat-value" id="statAvgOrder">—</div><div class="stat-sub">Average order value</div></div>
+        <div class="stat-card"><div class="stat-label">Tỷ lệ chuyển đổi</div><div class="stat-value" id="statConversion">—</div><div class="stat-sub">Views → Orders</div></div>
+    </div>
+    <div class="charts-grid">
+        <div class="chart-card"><div class="chart-title">Doanh thu theo ngày</div><canvas id="revenueChart" height="120"></canvas></div>
+        <div class="chart-card"><div class="chart-title">Thiết bị</div><canvas id="deviceChart" height="120"></canvas></div>
+    </div>
+    <div class="top-products">
+        <div class="top-products-card">
+            <div class="chart-title">Top sản phẩm bán chạy</div>
+            <div id="topProductsList"><div class="loading"><i class="fas fa-spinner fa-spin"></i> Đang tải...</div></div>
+        </div>
+    </div>
+</div>
+<script>
+let currentPeriod = '7d', revenueChart, deviceChart;
+const token = () => localStorage.getItem('authToken');
+const fmt = n => n >= 1e6 ? (n/1e6).toFixed(1)+'M' : n >= 1e3 ? (n/1e3).toFixed(0)+'K' : String(n);
+const fmtVND = n => new Intl.NumberFormat('vi-VN').format(Math.round(n)) + 'đ';
+
+async function checkAuth() {
+    const t = token();
+    if (!t) { document.getElementById('authError').style.display='block'; return false; }
+    try {
+        const r = await fetch('/api/auth/me', { headers: { Authorization: `Bearer ${t}` } });
+        const d = await r.json();
+        if (!d.success || d.data?.role !== 'admin') { document.getElementById('authError').style.display='block'; return false; }
+        return true;
+    } catch { document.getElementById('authError').style.display='block'; return false; }
+}
+
+function setPeriod(p, btn) {
+    currentPeriod = p;
+    document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    loadAll();
+}
+
+async function loadDashboard() {
+    const r = await fetch(`/api/analytics/dashboard?period=${currentPeriod}`, { headers: { Authorization: `Bearer ${token()}` } });
+    const d = await r.json();
+    if (!d.success) return;
+    const t = d.data.totals;
+    document.getElementById('statRevenue').textContent = fmtVND(t.totalRevenue);
+    document.getElementById('statOrders').textContent = fmt(t.totalOrders);
+    document.getElementById('statUsers').textContent = fmt(t.newUsers);
+    document.getElementById('statViews').textContent = fmt(t.totalPageViews);
+    document.getElementById('statAvgOrder').textContent = fmtVND(t.avgOrderValue);
+    document.getElementById('statConversion').textContent = t.conversionRate + '%';
+
+    const daily = d.data.dailyStats || [];
+    if (revenueChart) revenueChart.destroy();
+    revenueChart = new Chart(document.getElementById('revenueChart'), {
+        type: 'line',
+        data: { labels: daily.map(x => x.date.slice(5)),
+            datasets: [{ label: 'Doanh thu', data: daily.map(x => x.total_revenue),
+                borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,0.1)',
+                fill: true, tension: 0.4, pointRadius: 3 }] },
+        options: { responsive: true, plugins: { legend: { display: false } },
+            scales: { y: { ticks: { callback: v => fmt(v)+'đ' } } } }
+    });
+
+    const dev = d.data.deviceBreakdown || {};
+    if (deviceChart) deviceChart.destroy();
+    deviceChart = new Chart(document.getElementById('deviceChart'), {
+        type: 'doughnut',
+        data: { labels: Object.keys(dev), datasets: [{ data: Object.values(dev),
+            backgroundColor: ['#6366f1','#10b981','#f59e0b','#ef4444'] }] },
+        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+}
+
+async function loadTopProducts() {
+    const r = await fetch('/api/analytics/top-products?limit=10', { headers: { Authorization: `Bearer ${token()}` } });
+    const d = await r.json();
+    const list = document.getElementById('topProductsList');
+    if (!d.success || !d.data?.length) { list.innerHTML = '<div class="loading">Chưa có dữ liệu</div>'; return; }
+    const rc = i => i===0?'top1':i===1?'top2':i===2?'top3':'';
+    list.innerHTML = d.data.map((p,i) => `
+        <div class="product-row">
+            <div class="product-rank ${rc(i)}">${i+1}</div>
+            <div class="product-name">${p.name||'Sản phẩm #'+(p.product_id||'').slice(0,8)}</div>
+            <div class="product-revenue">${fmtVND(p.total_revenue)}</div>
+            <div class="product-count">${p.total_purchases} đơn</div>
+        </div>`).join('');
+}
+
+async function loadAll() { await Promise.all([loadDashboard(), loadTopProducts()]); }
+
+(async () => {
+    if (!await checkAuth()) return;
+    document.getElementById('mainContent').style.display = 'block';
+    loadAll();
+})();
+</script>
+</body>
+</html>
