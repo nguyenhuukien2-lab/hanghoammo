@@ -534,6 +534,11 @@
             btn.disabled = true;
 
             try {
+                // Đảm bảo có CSRF token trước khi login
+                if (!getCsrfToken()) {
+                    await fetch('/api/health');
+                }
+
                 const response = await fetch('/api/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': getCsrfToken() },

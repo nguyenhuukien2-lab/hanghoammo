@@ -264,7 +264,9 @@ app.use((req, res, next) => {
     const skipPaths = [
         '/api/payment/vnpay-return', '/api/payment/vnpay-ipn',
         '/api/payment/momo-callback', '/api/payment/zalopay-callback',
-        '/api/telegram', '/api/ai-chat/message', '/api/analytics/track'
+        '/api/telegram', '/api/ai-chat/message', '/api/analytics/track',
+        '/api/auth/login', '/api/auth/register', '/api/auth/forgot-password',
+        '/api/auth/reset-password', '/api/auth/verify-email'
     ];
     if (skipPaths.some(p => req.path.startsWith(p))) return next();
 
