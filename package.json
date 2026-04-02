@@ -34,7 +34,8 @@
     "pdfkit": "^0.15.0",
     "qrcode": "^1.5.4",
     "speakeasy": "^2.0.0",
-    "ua-parser-js": "^1.0.37"
+    "ua-parser-js": "^1.0.37",
+    "ws": "^8.18.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"
